@@ -1,0 +1,19 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Machines extends Model
+{
+    //
+    protected $table = 'machine';
+    protected $fillable = [
+        'name',
+        'description',
+        'type',
+        'capacity',
+
+    ];
+
+}

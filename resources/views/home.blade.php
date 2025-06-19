@@ -48,6 +48,11 @@
                         Brigades
                     </a>
                 </li>
+                <li>
+                    <a href="{{route('brigades.index')}}">
+                        Brigades Index 
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

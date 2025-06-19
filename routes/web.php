@@ -30,9 +30,20 @@ Route::resource('tasks', TaskController::class);
 Route::resource('roles', RoleController::class);
 Route::resource('materials', MaterialController::class);
 Route::resource('machines', MachineController::class);
+// tasks.assignMaster
+Route::post('assignMaster', [TaskController::class, 'assignMaster'])->name('tasks.assignMaster');
 
 
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+// master.index
+Route::get('/master', [App\Http\Controllers\TaskController::class, 'Masterindex'])->name('tasks.Master');
+// resources/views/tasks/brigadir_index.blade.php
+Route::get('/brigadir', [App\Http\Controllers\TaskController::class, 'Brigadirindex'])->name('tasks.Brigadir');
+// Brigadirshow
+Route::get('/brigadir/{id}', [App\Http\Controllers\TaskController::class, 'Brigadirshow'])->name('tasks.Brigadirshow');
+// tasks.assignBrigadir assignBrigadir
+Route::post('assignBrigadir', [TaskController::class, 'assignBrigadir'])->name('tasks.assignBrigadir');
+

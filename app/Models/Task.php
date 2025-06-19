@@ -54,4 +54,32 @@ class Task extends Model
                     ->withPivot('quantity', 'unit')
                     ->withTimestamps();
     }
+    // users
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'users_tasks')
+                    ->withPivot('role') // Include the role in the pivot table
+                    ->withTimestamps(); // Include timestamps for the pivot table
+    }
+    public function master()
+    {
+        return $this->users()->wherePivot('role', 'master')->limit(1);
+    }
+    public function brigadir()
+    {
+        return $this->users()->wherePivot('role', 'brigadir')->limit(1);
+    }
+    public function workers()
+    {
+        return $this->users()->wherePivot('role', 'worker');        
+    }
+    // All accept master
+    public function acceptMaster()
+    {
+        return $this->users()
+            ->wherePivot('role', 'worker')
+            ->orWherePivot('role', 'brigadir');
+    }
+
+
 }

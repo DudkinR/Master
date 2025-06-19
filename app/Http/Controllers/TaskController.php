@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\Etalon;
-use App\Models\Users; // Assuming you have a User model for masters
+use App\Models\User; // Assuming you have a User model for masters
 
 class TaskController extends Controller
 {
@@ -17,7 +17,10 @@ class TaskController extends Controller
     {
         //
         $tasks = Task::all();
-        $masters =  Users::with('role')->where('role.name', 'master')->get(); // Assuming you have a User model with a role field
+        
+      $masters = User::whereHas('roles', function ($query) {
+            $query->where('name', 'master');
+        })->with('roles')->get();
 
         return view('tasks.index', compact('tasks' , 'masters'));
     }
@@ -89,6 +92,12 @@ class TaskController extends Controller
     public function show(string $id)
     {
         //
+        $task = Task::findOrFail($id)
+            ->load('users','materials', 'machines', 'equipments');
+        return view('tasks.show', compact('task'));
+
+
+
     }
 
     /**
@@ -114,4 +123,73 @@ class TaskController extends Controller
     {
         //
     }
+
+    // assignMaster
+    public function assignMaster(Request $request)
+    {
+       // return $request->all(); // For debugging purposes, remove this line in production
+        $request->validate([
+            'task_id' => 'required|exists:tasks,id',
+            'master_id' => 'required|exists:users,id',
+        ]);
+         $task = Task::findOrFail($request->input('task_id'));
+         $master = User::findOrFail($request->input('master_id'));
+         // clear users where role is master
+        $task->users()->wherePivot('role', 'master')->detach();
+        // attach master to task with role master
+        $task->users()->attach($master->id, ['role' => 'master']);
+        return redirect()->route('tasks.index')
+                         ->with('success', 'Майстер успішно призначений до завдання!');
+       
+    }
+    //Masterindex
+    public function Masterindex()
+    {
+        // вибрати всіх мастеров
+        $masters = User::whereHas('roles', function ($query) {
+            $query->where('name', 'master');
+        })->with('roles')
+        // та всі їх завдання
+        ->with('tasks')
+        ->get();
+        // повернути view з мастерами та їх завданнями
+        return view('tasks.master_index', compact('masters'));
+    }
+    //Brigadirshow 
+    public function Brigadirshow($id)
+    {
+        // вибрати завдання по id
+        $task = Task::findOrFail($id)
+            ->load('users'); // Завантажити користувачів та проект
+        // повернути view з завданням
+        $brigadirs = User::whereHas('roles', function ($query) {
+            $query->where('name', 'brigadir');
+        })->with('roles')->get();
+        $workers = User::whereHas('roles', function ($query) {
+            $query->where('name', 'worker');
+        })->with('roles')->get();
+
+        return view('tasks.brigadir_show', compact('task', 'brigadirs', 'workers'));
+    }
+    public function assignBrigadir(Request $request, )
+    {
+       
+       // return $request->all(); // For debugging purposes, remove this line in production
+        // Очистити попередніх бригадирів і працівників
+        $task = Task::findOrFail($request->input('task_id'));
+        $task->users()->wherePivot('role', 'brigadir')->detach();
+        $task->users()->wherePivot('role', 'worker')->detach();
+
+        // Призначити нового бригадира
+        $task->users()->attach($request->input('brigadir_id'), ['role' => 'brigadir']);
+
+        // Призначити працівників
+        foreach ($request->input('workers') as $workerId) {
+            $task->users()->attach($workerId, ['role' => 'worker']);
+        }
+
+        return redirect()->route('tasks.index')
+                        ->with('success', 'Бригада успішно призначена!');
+    }
 }
+

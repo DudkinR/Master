@@ -64,19 +64,19 @@
                             </div>
                            <div class="mb-3">
                                 <label for="start_date" class="form-label">Дата початку</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date" >
+                                <input type="date" class="form-control" id="start_date" name="start_date"  value="{{ now()->format('Y-m-d') }}" >
                             </div>
                             <div class="mb-3">
                                 <label for="end_date" class="form-label">Дата завершення</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date" >
+                                <input type="date" class="form-control" id="end_date" name="end_date"  value="{{ now()->addDays(30)->format('Y-m-d') }}" >
                             </div>
                             <div class="mb-3">
                                 <label for="estimated_hours" class="form-label">Орієнтовні чоловіко - години</label>
-                                <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" min="0" step="0.01" >
+                                <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" min="0" step="0.01"  value="0">
                             </div>
                             <div class="mb-3">
                                 <label for="actual_hours" class="form-label">Фактичні години</label>
-                                <input type="number" class="form-control" id="actual_hours" name="actual_hours" min="0" step="0.01">
+                                <input type="number" class="form-control" id="actual_hours" name="actual_hours" min="0" step="0.01" value="0">
                             </div>
                             <div class="mb-3">
                                 <label for="progress" class="form-label">Прогрес (%)</label>
@@ -84,7 +84,7 @@
                             </div>
                             <div class="mb-3">
                                 <label for="quantity" class="form-label">Кількість</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="1" >    
+                                <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="1" value="0">   
                             </div>
                             <label for="unit" class="form-label">Одиниця виміру</label>
                             <select class="form-select mb-3" id="unit" name="unit" >

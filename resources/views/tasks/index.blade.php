@@ -26,11 +26,17 @@
                      <!-- призначин мастер -->
                     <div class="card-footer">
                         <p><strong>Призначений майстер:</strong> 
-                            @if ($task->master)
-                                {{ $task->master->name }}
+                           @if ($task->master->first())
+                                {{ $task->master->first()->name }}
+                                <a href="{{ route('tasks.Brigadirshow', $task->id) }}" class="btn btn-secondary">Мастер завдання</a>
                             @else
                                 <span class="bg-danger text-white">Не призначено</span>
+                      
                             @endif
+                            <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#assignMasterModal" 
+                                    data-task-id="{{ $task->id }}" data-action="{{ route('tasks.assignMaster', $task->id) }}">
+                                Призначити майстра
+                            </button>
                         </p>
                         <p><strong>Статус:</strong> 
                             @if ($task->status == 'completed')
@@ -43,7 +49,7 @@
                         </p>
                         <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-primary">Переглянути деталі</a>
                         
-                    </div>
+          
                     </div>
                 </div>
             </div>
@@ -58,7 +64,7 @@
                 <h5 class="modal-title" id="assignMasterModalLabel">Призначити майстра</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="assignMasterForm" method="POST" action="">
+            <form id="assignMasterForm" method="POST" action="{{ route('tasks.assignMaster') }}">
                 @csrf
                 <div class="modal-body">
                     <input type="hidden" name="task_id" id="task_id">
@@ -80,4 +86,24 @@
         </div>
     </div>
 </div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const assignMasterModal = document.getElementById('assignMasterModal');
+
+    assignMasterModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget; // Кнопка, яка відкрила модальне вікно
+        const taskId = button.getAttribute('data-task-id');
+        const actionUrl = button.getAttribute('data-action');
+
+        // Підставляємо значення у форму
+        const modal = assignMasterModal;
+        modal.querySelector('#task_id').value = taskId;
+
+        // Якщо action динамічний — оновлюємо
+        if (actionUrl) {
+            modal.querySelector('form').setAttribute('action', actionUrl);
+        }
+    });
+});
+</script>
 @endsection

@@ -51,6 +51,32 @@
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                   {{ __('Managemant')  }}
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                    <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                        {{ __('Projects') }}
+                                    </a>
+                                    <a class="dropdown-item" href="">
+                                        {{ __('Objects') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                        {{ __('Tasks') }}
+                                    </a>
+                                    <a class="dropdown-item" href="">
+                                        {{ __('Reports') }}
+                                    </a>
+                                    <a class="dropdown-item" href="">
+                                        {{ __('Users') }}
+                                    </a>
+                                    <a class="dropdown-item" href="">
+                                        {{ __('Settings') }}
+                                    </a>
+                                </div>
+                            </li>
+
+                            <li class="nav-item dropdown">
+                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
                                 </a>
 

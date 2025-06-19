@@ -18,6 +18,12 @@ class Project extends Model
         'description',
         'status',
     ];
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'projects_tasks')
+                    ->withPivot('status')
+                    ->withTimestamps();
+    }
 
 }
 

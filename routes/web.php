@@ -25,7 +25,7 @@ Route::get('/password/reset', function () {
 Auth::routes();
 // resourse routes projects, equipment, tasks, roles , materials , machines, tasks
 Route::resource('projects', ProjectController::class);
-Route::resource('equipment', EquipmentController::class);
+Route::resource('equipments', EquipmentController::class);
 Route::resource('tasks', TaskController::class);
 Route::resource('roles', RoleController::class);
 Route::resource('materials', MaterialController::class);

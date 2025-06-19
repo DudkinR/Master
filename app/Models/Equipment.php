@@ -13,5 +13,13 @@ class Equipment extends Model
         'name',
         'description',
     ];  
+    // tasks
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'tasks_equipments')
+                    ->withPivot('quantity', 'unit')
+                    ->withTimestamps();
+    }
+    // projects
 
 }

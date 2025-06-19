@@ -1,8 +1,6 @@
 @extends('layouts.app')
-
 @section('content')
 <div class="container my-5">
-
     <!-- Слайдер -->
     <div id="projectCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
         <div class="carousel-inner rounded shadow">
@@ -30,6 +28,42 @@
         </div>
     </div>
 </div>
-
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Про систему</h5>
+                    <p class="card-text">Ця система призначена для централізованого управління проектами в будівництві. Вона дозволяє ефективно
+                        розподіляти завдання, контролювати виконання та забезпечувати прозорість процесів.</p>
+                    <a href="" class="btn btn-primary">Дізнатися більше</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm">    
+                <div class="card-body">
+                    <h5 class="card-title">Почати роботу</h5>
+                    <p class="card-text">Щоб почати роботу з системою, вам потрібно зареєструватися або увійти в свій обліковий запис.
+                        Після цього ви зможете створювати нові проекти, додавати об'єкти та призначати завдання.</p>
+                    <a href="{{ route('register') }}" class="btn btn-success">Зареєструватися</a>
+                    <a href="{{ route('login') }}" class="btn btn-secondary">Увійти</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Останні новини</h5>
+                    <p class="card-text">Слідкуйте за останніми новинами та оновленнями системи. Ми регулярно додаємо нові функції та покращення,
+                        щоб зробити вашу роботу ще ефективнішою.</p>
+                    <a href="" class="btn btn-info">Перегля  нути новини</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 

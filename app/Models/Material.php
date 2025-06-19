@@ -14,4 +14,12 @@ class Material extends Model
         'unit', // Unit of measurement, e.g., m2, pcs
     ];
 
+    // tasks
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'tasks_materials')
+                    ->withPivot('quantity', 'unit')
+                    ->withTimestamps();
+    }
+
 }

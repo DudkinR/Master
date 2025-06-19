@@ -45,4 +45,11 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // roles
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'user_roles')
+                    ->withTimestamps(); 
+    }
+
 }

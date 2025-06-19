@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Project;
+use App\Models\Task;
+use App\Models\Equipment;
 
 class EquipmentController extends Controller
 {
@@ -27,7 +30,26 @@ class EquipmentController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'unit' => 'required|string|max:255',
+        ]);
+        $equipment = new \App\Models\Equipment();
+        $equipment->name = $validated['name'];
+        $equipment->description = $validated['description'];
+        $equipment->save();
+        $task = Task::findOrFail($request->input('task_id'));
+        $equipment->tasks()->attach($task->id, [
+            'quantity' => $request->input('quantity', 0), // Default to 0
+            'unit' => $request->input('unit', 'шт'), // Default to 'шт'
+        ]);
+        $project = Project::findOrFail($request->input('project_id'));
+        return redirect()->route('projects.show', $project->id)
+            ->with('success', 'Equipment created successfully!')
+            ->withInput(['project_id' => $request->input('project_id')])
+            ->withInput(['task_id' => $request->input('task_id')]);
+
     }
 
     /**

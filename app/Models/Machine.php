@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Machines extends Model
+class Machine extends Model
 {
     //
-    protected $table = 'machine';
+    protected $table = 'machines';
     protected $fillable = [
         'name',
         'description',
@@ -15,5 +15,12 @@ class Machines extends Model
         'capacity',
 
     ];
-
-}
+    // tasks
+    public function tasks()
+    {
+        return $this->belongsToMany(Task::class, 'tasks_machines')
+                 //   ->withPivot('quantity', 'unit')
+                    ->withTimestamps();
+    
+    }       
+ }

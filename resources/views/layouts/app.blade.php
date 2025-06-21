@@ -51,29 +51,194 @@
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                   {{ __('Managemant')  }}
+                                    {{Auth::user()->roles->first()->name}}
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                        {{ __('Projects') }}
+                                    <a class="dropdown-item" href="{{ route('home') }}">
+                                        {{ __('Home') }}
                                     </a>
-                                    <a class="dropdown-item" href="">
-                                        {{ __('Objects') }}
+                                    <a class="dropdown-item" href="{{ route('profile.show') }}">
+                                        {{ __('Profile') }}
                                     </a>
-                                    <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                        {{ __('Tasks') }}
-                                    </a>
-                                    <a class="dropdown-item" href="">
-                                        {{ __('Reports') }}
-                                    </a>
-                                    <a class="dropdown-item" href="">
-                                        {{ __('Users') }}
-                                    </a>
-                                    <a class="dropdown-item" href="">
+                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
                                         {{ __('Settings') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('help') }}">
+                                        {{ __('Help') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('about') }}">
+                                        {{ __('About') }}
                                     </a>
                                 </div>
                             </li>
+                            @if(Auth::user()->roles->first()->id==1) 
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Admin Panel') }}</a>
+                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Reports') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('users.index') }}">
+                                            {{ __('Users') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Settings') }}
+                                        </a>
+
+                                    </div>
+                                </li>
+                            @elseif(Auth::user()->roles->first()->id==2)
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Reports') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Users') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Settings') }}
+                                        </a>
+                                    </div>
+                                </li>
+                            @elseif(Auth::user()->roles->first()->id==3)
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Ingeener Panel') }}</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Reports') }}
+                                        </a>
+                                    </div>
+                                </li>
+                            @elseif(Auth::user()->roles->first()->id==4)
+                                 <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Master Panel') }}</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Reports') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Workers') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Settings') }}
+                                        </a>
+                                    </div>
+                                </li>
+                            @elseif(Auth::user()->roles->first()->id==5)
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Brigadir Panel') }}</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Reports') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Workers') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Settings') }}
+                                        </a>
+                                    </div>
+                                </li>
+                            @elseif(Auth::user()->roles->first()->id==6)
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Worker Panel') }}</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Reports') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Settings') }}
+                                        </a>
+                                    </div>
+                                </li>
+                            @elseif(Auth::user()->roles->first()->id==7)    
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
+                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
+                                            {{ __('Projects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Objects') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
+                                            {{ __('Tasks') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{ route('reports.index') }}">
+                                            {{ __('Reports') }}
+                                        </a>
+                                        <a class="dropdown-item" href="">
+                                            {{ __('Settings') }}
+                                        </a>
+                                        <a class="dropdown-item" href="{{route('users.index')}}">
+                                            {{ __('Users') }}
+                                        </a>
+                                            
+                                    </div>
+                                </li>
+                            @endif
 
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>

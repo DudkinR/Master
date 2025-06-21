@@ -20,6 +20,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'phone',
         'password',
     ];
 
@@ -57,5 +58,17 @@ class User extends Authenticatable
         return $this->belongsToMany(Task::class, 'users_tasks')
                     ->withPivot('role') // Include the role in the pivot table
                     ->withTimestamps(); // Include timestamps for the pivot table
+    }
+    // enterprises
+    public function enterprises()
+    {
+        return $this->belongsToMany(Enterprise::class, 'user_enterprise')
+                    ->withTimestamps();
+    }
+    // departments
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'user_department')
+                    ->withTimestamps();
     }
 }

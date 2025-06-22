@@ -24,6 +24,19 @@ class Project extends Model
                     ->withPivot('status')
                     ->withTimestamps();
     }
+    // enterprises
+    public function enterprises()
+    {
+        return $this->belongsToMany(Enterprise::class, 'enterprise_projects')
+                    ->withTimestamps(); 
+    }
+    // departments
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'department_projects')
+                    ->withTimestamps(); 
+    }
+
 
 }
 

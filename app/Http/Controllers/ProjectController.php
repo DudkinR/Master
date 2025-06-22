@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Etalon;
+use App\Models\User; // Assuming you have a User model for engineers
+use Illuminate\Support\Facades\Auth; // For authentication
 
 
 class ProjectController extends Controller
@@ -14,8 +16,27 @@ class ProjectController extends Controller
     public function index()
     {
         //
+         if(Auth::user()->roles->first()->name ==="Boss")
+        {
+            $enterpriseId = Auth::user()->enterprises->pluck('id');
+            $departmentId = Auth::user()->departments->pluck('id');
+            $engs = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Ingenier');
+            })
+            ->where(function ($query) use ($enterpriseId, $departmentId) {
+                $query->whereHas('enterprises', function ($q) use ($enterpriseId) {
+                    $q->whereIn('enterprise.id', $enterpriseId);
+                })->orWhereHas('departments', function ($q) use ($departmentId) {
+                    $q->whereIn('department.id', $departmentId);
+                });
+            })
+            ->with(['roles' => function ($q) {
+                $q->where('name', 'Ingenier');
+            }])->get();
+
+        }
        $projects = Project::all();
-        return view('projects.index' , compact('projects'));
+        return view('projects.index' , compact('projects' , 'engs'));
     }
 
     /**
@@ -50,6 +71,10 @@ class ProjectController extends Controller
         $project->description = $request->input('description');
         $project->status = 'active'; // Default status, can be changed later
         $project->save();
+         $enterpriseId = Auth::user()->enterprises->pluck('id');
+        $departmentId = Auth::user()->departments->pluck('id');
+        $project->enterprises()->sync($enterpriseId);
+        $project->departments()->sync($departmentId);
         return redirect()->route('projects.index')->with('success', 'Проєкт успішно створено!');
 
     }

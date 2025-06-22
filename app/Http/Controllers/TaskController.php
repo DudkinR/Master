@@ -7,6 +7,7 @@ use App\Models\Task;
 use App\Models\Project;
 use App\Models\Etalon;
 use App\Models\User; // Assuming you have a User model for masters
+use Illuminate\Support\Facades\Auth; // For authentication
 
 class TaskController extends Controller
 {
@@ -16,13 +17,31 @@ class TaskController extends Controller
     public function index()
     {
         //
-        $tasks = Task::all();
-        
-      $masters = User::whereHas('roles', function ($query) {
-            $query->where('name', 'master');
-        })->with('roles')->get();
+      
+        if(Auth::user()->roles->first()->name ==="Boss")
+        {
+            $enterpriseId = Auth::user()->enterprises->pluck('id');
+            $departmentId = Auth::user()->departments->pluck('id');
+            return $projects = Project::with(['tasks', 'tasks.equipments', 'tasks.materials', 'tasks.machines'])
+            ->get();
+             $tasks = Task::with('enterprises')->get();
+            $masters = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Master');
+            })
+            ->where(function ($query) use ($enterpriseId, $departmentId) {
+                $query->whereHas('enterprises', function ($q) use ($enterpriseId) {
+                    $q->whereIn('enterprise.id', $enterpriseId);
+                })->orWhereHas('departments', function ($q) use ($departmentId) {
+                    $q->whereIn('department.id', $departmentId);
+                });
+            })
+            ->with(['roles' => function ($q) {
+                $q->where('name', 'Master');
+            }])->get();
 
-        return view('tasks.index', compact('tasks' , 'masters'));
+            return view('tasks.index', compact('tasks' , 'masters'));
+        }
+        
     }
 
     /**
@@ -80,6 +99,11 @@ class TaskController extends Controller
         $etalons = Etalon::all();
         $project = Project::findOrFail($task->project_id);
         $project->tasks()->attach($task->id, ['status' => 'active']); // Attach task to project with default status
+        $enterpriseId = Auth::user()->enterprises->pluck('id');
+        $departmentId = Auth::user()->departments->pluck('id');
+        $task->enterprises()->sync($enterpriseId);
+        $task->departments()->sync($departmentId);
+
         return redirect()->route('projects.show', [$project->id]) 
                          ->with('success', 'Завдання успішно створено!')
                          ->with('etalons', $etalons);

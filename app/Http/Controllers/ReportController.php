@@ -7,6 +7,8 @@ use App\Models\Project; // Assuming you have a Project model
 use App\Models\User; // Assuming you have a User model
 use App\Filters\ProjectFilter; // Assuming you have a ProjectFilter for filtering projects
 
+use Illuminate\Support\Facades\Auth; // For checking the authenticated user
+
 class ReportController extends Controller
 {
     /**
@@ -21,7 +23,22 @@ class ReportController extends Controller
         $masters = User::whereHas('roles', function ($query) {
             $query->where('name', 'Master');
         })->get();
-        return view('reports.index', compact('projects', 'tasks', 'masters'));
+        if(Auth::user()->roles->first()->name === "Boss") {
+          return view('reports.index_boss', compact('projects', 'tasks', 'masters'));          
+        } 
+        elseif(Auth::user()->roles->first()->name === "Master") {
+            return view('reports.index_master', compact('projects', 'tasks', 'masters'));
+        }
+        elseif(Auth::user()->roles->first()->name === "Brigadir") {
+            return view('reports.index_brig', compact('projects', 'tasks', 'masters'));
+        }
+        elseif(Auth::user()->roles->first()->name === "Engineer") {
+            return view('reports.index_eng', compact('projects', 'tasks', 'masters'));
+        }
+        else {
+            return view('reports.index_guest', compact('projects', 'tasks', 'masters'));
+        }
+        
 
 
     }

@@ -80,6 +80,18 @@ class Task extends Model
             ->wherePivot('role', 'worker')
             ->orWherePivot('role', 'brigadir');
     }
+    // enterprises
+    public function enterprises()
+    {
+        return $this->belongsToMany(Enterprise::class, 'enterprise_tasks')
+                    ->withTimestamps();
+    }
+    // departments
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'department_tasks')
+                    ->withTimestamps();
+    }
 
 
 }

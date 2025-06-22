@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use App\Models\User;    
 
 class HomeController extends Controller
 {
@@ -23,6 +25,25 @@ class HomeController extends Controller
      */
     public function index()
     {
+        if(Auth::user()->roles->first()->name== 'Boss'){
+            return view('reports.index_boss');
+        }
+        if(Auth::user()->roles->first()->name== 'Master'){
+            return view('tasks.master_index');
+        }
+        if(Auth::user()->roles->first()->name== 'Brigadir'){
+            return view('tasks.brig_index');
+        }
+        if(Auth::user()->roles->first()->name== 'Worker'){
+            return view('tasks.guest_index');
+        }
+        if(Auth::user()->roles->first()->name== 'Admin'){
+            return view('admin.index');
+        }
+        if(Auth::user()->roles->first()->name== 'Engineer'){
+            return view('tasks.eng_index');
+        }
         return view('home');
+
     }
 }

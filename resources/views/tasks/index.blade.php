@@ -12,50 +12,50 @@
     <!-- всі завдання -->
     
         @foreach ($tasks as $task)
-        <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card mb-8 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ $task->name }}</h5>
-                                <p class="card-text">{{ $task->description }}</p>
-                                <p><strong>Порядок:</strong> {{ $task->order }}</p>
-                                <p><strong>Дата початку:</strong> {{ $task->start_date }}</p>
-                                <p><strong>Дата завершення:</strong> {{ $task->end_date }}</p>
-                                <p><strong>Орієнтовні години:</strong> {{ $task->estimated_hours }} год</p>
-                    </div>
-                     <!-- призначин мастер -->
-                    <div class="card-footer">
-                        <p><strong>Призначений майстер:</strong> 
-                           @if ($task->master->first())
-                                {{ $task->master->first()->name }}
-                                <a href="{{ route('tasks.Brigadirshow', $task->id) }}" class="btn btn-secondary">Мастер завдання</a>
-                            @else
-                                <span class="bg-danger text-white">Не призначено</span>
-                      
-                            @endif
-                            <button class="btn btn-secondary float-end" data-bs-toggle="modal" data-bs-target="#assignMasterModal" 
-                                    data-task-id="{{ $task->id }}" data-action="{{ route('tasks.assignMaster', $task->id) }}">
-                                Призначити майстра
-                            </button>
-                        </p>
-                        <p><strong>Статус:</strong> 
-                            @if ($task->status == 'completed')
-                                <span class="badge bg-success">Виконано</span>
-                            @elseif ($task->status == 'in_progress')
-                                <span class="badge bg-warning text-dark">В процесі</span>
-                            @else
-                                <span class="badge bg-secondary">Не розпочато</span>
-                            @endif
-                        </p>
-                        <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-primary">Переглянути деталі</a>
-                        
-          
-                    </div>
-                </div>
+        <div class="card-body" data-bs-toggle="modal" data-bs-target="#taskDetailsModal{{ $task->id }}" style="cursor: pointer;">
+            <h5 class="card-title mb-2">{{ $task->name }}</h5>
+            <p><strong>Майстер:</strong>
+                {{ optional($task->master->first())->name ?? 'Не призначено' }}
+                <button class="btn btn-sm btn-outline-secondary ms-2 assign-master-btn"
+                        data-bs-toggle="modal" 
+                        data-bs-target="#assignMasterModal"
+                        data-task-id="{{ $task->id }}"
+                        data-action="{{ route('tasks.assignMaster', $task->id) }}">
+                    Змінити
+                </button>
+            </p>
+        </div>
+        <!-- Modal для перегляду деталей завдання -->
+        <div class="modal fade" id="taskDetailsModal{{ $task->id }}" tabindex="-1" aria-labelledby="taskDetailsModalLabel{{ $task->id }}" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="taskDetailsModalLabel{{ $task->id }}">{{ $task->name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
             </div>
+            <div class="modal-body">
+                <p><strong>Опис:</strong> {{ $task->description }}</p>
+                <p><strong>Порядок:</strong> {{ $task->order }}</p>
+                <p><strong>Дата початку:</strong> {{ $task->start_date }}</p>
+                <p><strong>Дата завершення:</strong> {{ $task->end_date }}</p>
+                <p><strong>Орієнтовні години:</strong> {{ $task->estimated_hours }} год</p>
+                <p><strong>Статус:</strong> 
+                    @if ($task->status == 'completed')
+                        <span class="badge bg-success">Виконано</span>
+                    @elseif ($task->status == 'in_progress')
+                        <span class="badge bg-warning text-dark">В процесі</span>
+                    @else
+                        <span class="badge bg-secondary">Не розпочато</span>
+                    @endif
+                </p>
+            </div>
+            </div>
+        </div>
+        </div>
         @endforeach
     </div>
 </div>
+
  <!-- Modal для призначення майстра -->
 <div class="modal fade" id="assignMasterModal" tabindex="-1" aria-labelledby="assignMasterModalLabel" aria-hidden="true">
     <div class="modal-dialog">

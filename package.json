@@ -3,21 +3,22 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "sass resources/sass/app.scss public/css/app.css && esbuild resources/js/app.js --bundle --outfile=public/js/app.js",
         "dev": "vite"
     },
     "devDependencies": {
         "@popperjs/core": "^2.11.6",
         "@tailwindcss/vite": "^4.0.0",
         "axios": "^1.8.2",
-        "bootstrap": "^5.2.3",
+        "bootstrap-scss": "^5.3.4",
         "concurrently": "^9.0.1",
         "laravel-vite-plugin": "^1.2.0",
         "sass": "^1.56.1",
         "tailwindcss": "^4.0.0",
-        "vite": "^6.2.4"
+        "vite": "^6.2.4",
+        "vite-plugin-static-copy": "^3.0.2"
     },
     "dependencies": {
-        "bootstrap": "^5.3.7"
+        "bootstrap": "^5.3.3"
     }
 }

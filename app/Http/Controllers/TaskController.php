@@ -22,7 +22,7 @@ class TaskController extends Controller
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
             $departmentId = Auth::user()->departments->pluck('id');
-            return $projects = Project::with(['tasks', 'tasks.equipments', 'tasks.materials', 'tasks.machines'])
+            $projects = Project::with(['tasks', 'tasks.equipments', 'tasks.materials', 'tasks.machines'])
             ->get();
              $tasks = Task::with('enterprises')->get();
             $masters = User::whereHas('roles', function ($query) {

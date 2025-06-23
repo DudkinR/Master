@@ -46,7 +46,7 @@ class MachineController extends Controller
         ]);
         $project = Project::findOrFail($request->input('project_id'));
       
-        return redirect()->route('projects.show', $project->id)
+        return redirect()->route('tasks.edit', $task->id)
                     ->with('success', 'Material created successfully!')                         
                 ->withInput(['project_id' => $request->input('project_id')])
                 ->withInput(['task_id' => $request->input('task_id')]);
@@ -82,5 +82,11 @@ class MachineController extends Controller
     public function destroy(string $id)
     {
         //
+        $machine = Machine::findOrFail($id);
+        $task= $machine->tasks->first(); // Get the first task associated with this machine
+        $task ->machines()->detach($machine->id); // Detach the machine from the task
+        $machine->delete(); // Delete the machine record
+        return redirect()->route('tasks.edit', $task->id)
+            ->with('success', 'Machine deleted successfully!');
     }
 }

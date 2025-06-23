@@ -45,7 +45,7 @@ class EquipmentController extends Controller
             'unit' => $request->input('unit', 'шт'), // Default to 'шт'
         ]);
         $project = Project::findOrFail($request->input('project_id'));
-        return redirect()->route('projects.show', $project->id)
+        return redirect()->route('tasks.edit', $task->id)
             ->with('success', 'Equipment created successfully!')
             ->withInput(['project_id' => $request->input('project_id')])
             ->withInput(['task_id' => $request->input('task_id')]);
@@ -82,5 +82,12 @@ class EquipmentController extends Controller
     public function destroy(string $id)
     {
         //
+        $equipment = Equipment::findOrFail($id);
+        $task = $equipment->tasks()->first(); // Assuming each equipment is linked to one task
+        $equipment->tasks()->detach($task->id); // Detach the equipment from the task
+        $equipment->delete(); // Delete the equipment   
+        return redirect()->route('tasks.edit', $task->id)
+            ->with('success', 'Equipment deleted successfully!');
+
     }
 }

@@ -117,226 +117,35 @@
             <div class="container">
                 @foreach($project->tasks as $task)
                 <div class="row">
-                    <div class="card shadow-sm mb-3">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ $task->name }}</h5>
-                            <p class="text-muted mb-3">{{ $task->description }}</p>
-
-                            <div class="row row-cols-2 row-cols-md-3 g-3 small mb-3">
-                                <div><strong>Порядок:</strong> {{ $task->order }}</div>
-                                <div><strong>Початок:</strong> {{ $task->start_date }}</div>
-                                <div><strong>Завершення:</strong> {{ $task->end_date }}</div>
-                                <div><strong>Орієнтовно:</strong> {{ $task->estimated_hours }} год</div>
-                                <div><strong>Фактично:</strong> {{ $task->actual_hours }} год</div>
-                                <div><strong>Прогрес:</strong> {{ $task->progress }}%</div>
-                                <div><strong>Кількість:</strong> {{ $task->quantity }} {{ $task->unit }}</div>
-                                <div><strong>Створено:</strong> {{ $task->created_at->format('d.m.Y H:i') }}</div>
-                                <div><strong>Оновлено:</strong> {{ $task->updated_at->format('d.m.Y H:i') }}</div>
-                            </div>
-
-                            <div class="d-flex gap-2">
-                                <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-outline-warning btn-sm">✏️ Редагувати</a>
-                                <form action="{{ route('tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('Видалити задачу?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-outline-danger btn-sm">🗑 Видалити</button>
-                                </form>
-                            </div>
-                        </div>
+                    <div class="col-md-4 mb-4">
+                    
+                    <h6>{{ $task->name }} <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-outline-primary mb-2">🔍</a>
+                   </h6>
+                        <p>{{ $task->description }}</p>
                     </div>
-                    <h3>Матеріали</h3>
-                            <!-- Кнопка -->
-                    <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createMaterialModal-{{ $task->id }}">
-                        ➕ Додати матеріал
-                    </button>
-
-                    <!-- Модальне вікно -->
-                    <div class="modal fade" id="createMaterialModal-{{ $task->id }}" tabindex="-1" aria-labelledby="modalLabel-{{ $task->id }}" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <form action="{{ route('materials.store') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                    <input type="hidden" name="project_id" value="{{ $project->id }}">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="modalLabel-{{ $task->id }}">Новий матеріал</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Назва" required>
-                                            <label for="name">Назва</label>
-                                        </div>
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" id="description" name="description" placeholder="Опис" style="height: 80px" required></textarea>
-                                            <label for="description">Опис</label>
-                                        </div>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
-                                            </div>
-                                            <div class="col-6">
-                                                <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-primary w-100">💾 Зберегти</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                    <div class="col-md-2 mb-4">
+                        <h6>Матеріали</h6>                        
+                        {{$task->materials->count() > 0 ? $task->materials->count() : 'Немає матеріалів'}}
                     </div>
-                    <ul class="list-group list-group-flush small">
-                        @forelse($task->materials as $material)
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div>
-                                    <strong>{{ $material->name }}</strong><br>
-                                    <span class="text-muted">{{ $material->description }}</span><br>
-                                    <small>Кількість: {{ $material->pivot->quantity }} ({{ $material->unit }})</small>
-                                </div>
-                                <div class="d-flex flex-column align-items-end ms-3">
-                                    <form action="{{ route('materials.update', $material->id) }}" method="POST" class="mb-1">
-                                        @csrf @method('PUT')
-                                        <button class="btn btn-sm btn-outline-secondary">✏️</button>
-                                    </form>
-                                    <form action="{{ route('materials.destroy', $material->id) }}" method="POST">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">🗑</button>
-                                    </form>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="list-group-item text-muted">Матеріалів поки що немає</li>
-                        @endforelse
-                    </ul>
-                    <hr>
-                    <h3>Обладнення</h3>
-                    <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createEquipmentModal-{{ $task->id }}">
-                        ➕ Додати обладнання
-                    </button>
-
-                    <div class="modal fade" id="createEquipmentModal-{{ $task->id }}" tabindex="-1" aria-labelledby="equipmentModalLabel-{{ $task->id }}" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <form action="{{ route('equipments.store') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                    <input type="hidden" name="project_id" value="{{ $project->id }}">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="equipmentModalLabel-{{ $task->id }}">Нове обладнання</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Назва" required>
-                                            <label for="name">Назва</label>
-                                        </div>
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" id="description" name="description" placeholder="Опис" style="height: 80px;" required></textarea>
-                                            <label for="description">Опис</label>
-                                        </div>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
-                                            </div>
-                                            <div class="col-6">
-                                                <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-primary w-100">💾 Зберегти</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                    <div class="col-md-2 mb-4">
+                        <h6>Обладнання</h6>
+                        {{$task->equipments->count() > 0 ? $task->equipments->count() : 'Немає обладнання'}}
                     </div>
-                    <ul class="list-group list-group-flush small">
-                        @forelse($task->equipments as $equipment)
-                            <li class="list-group-item d-flex justify-content-between align-items-start">
-                                <div>
-                                    <strong>{{ $equipment->name }}</strong><br>
-                                    <span class="text-muted">{{ $equipment->description }}</span><br>
-                                    <small>Кількість: {{ $equipment->pivot->quantity }} ({{ $equipment->unit }})</small>
-                                </div>
-                                <div class="d-flex flex-column align-items-end ms-3">
-                                    <form action="{{ route('equipments.update', $equipment->id) }}" method="POST" class="mb-1">
-                                        @csrf @method('PUT')
-                                        <button class="btn btn-sm btn-outline-secondary">✏️</button>
-                                    </form>
-                                    <form action="{{ route('equipments.destroy', $equipment->id) }}" method="POST">
-                                        @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger">🗑</button>
-                                    </form>
-                                </div>
-                            </li>
-                        @empty
-                            <li class="list-group-item text-muted">Обладнання відсутнє</li>
-                        @endforelse
-                    </ul>
-                    <h3>Техника</h3>
-                    <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createTechnicModal-{{ $task->id }}">
-                        ➕ Додати техніку
-                    </button>
-                    <div class="modal fade" id="createTechnicModal-{{ $task->id }}" tabindex="-1" aria-labelledby="technicModalLabel-{{ $task->id }}" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <form action="{{ route('machines.store') }}" method="POST">
-                                    @csrf
-                                    <input type="hidden" name="task_id" value="{{ $task->id }}">
-                                    <input type="hidden" name="project_id" value="{{ $project->id }}">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="technicModalLabel-{{ $task->id }}">Нова техніка</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="form-floating mb-2">
-                                            <input type="text" class="form-control" id="name" name="name" placeholder="Назва" required>
-                                            <label for="name">Назва</label>
-                                        </div>
-                                        <div class="form-floating mb-2">
-                                            <textarea class="form-control" id="description" name="description" placeholder="Опис" style="height: 80px;" required></textarea>
-                                            <label for="description">Опис</label>
-                                        </div>
-                                        <div class="row g-2 mb-2">
-                                            <div class="col-6">
-                                                <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
-                                            </div>
-                                            <div class="col-6">
-                                                <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button class="btn btn-primary w-100">💾 Зберегти</button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
+                    <div class="col-md-2 mb-4">
+                        <h6>Техніка</h6>
+                        {{$task->machines->count() > 0 ? $task->machines->count() : 'Немає техніки'}}
                     </div>
-                        <ul class="list-group list-group-flush small">
-                            @forelse($task->machines as $technic)
-                                <li class="list-group-item d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <strong>{{ $technic->name }}</strong><br>
-                                        <span class="text-muted">{{ $technic->description }}</span><br>
-                                        <small>Кількість: {{ $technic->pivot->quantity }} ({{ $technic->unit }})</small>
-                                    </div>
-                                    <form action="{{ route('machines.update', $technic->id) }}" method="POST" class="ms-3">
-                                        @csrf @method('PUT')
-                                        <button type="submit" class="btn btn-sm btn-outline-secondary">✏️</button>
-                                    </form>
-                                </li>
-                            @empty
-                                <li class="list-group-item text-muted">Техніки ще не додано</li>
-                            @endforelse
-                        </ul>
+                    <div class="col-md-2 mb-4">
+                        <h6>Намечена дата</h6>
+                        <p>{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') : 'Не вказано' }}</p>
+                        <h6>Дата завершення</h6>
+                        <p>{{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') : 'Не вказано' }}</p>
                     </div>
                 </div>
-            </div>  
-         @endforeach
+                @endforeach
+            </div>
+            @endif
     </div>
-    @endif
+
 </div>
 @endsection

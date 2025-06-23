@@ -130,6 +130,13 @@ class TaskController extends Controller
     public function edit(string $id)
     {
         //
+        $task = Task::findOrFail($id);
+        
+        $etalons = Etalon::all();
+        $masters = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Master');
+        })->with('roles')->get();
+        return view('tasks.edit', compact('task', 'etalons', 'masters'));
     }
 
     /**

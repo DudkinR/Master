@@ -48,7 +48,7 @@ class MaterialController extends Controller
             'unit' => $request->input('unit', 'шт'), // Default to 'шт'
         ]);
         $project = Project::findOrFail($request->input('project_id'));
-        return redirect()->route('projects.show',$project->id) 
+        return redirect()->route('tasks.edit',$task->id) 
                          ->with('success', 'Material created successfully!')                         
                         ->withInput(['project_id' => $request->input('project_id')])
                         ->withInput(['task_id' => $request->input('task_id')]);
@@ -87,5 +87,11 @@ class MaterialController extends Controller
     public function destroy(string $id)
     {
         //
+        $material = Material::findOrFail($id);
+        $task = $material->tasks()->first(); // Assuming a material is linked to one task
+        $material->tasks()->detach($task->id); // Detach the material from the task
+        $material->delete(); // Delete the material record
+        return redirect()->route('tasks.edit', $task->id)
+                         ->with('success', 'Material deleted successfully!');
     }
 }

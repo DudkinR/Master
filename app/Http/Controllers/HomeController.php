@@ -33,19 +33,19 @@ class HomeController extends Controller
             return view('reports.index_boss');
         }
         if(Auth::user()->roles->first()->name== 'Master'){
-            return view('tasks.master_index');
+            return view('reports.index_master');
         }
         if(Auth::user()->roles->first()->name== 'Brigadir'){
-            return view('tasks.brig_index');
+            return view('reports.index_brig');
         }
         if(Auth::user()->roles->first()->name== 'Worker'){
-            return view('tasks.guest_index');
+            return view('reports.index_guest');
         }
         if(Auth::user()->roles->first()->name== 'Admin'){
-            return view('tasks.admin_index');
+            return view('reports.index_admin');
         }
         if(Auth::user()->roles->first()->name== 'Engineer'){
-            return view('tasks.eng_index');
+            return view('reports.index_eng');
         }
         return view('home');
 

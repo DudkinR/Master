@@ -25,6 +25,10 @@ class HomeController extends Controller
      */
     public function index()
     {
+        // Attempt to read property "name" on null
+        if(Auth::user()->roles->isEmpty()) {
+            return view('home');
+        }
         if(Auth::user()->roles->first()->name== 'Boss'){
             return view('reports.index_boss');
         }
@@ -38,7 +42,7 @@ class HomeController extends Controller
             return view('tasks.guest_index');
         }
         if(Auth::user()->roles->first()->name== 'Admin'){
-            return view('admin.index');
+            return view('tasks.admin_index');
         }
         if(Auth::user()->roles->first()->name== 'Engineer'){
             return view('tasks.eng_index');

@@ -51,7 +51,12 @@
                         @else
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{Auth::user()->roles->first()->name}}
+                               
+                                @if (Auth::user()->roles->first())
+                                    {{ Auth::user()->roles->first()->name }}
+                                @else
+                                    {{ __('No Role Assigned') }}
+                                @endif
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                     <a class="dropdown-item" href="{{ route('home') }}">
@@ -71,7 +76,14 @@
                                     </a>
                                 </div>
                             </li>
-                            @if(Auth::user()->roles->first()->id==1) 
+                              @if (!Auth::user()->roles->first())
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+                                        {{ __('No Role Assigned') }}
+                                    </a>
+
+                                </li>                            
+                            @elseif(Auth::user()->roles->first()->id==1) 
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Admin Panel') }}</a>
                                      <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

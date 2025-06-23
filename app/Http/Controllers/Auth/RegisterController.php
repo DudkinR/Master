@@ -87,7 +87,7 @@ class RegisterController extends Controller
         // Attach the user to the enterprise and department
         $user->enterprises()->attach($enterprise->id);
         $user->departments()->attach($department->id);
-        $user->roles()->attach(7); // Assuming role ID 1 is the default user role
+        $user->roles()->attach(6); // Assuming role ID 1 is the default user role
         return $user;
     }
 }

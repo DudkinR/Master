@@ -16,6 +16,11 @@ class ProjectController extends Controller
     public function index()
     {
         //
+        $engs = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Ingenier');
+        })->with(['roles' => function ($q) {
+            $q->where('name', 'Ingenier');
+        }])->get();
          if(Auth::user()->roles->first()->name ==="Boss")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');

@@ -16,7 +16,7 @@ class RolesSeeder extends Seeder
         //
            /**
          * Admin
-         * Ingenier
+         * Engineer
          * Master
          * Brigadir
          * Worker
@@ -25,7 +25,8 @@ class RolesSeeder extends Seeder
          */
         $roles = [
             ['Admin', 'Можно все'],
-            ['Ingenier', 'Можно все кроме админки'],
+            ['Boss', 'Можно все кроме админки'],
+            ['Engineer', 'Можно все кроме админки'],
             ['Master', 'Можно все кроме админки и инженера'],
             ['Brigadir', 'Можно все кроме админки, инженера и мастера'],
             ['Worker', 'Можно все кроме админки, инженера, мастера и бригадира'],

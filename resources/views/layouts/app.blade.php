@@ -110,6 +110,10 @@
                                         <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
+                                         <!-- Формируем команди -->
+                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
+                                            {{ __('Teams') }}
+                                        </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Settings') }}
                                         </a>
@@ -135,6 +139,10 @@
                                         <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
+                                         <!-- Формируем команди -->
+                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
+                                            {{ __('Teams') }}
+                                        </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Settings') }}
                                         </a>
@@ -142,7 +150,7 @@
                                 </li>
                             @elseif(Auth::user()->roles->first()->name == 'Engineer')
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Ingeener Panel') }}</a>
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Engineer Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="{{ route('projects.index') }}">
                                             {{ __('Projects') }}
@@ -152,6 +160,13 @@
                                         </a>
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
+                                        </a>
+                                         <a class="dropdown-item" href="{{ route('users.index') }}">
+                                            {{ __('Users') }}
+                                        </a>
+                                        <!-- Формируем команди -->
+                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
+                                            {{ __('Teams') }}
                                         </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Reports') }}
@@ -173,6 +188,13 @@
                                         </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Reports') }}
+                                        </a>
+                                         <a class="dropdown-item" href="{{ route('users.index') }}">
+                                            {{ __('Users') }}
+                                        </a>
+                                         <!-- Формируем команди -->
+                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
+                                            {{ __('Teams') }}
                                         </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Workers') }}
@@ -200,6 +222,13 @@
                                         </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Workers') }}
+                                        </a>
+                                         <!-- Формируем команди -->
+                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
+                                            {{ __('Teams') }}
+                                        </a>
+                                         <a class="dropdown-item" href="{{ route('users.index') }}">
+                                            {{ __('Users') }}
                                         </a>
                                         <a class="dropdown-item" href="">
                                             {{ __('Settings') }}

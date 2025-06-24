@@ -88,5 +88,11 @@ Route::delete('/users/{id}', [App\Http\Controllers\UserController::class, 'destr
 Route::get('/usersnew', [App\Http\Controllers\UserController::class, 'create'])->name('users.create');
 // user.store
 Route::post('/usersnew', [App\Http\Controllers\UserController::class, 'store'])->name('usersstore');
+// teams.index
+Route::get('/Formteams', [App\Http\Controllers\UserController::class, 'Form_teams'])->name('teams.index');
+// // connect.users post
+Route::post('/connect.users', [App\Http\Controllers\UserController::class, 'connectUsers'])->name('connect.users');
+  
 // Reports
+//
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');

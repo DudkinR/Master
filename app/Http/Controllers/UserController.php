@@ -46,6 +46,30 @@ class UserController extends Controller
         {
             $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users);
         }
+         if(Auth::user()->roles->first()->name ==="Engineer")
+        {
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
+            // only Master and Brigadir
+            ->whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Master', 'Brigadir']);
+            });
+        }
+         if(Auth::user()->roles->first()->name ==="Master")
+        {
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
+            // only Brigadir
+            ->whereHas('roles', function($query) {
+                $query->where('roles.name', ['Brigadir', 'Worker']);
+            });
+        }
+        if(Auth::user()->roles->first()->name ==="Brigadir")
+        {
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
+            // only Worker
+            ->whereHas('roles', function($query) {
+                $query->where('roles.name', ['Worker']);
+            });
+        }
         elseif($request->has('enterprises')) {
             $users = (new EnterpriseFilter($request->enterprises))->handle($users);  
         }
@@ -162,5 +186,79 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+        $user = User::findOrFail($id);
+        // Detach roles, departments, and enterprises
+        $user->roles()->detach();
+        $user->departments()->detach();
+        $user->enterprises()->detach();
+        // Delete user
+        $user->delete();
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
+    }
+    // Form_teams 
+    public function Form_teams()
+    {
+
+
+        // Get users with their relationships
+        $users = User::with(['roles', 'departments', 'enterprises' , 'children']);
+
+        if(Auth::user()->roles->first()->name ==="Boss")
+        {
+            $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users);
+
+        }
+         if(Auth::user()->roles->first()->name ==="Engineer")
+        {
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
+            // only Master and Brigadir
+            ->whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Master', 'Brigadir']);
+            });
+          
+        }
+         if(Auth::user()->roles->first()->name ==="Master")
+        {
+            
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
+            // only Brigadir
+            ->whereHas('roles', function($query) {
+                $query->where('roles.name', ['Brigadir', 'Worker']);
+            });
+        }
+        if(Auth::user()->roles->first()->name ==="Brigadir")
+        {
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
+            // only Worker
+            ->whereHas('roles', function($query) {
+                $query->where('roles.name', ['Worker']);
+            });
+           
+        }
+        $users = $users->get();
+        $supervisors = $users->filter(fn($u) => $u->children->isNotEmpty());
+        $unsupervised = $users->filter(fn($u) => $u->children->isEmpty());
+
+        
+        return view('users.teams', compact('users', 'supervisors', 'unsupervised'));
+    }   
+    // connect.users
+    public function connectUsers(Request $request)
+    {
+        $user = User::findOrFail($request->input('user_id'));
+        $relatedUser = User::findOrFail($request->input('related_user_id'));
+
+        // Attach the related user to the user
+        $user->children()->attach($relatedUser->id);
+
+        // Optionally, you can also attach the user to the related user's supervisors
+        $relatedUser->supervisors()->attach($user->id);
+        // json response
+
+        return  response()->json([
+            'success' => true,
+            'message' => 'Users connected successfully.',
+            'user' => $user->load('children', 'supervisors'), // Load relationships for the response
+        ]);
     }
 }

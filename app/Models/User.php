@@ -71,4 +71,15 @@ class User extends Authenticatable
         return $this->belongsToMany(Department::class, 'user_department')
                     ->withTimestamps();
     }
+   // Начальник → його підлеглі
+    public function children()
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'user_id', 'related_user_id')->withTimestamps();
+    }
+
+    // Підлеглий → його начальники
+    public function supervisors()
+    {
+        return $this->belongsToMany(User::class, 'user_user', 'related_user_id', 'user_id')->withTimestamps();
+    }
 }

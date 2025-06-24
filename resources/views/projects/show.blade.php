@@ -29,88 +29,99 @@
     </div>
     <div class="mt-5">
         <h3>Завдання в рамках цього проекту</h3>
-         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
+                    <!-- Кнопка відкриття модального вікна -->
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
                 Створити нове завдання
             </button>
-        <!-- Modal для створення нового завдання -->
-        <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="createTaskModalLabel">Створити нове завдання</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                            <div class="mb-3 bg-dark p-3">
-                                <label for="search_etalon" class="form-label text-white" style="font-weight: bold; font-size: 1.2em; color: #fff; margin-bottom: 10px;">Пошук еталона</label>
-                                <input type="text" class="form-control" id="search_etalon" name="search_etalon">
-                            </div>
-                            <hr>
-                        <form action="{{ route('tasks.store') }}" method="POST">
-                            @csrf
-                            <input type="hidden" name="project_id" value="{{ $project->id }}">
-                     
-                            <div class="mb-3">
-                                <label for="order" class="form-label">Порядок завдання</label>
-                                <input type="number" class="form-control" id="order" name="order" min="1" required value="{{ $project->tasks->count() + 1 }}">
-                            </div>
-                            <div class="mb-3">
-                                <label for="name" class="form-label">Назва завдання</label>
-                                <input type="text" class="form-control" id="name" name="name" required>
-                            </div>
-                            <div class="mb-3">
-                                <label for="description" class="form-label">Опис завдання</label>
-                                <textarea class="form-control" id="description" name="description" rows="3"></textarea>
-                            </div>
-                           <div class="mb-3">
-                                <label for="start_date" class="form-label">Дата початку</label>
-                                <input type="date" class="form-control" id="start_date" name="start_date"  value="{{ now()->format('Y-m-d') }}" >
-                            </div>
-                            <div class="mb-3">
-                                <label for="end_date" class="form-label">Дата завершення</label>
-                                <input type="date" class="form-control" id="end_date" name="end_date"  value="{{ now()->addDays(30)->format('Y-m-d') }}" >
-                            </div>
-                            <div class="mb-3">
-                                <label for="estimated_hours" class="form-label">Орієнтовні чоловіко - години</label>
-                                <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" min="0" step="0.01"  value="0">
-                            </div>
-                            <div class="mb-3">
-                                <label for="actual_hours" class="form-label">Фактичні години</label>
-                                <input type="number" class="form-control" id="actual_hours" name="actual_hours" min="0" step="0.01" value="0">
-                            </div>
-                            <div class="mb-3">
-                                <label for="progress" class="form-label">Прогрес (%)</label>
-                                <input type="number" class="form-control" id="progress" name="progress" min="0" max="100" step="1" value="0">
-                            </div>
-                            <div class="mb-3">
-                                <label for="quantity" class="form-label">Кількість</label>
-                                <input type="number" class="form-control" id="quantity" name="quantity" min="0" step="1" value="0">   
-                            </div>
-                            <label for="unit" class="form-label">Одиниця виміру</label>
-                            <select class="form-select mb-3" id="unit" name="unit" >
-                                <option value="" selected disabled>Оберіть одиницю виміру</option>
+
+            <!-- Модальне вікно -->
+            <div class="modal fade" id="createTaskModal" tabindex="-1" aria-labelledby="createTaskModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg"> {{-- Збільшений розмір --}}
+                    <form action="{{ route('tasks.store') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="project_id" value="{{ $project->id }}">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="createTaskModalLabel">Створити нове завдання</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                        </div>
+                        <div class="modal-body">
+                                <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="order" class="form-label">Порядок</label>
+                            <input type="number" class="form-control" id="order" name="order" value="{{ $project->tasks->count() + 1 }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="name" class="form-label">Назва</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="description" class="form-label">Опис</label>
+                            <textarea class="form-control" id="description" name="description" rows="2"></textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="start_date" class="form-label">Початок</label>
+                            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ now()->format('Y-m-d') }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="end_date" class="form-label">Завершення</label>
+                            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ now()->addDays(30)->format('Y-m-d') }}">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="estimated_hours" class="form-label">Оцінка годин</label>
+                            <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" step="0.01" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="actual_hours" class="form-label">Факт годин</label>
+                            <input type="number" class="form-control" id="actual_hours" name="actual_hours" step="0.01" value="0">
+                        </div>
+                        <div class="col-md-4">
+                            <label for="progress" class="form-label">Прогрес %</label>
+                            <input type="number" class="form-control" id="progress" name="progress" max="100" value="0">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="quantity" class="form-label">Кількість</label>
+                            <input type="number" class="form-control" id="quantity" name="quantity" step="1" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="unit" class="form-label">Одиниця</label>
+                            <select class="form-select" id="unit" name="unit">
+                                <option disabled selected>Оберіть...</option>
                                 <option value="шт">Штуки</option>
                                 <option value="м">Метри</option>
-                                <option value="м2">Квадратні метри</option>
-                                <option value="м3">Кубічні метри</option>
+                                <option value="м2">м²</option>
+                                <option value="м3">м³</option>
                                 <option value="год">Години</option>
                                 <option value="т">Тони</option>
                                 <option value="л">Літри</option>
                                 <option value="кг">Кілограми</option>
-                                <option value="шт/год">Штуки на годину</option>
+                                <option value="шт/год">Шт/год</option>
                             </select>
-                            </div>     
-                             <div class="mb-3">
-                                <label for="etalon_task" class="form-label">Взяти як еталонне завдання</label>                       
-                                <input type="checkbox" class="form-check-input" id="etalon_task" name="etalon_task">
-                            </div>
+                        </div>
 
-                            <button type="submit" class="btn btn-primary">Створити</button>
-                        </form>
+                        <div class="col-md-6">
+                            <label for="etalon_task" class="form-label">Еталонне</label>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="etalon_task" name="etalon_task">
+                                <label class="form-check-label" for="etalon_task">Так</label>
+                            </div>                            
+                        </div>
+                        <div class="col-md-6">
+                            <label for="submit_button" class="form-label">Кнопка відправки</label>
+                            <button type="submit" class="btn btn-primary w-100" id="submit_button">Створити завдання</button>
+                        </div>
                     </div>
-                </div>  
+                </div>
+                </div>
             </div>
         </div>
+
+    </div>
+</div>
+       
             @if($project->tasks->isEmpty())
                 <p>Немає завдань для цього проекту.</p>
             @else

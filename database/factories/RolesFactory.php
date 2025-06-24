@@ -21,6 +21,7 @@ class RolesFactory extends Factory
         return [
             'name' => fake()->randomElement([
                 'Admin',
+                'Boss',
                 'Engineer',
                 'Master',
                 'Brigadir',
@@ -29,6 +30,7 @@ class RolesFactory extends Factory
             ]),
             'description' => fake()->sentence(6, true) . ' ' . fake()->randomElement([
                 'Можно все',
+                'Можно все кроме админки',
                 'Можно все кроме админки',
                 'Можно все кроме админки и инженера',
                 'Можно все кроме админки, инженера и мастера',

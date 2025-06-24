@@ -21,7 +21,7 @@ class RolesFactory extends Factory
         return [
             'name' => fake()->randomElement([
                 'Admin',
-                'Ingenier',
+                'Engineer',
                 'Master',
                 'Brigadir',
                 'Worker',

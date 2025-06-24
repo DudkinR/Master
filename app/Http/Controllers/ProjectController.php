@@ -17,16 +17,16 @@ class ProjectController extends Controller
     {
         //
         $engs = User::whereHas('roles', function ($query) {
-            $query->where('name', 'Ingenier');
+            $query->where('name', 'Engineer');
         })->with(['roles' => function ($q) {
-            $q->where('name', 'Ingenier');
+            $q->where('name', 'Engineer');
         }])->get();
          if(Auth::user()->roles->first()->name ==="Boss")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
             $departmentId = Auth::user()->departments->pluck('id');
             $engs = User::whereHas('roles', function ($query) {
-                $query->where('name', 'Ingenier');
+                $query->where('name', 'Engineer');
             })
             ->where(function ($query) use ($enterpriseId, $departmentId) {
                 $query->whereHas('enterprises', function ($q) use ($enterpriseId) {
@@ -36,7 +36,7 @@ class ProjectController extends Controller
                 });
             })
             ->with(['roles' => function ($q) {
-                $q->where('name', 'Ingenier');
+                $q->where('name', 'Engineer');
             }])->get();
 
         }

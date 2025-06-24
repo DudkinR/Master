@@ -85,7 +85,7 @@
                                     </a>
 
                                 </li>                            
-                            @elseif(Auth::user()->roles->first()->id==1) 
+                            @elseif(Auth::user()->roles->first()->name == 'Admin')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Admin Panel') }}</a>
                                      <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -116,7 +116,7 @@
 
                                     </div>
                                 </li>
-                            @elseif(Auth::user()->roles->first()->id==2)
+                            @elseif(Auth::user()->roles->first()->name == 'Boss')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -132,7 +132,7 @@
                                         <a class="dropdown-item" href="">
                                             {{ __('Reports') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
+                                        <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
                                         <a class="dropdown-item" href="">
@@ -140,7 +140,7 @@
                                         </a>
                                     </div>
                                 </li>
-                            @elseif(Auth::user()->roles->first()->id==3)
+                            @elseif(Auth::user()->roles->first()->name == 'Engineer')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Ingeener Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -158,7 +158,7 @@
                                         </a>
                                     </div>
                                 </li>
-                            @elseif(Auth::user()->roles->first()->id==4)
+                            @elseif(Auth::user()->roles->first()->name == 'Master')
                                  <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Master Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -182,7 +182,7 @@
                                         </a>
                                     </div>
                                 </li>
-                            @elseif(Auth::user()->roles->first()->id==5)
+                            @elseif(Auth::user()->roles->first()->name == 'Brigadir')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Brigadir Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -206,7 +206,7 @@
                                         </a>
                                     </div>
                                 </li>
-                            @elseif(Auth::user()->roles->first()->id==6)
+                            @elseif(Auth::user()->roles->first()->name == 'Worker')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Worker Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
@@ -227,7 +227,7 @@
                                         </a>
                                     </div>
                                 </li>
-                            @elseif(Auth::user()->roles->first()->id==7)    
+                            @elseif(Auth::user()->roles->first()->name == 'Guest')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">

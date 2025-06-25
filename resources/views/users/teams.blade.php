@@ -26,54 +26,175 @@
 </style>
 
 <div class="container my-4">
-    <h2>👑 Ієрархія персоналу</h2>
+    <h2>Ієрархія персоналу</h2>
     <ul id="tree" class="list-unstyled">
-        <li class="node boss">
-            👑 Бос
-            <ul class="children list-unstyled">
-                <li class="node master">
-                    🛠️ Майстер 1
-                    <ul class="children list-unstyled">
-                        <li class="node brigadier">
-                            👷 Бригадир 1
+        @if($bosses==null )
+            <li class="node unassigned">🔍 Немає босів</li>
+        @else
+            @foreach ($boses as $boss)
+            <li class="node boss">
+            👑 {{ $boss->name}} 
+                @php 
+                $users = $users->reject(function ($user) use ($boss) {
+                    return $user->id === $boss->id;
+                }); 
+                $boses = $boses->reject(function ($user) use ($boss) {
+                    return $user->id === $boss->id;
+                });
+                @endphp
+                @foreach($boss->children as $master)
+                <ul class="children list-unstyled">
+                    <li class="node master">
+                        🛠️ {{ $master->name }}
+                        @php 
+                        $users = $users->reject(function ($user) use ($master) {
+                            return $user->id === $master->id;
+                        }); 
+                        $masters = $master->reject(function ($user) use ($master) {
+                            return $user->id === $master->id;
+                        });
+                        @endphp
+                        @foreach($master->children as $brigadier)
                             <ul class="children list-unstyled">
-                                <li class="node worker">🔧 Робітник 1</li>
-                                <li class="node worker">🔧 Робітник 2</li>
+                                <li class="node brigadier">
+                                    👷 {{ $brigadier->name }}
+                                    @php 
+                                    $users = $users->reject(function ($user) use ($brigadier) {
+                                        return $user->id === $brigadier->id;
+                                    }); 
+                                    $brigadiers = $brigadier->reject(function ($user) use ($brigadier) {
+                                        return $user->id === $brigadier->id;
+                                    });
+                                    @endphp
+                                    @foreach($brigadier->children as $worker)
+                                        <ul class="children list-unstyled">
+                                            <li class="node worker">🔧 {{ $worker->name }}</li>
+                                        </ul>
+                                        @php 
+                                        $users = $users->reject(function ($user) use ( $worker) {
+                                            return $user->id === $worker->id;
+                                        }); 
+                                        $workers = $worker->reject(function ($user) use ($worker) {
+                                            return $user->id === $worker->id;
+                                        });
+                                        @endphp
+                                    @endforeach
+                                </li>
                             </ul>
-                        </li>
-                        <li class="node brigadier">👷 Бригадир 2</li>
-                    </ul>
-                </li>
-                <li class="node master">
-                    🛠️ Майстер 2
+                        @endforeach
+                    </li>
+                </ul>
+            @endforeach    
+            </li>
+            @endforeach
+        @endif
+       @if($masters==null)
+            <li class="node unassigned">🔍 Немає майстрів</li>
+        @endif
+        @foreach($masters as $master)
+        <li class="node master">
+            🛠️ {{ $master->name }}
+            @php 
+            $users = $users->reject(function ($user) use ($master) {
+                return $user->id === $master->id;
+            }); 
+            $masters = $masters->reject(function ($user) use ($master) {
+                return $user->id === $master->id;
+            });
+            @endphp
+            @foreach($master->children as $brigadier)
+            <ul class="children list-unstyled">
+                <li class="node brigadier">
+                    👷 {{ $brigadier->name }}
+                    @php 
+                    $users = $users->reject(function ($user) use ($brigadier) {
+                        return $user->id === $brigadier->id;
+                    }); 
+                    $brigadiers = $brigadier->reject(function ($user) use ($brigadier   ) {
+                        return $user->id === $brigadier->id;
+                    });
+                    @endphp
+                    @foreach($brigadier->children as $worker)
                     <ul class="children list-unstyled">
-                        <li class="node brigadier">👷 Бригадир 3</li>
+                        <li class="node worker">🔧 {{ $worker->name }}</li>
+                        @php 
+                        $users = $users->reject(function ($user) use ($worker) {
+                            return $user->id === $worker->id;
+                        }); 
+                        $workers = $worker->reject(function ($user) use ($worker) {
+                            return $user->id === $worker->id;
+                        });
+                        @endphp
+                    @endforeach
                     </ul>
                 </li>
+            @endforeach
+        </ul>
+        @endforeach
+        @if($brigadiers== null)
+            <li class="node unassigned">🔍 Немає бригадирів</li>
+        @endif
+        @foreach($brigadiers as $brigadier)
+        <li class="node brigadier">
+            👷 {{ $brigadier->name }} 
+            @php 
+           /* $excludedIds = $brigadiers->pluck('id'); 
+            $users = $users->reject(fn($user) => $excludedIds->contains($user->id));
+            $brigadiers = $brigadier->reject(function ($user) use ($brigadier) {
+                return $user->id === $brigadier->id;
+            });*/
+            @endphp
+            @foreach($brigadier->children as $worker)
+            <ul class="children list-unstyled">
+                <li class="node worker">🔧 {{ $worker->name }}</li>
+                @php 
+                $users = $users->reject(function ($user) use ($worker) {
+                    return $user->id === $worker->id;
+                }); 
+                $workers = $worker->reject(function ($user) use ($worker) {
+                    return $user->id === $worker->id;
+                });
+                @endphp
+            @endforeach
             </ul>
         </li>
+        @endforeach
+        @if($workers->isEmpty())
+            <li class="node unassigned">🔍 Немає робітників</li>
+        @endif
+        @foreach($workers as $worker)
+        <li class="node worker">
+            🔧 {{ $worker->name }}       
+            @php /*
+            $users = $users->reject(function ($user) use ($worker) {
+                return $user->id === $worker->id;
+            }); 
+            $workers = $worker->reject(function ($user) use ($worker) {
+                return $user->id === $worker->id;
+            }); */
+            @endphp
+        </li>
+        @endforeach
     </ul>
-
+   
     <h4>🗃️ Не прив’язані</h4>
     <ul id="unassigned" class="list-unstyled">
-        <li class="node worker">🔧 Робітник 3</li>
-        <li class="node worker">🔧 Робітник 4</li>
-        <li class="node brigadier">👷 Бригадир 4</li>
+      
+        {{$users->count() }}
          @foreach ($users as $user)
-            @if ($user->supervisors->isEmpty()) {{-- Тільки кореневі (без керівників) --}}
-            @if ($user->roles ->isEmpty())
-                <li class="node unassigned">🔍 {{ $user->name }}</li>   
-            @elseif ($user->roles->first()->name  === 'Boss')
-                    <li class="node boss">👑 {{ $user->name }}</li
+          
+                @if ($user->roles ->isEmpty())
+                    <li class="node unassigned">🔍 {{ $user->name }}</li>   
+                @elseif ($user->roles->first()->name  === 'Boss')
+                    <li class="node boss">👑 {{ $user->name }}</li>
                 @elseif ($user->roles->first()->name   === 'Master')
-                    <li class="node master">🛠️ {{ $user->name }}</li
-                @elseif ($user->roles->first()->name   === 'Brigadier')
-                    <li class="node brigadier">👷 {{ $user->name }}</li
+                    <li class="node master">🛠️ {{ $user->name }}</li>
+                @elseif ($user->roles->first()->name   === 'Brigadir')
+                    <li class="node brigadier">👷 {{ $user->name }}</li>
                 @elseif ($user->roles->first()->name   === 'Worker')
-                <li class="node worker">🔧 {{ $user->name }}</li>               
+                    <li class="node worker">🔧 {{ $user->name }}</li>               
                 @endif
-
-            @endif
+            
         @endforeach
     </ul>
 </div>

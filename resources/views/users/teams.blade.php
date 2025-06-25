@@ -59,6 +59,22 @@
         <li class="node worker">🔧 Робітник 3</li>
         <li class="node worker">🔧 Робітник 4</li>
         <li class="node brigadier">👷 Бригадир 4</li>
+         @foreach ($users as $user)
+            @if ($user->supervisors->isEmpty()) {{-- Тільки кореневі (без керівників) --}}
+            @if ($user->roles ->isEmpty())
+                <li class="node unassigned">🔍 {{ $user->name }}</li>   
+            @elseif ($user->roles->first()->name  === 'Boss')
+                    <li class="node boss">👑 {{ $user->name }}</li
+                @elseif ($user->roles->first()->name   === 'Master')
+                    <li class="node master">🛠️ {{ $user->name }}</li
+                @elseif ($user->roles->first()->name   === 'Brigadier')
+                    <li class="node brigadier">👷 {{ $user->name }}</li
+                @elseif ($user->roles->first()->name   === 'Worker')
+                <li class="node worker">🔧 {{ $user->name }}</li>               
+                @endif
+
+            @endif
+        @endforeach
     </ul>
 </div>
 

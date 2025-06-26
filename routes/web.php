@@ -91,7 +91,7 @@ Route::post('/usersnew', [App\Http\Controllers\UserController::class, 'store'])-
 // teams.index
 Route::get('/Formteams', [App\Http\Controllers\UserController::class, 'Form_teams'])->name('teams.index');
 // // connect.users post
-Route::post('/connect.users', [App\Http\Controllers\UserController::class, 'connectUsers'])->name('connect.users');
+Route::any('/connectusers', [App\Http\Controllers\UserController::class, 'connectUsers'])->name('connect.users');
   
 // Reports
 //

@@ -348,15 +348,13 @@ class UserController extends Controller
         // connect.users
     public function connectUsers(Request $request)
     {
+       // return $request->all();
+        
         $user = User::findOrFail($request->input('user_id'));
-        $relatedUser = User::findOrFail($request->input('related_user_id'));
+        $relatedUser = User::findOrFail($request->input('parent_id'));
 
         // Attach the related user to the user
         $user->children()->attach($relatedUser->id);
-
-        // Optionally, you can also attach the user to the related user's supervisors
-        $relatedUser->supervisors()->attach($user->id);
-        // json response
 
         return  response()->json([
             'success' => true,

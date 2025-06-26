@@ -92,12 +92,38 @@
                     const draggedEl = evt.item;
                     const draggedId = draggedEl.dataset.id;
                     const targetParent = evt.to.closest('.node');
-                    const parentId = targetParent?.dataset?.id;
-                    console.log(`Зв'язування користувача ${draggedId} з ${parentId}`);
+                    const related_user_id = targetParent?.dataset?.id;
+                    console.log(`Зв'язування користувача ${draggedId} з ${related_user_id}`);
+                    // якщо є draggedId з parentId post route(connect.users)
+                    if (draggedId && related_user_id) {
+                        fetch(`{{route('connect.users') }}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': @json csrf_token()
+                            },
+                            body: JSON.stringify({
+                                user_id: draggedId,
+                                parent_id: related_user_id
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            console.log('Успішно оновлено:', data);
+                        })
+                        .catch(error => {
+                            console.error('Помилка при оновленні:', error);
+                        });
+                    }
+                  
+
+
                     
                 }
-            });
+           
         }
+        );
+    }
     
     // Ініціалізація всіх існуючих вкладених списків
    document.addEventListener('DOMContentLoaded', () => {

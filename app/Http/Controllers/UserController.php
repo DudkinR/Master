@@ -199,10 +199,32 @@ class UserController extends Controller
     public function Form_teams()
     {
 
+        if(Auth::user()->roles->first()->name ==="Admin")
+        {
+           $users = User::with(['roles', 'departments', 'enterprises' , 'children'])->get();
+           $users_id = $users->pluck('id');
+              $bosses = User::whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Boss']);
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $bosses_id = $bosses->pluck('id');
+            $masters = User::whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Master']);
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $masters_id = $masters->pluck('id');
+            $brigadiers = User::whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Brigadir']);
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $brigadiers_id = $brigadiers->pluck('id');
+            $workers = User::whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Worker']);
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $workers_id = $workers->pluck('id');
 
-        // Get users with their relationships
-        $users = User::with(['roles', 'departments', 'enterprises' , 'children']);
-
+        }
         if(Auth::user()->roles->first()->name ==="Boss")
         {
              $bosses = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users)
@@ -320,10 +342,10 @@ class UserController extends Controller
         $supervisors = $users->filter(fn($u) => $u->children->isNotEmpty());
         $unsupervised = $users->filter(fn($u) => $u->children->isEmpty());
       
-  //       return compact('users', 'supervisors', 'unsupervised', 'bosses', 'masters', 'brigadiers', 'workers');
-        return view('users.teams', compact('users', 'supervisors', 'unsupervised', 'bosses', 'masters', 'brigadiers', 'workers'));
+      //  return compact('users', 'supervisors', 'unsupervised', 'users_id', 'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id');
+        return view('users.teams', compact('users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id'));
     }
-    // connect.users
+        // connect.users
     public function connectUsers(Request $request)
     {
         $user = User::findOrFail($request->input('user_id'));

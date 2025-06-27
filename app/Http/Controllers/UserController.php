@@ -227,122 +227,102 @@ class UserController extends Controller
         }
         if(Auth::user()->roles->first()->name ==="Boss")
         {
-             $bosses = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users)
-            // only Boss
-            ->whereHas('roles', function($query) {
+            $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
+            ->get();
+            $users_id = $users->pluck('id');
+            $bosses = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Boss']);
-            });
-             $masters=(new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $bosses_id = $bosses->pluck('id');
+            $masters = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Master']);
-            });
-            $brigadiers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $masters_id = $masters->pluck('id');
+            $brigadiers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Brigadir']);
-            });
-
-            $workers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $brigadiers_id = $brigadiers->pluck('id');
+            $workers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Worker']);
-            });
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $workers_id = $workers->pluck('id');
 
         }
          if(Auth::user()->roles->first()->name ==="Engineer")
         {
-             $bosses = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users)
-             ->whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Boss']);
-            });
-             $masters=(new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
+            // only Master and Brigadir
             ->whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Master', 'Brigadir']);
+            })->get();
+            $users_id = $users->pluck('id');
+            $bosses =null;   
+            $masters = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Master']);
-            });
-            $brigadiers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $masters_id = $masters->pluck('id');
+            $brigadiers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Brigadir']);
-            });
-
-            $workers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $brigadiers_id = $brigadiers->pluck('id');
+            $workers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Worker']);
-            });
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $workers_id = $workers->pluck('id');
+            
+            
           
         }
          if(Auth::user()->roles->first()->name ==="Master")
         {           
-            $bosses =null;     
-             
-           $masters=User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Master']);
-            })
-            ->whereHas('departments', function($query) {
-                $query->whereIn('department.id', [Auth::user()->departments->pluck('id')]);
-            })
-            ->whereHas('enterprises', function($query) {
-                $query->whereIn('enterprise.id', [Auth::user()->enterprises->pluck('id')]);
-            })
-            ->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();  
-            
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
+            // only Brigadir
+            ->whereHas('roles', function($query) {
+                $query->whereIn('roles.name', ['Brigadir']);
+            })->get();
+            $users_id = $users->pluck('id');
+            $bosses =null;   
+            $masters =null; 
             $brigadiers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Brigadir']);
-            })
-                        ->whereHas('departments', function($query) {
-                $query->whereIn('department.id', [Auth::user()->departments->pluck('id')]);
-            })
-            ->whereHas('enterprises', function($query) {
-                $query->whereIn('enterprise.id', [Auth::user()->enterprises->pluck('id')]);
-            })
-            ->with(['roles', 'departments', 'enterprises' , 'children'])
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
             ->get();
-
+            $brigadiers_id = $brigadiers->pluck('id');
             $workers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Worker']);
-            }) ->whereHas('departments', function($query) {
-                $query->whereIn('department.id', [Auth::user()->departments->pluck('id')]);
-            })
-            ->whereHas('enterprises', function($query) {
-                $query->whereIn('enterprise.id', [Auth::user()->enterprises->pluck('id')]);
-            })
-            ->with(['roles', 'departments', 'enterprises' , 'children'])
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
             ->get();
-            $users =User::whereHas('departments', function($query) {
-                $query->whereIn('department.id', [Auth::user()->departments->pluck('id')]);
-            })
-            ->whereHas('enterprises', function($query) {
-                $query->whereIn('enterprise.id', [Auth::user()->enterprises->pluck('id')]);
-            })
-            ->with(['roles', 'departments', 'enterprises' , 'children'])->get();
+            $workers_id = $workers->pluck('id');
             
 
         }
         if(Auth::user()->roles->first()->name ==="Brigadir")
         {
+           
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
+            // only Worker
+            ->whereHas('roles', function($query) {
+                $query->where('roles.name', ['Worker']);
+            })->get();
+            $users_id = $users->pluck('id');
             $bosses =null;   
             $masters =null; 
-            $brigadiers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir']);
-            })->get();
-            $workers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
+            $brigadiers =null; 
+            $workers = User::whereHas('roles', function($query) {
                 $query->whereIn('roles.name', ['Worker']);
-            })->get();
-           
+            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            ->get();
+            $workers_id = $workers->pluck('id');
         }
   
-        $supervisors = $users->filter(fn($u) => $u->children->isNotEmpty());
-        $unsupervised = $users->filter(fn($u) => $u->children->isEmpty());
-      
-      //  return compact('users', 'supervisors', 'unsupervised', 'users_id', 'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id');
+  
         return view('users.teams', compact('users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id'));
     }
         // connect.users
@@ -352,7 +332,15 @@ class UserController extends Controller
         
         $user = User::findOrFail($request->input('user_id'));
         $relatedUser = User::findOrFail($request->input('parent_id'));
+        // delete releated  children  from any other user
+        $potentialParents = User::whereHas('children', function ($query) use ($user) {
+            $query->where('related_user_id', $relatedUser->id);
+        })->get();
 
+        foreach ($potentialParents as $parent) {
+            // Detach the related user from any other user
+            $parent->children()->detach($relatedUser->id);
+        }
         // Attach the related user to the user
         $user->children()->attach($relatedUser->id);
 

@@ -33,46 +33,47 @@
             <li class="node unassigned">🔍 Немає босів</li>
         @else
             @foreach ($bosses_id as $boss)
-            <li class="node boss" data-id="{{ $users->find($boss)->id }}">
-            👑 {{ $users->find($boss)->name}}
-             <ul class="children list-unstyled" data-id="{{ $users->find($boss)->id }}"></ul>
-            </li>
-            @php
-            // delete index fron $users_id []
-            $users_id = $users_id->filter(function($id) use ($boss) {
-                return $id !== $boss;
-            });
-            @endphp
+               <li class="node boss" data-id="{{ $users->find($boss)->id }}">
+                   👑 {{ $users->find($boss)->name}}
+                   <ul class="children list-unstyled" data-id="{{ $users->find($boss)->id }}">
+                       @if (!$users->find($boss)->children->isEmpty())
+                           @foreach ($users->find($boss)->children as $child)
+                               @include('users.partials.user-tree', ['userId' => $child->id, 'users' => $users])
+                           @endforeach
+                       @endif
+                   </ul>
+               </li>
+
             @endforeach
         @endif
     </ul>
                 
     <h4>🗃️ Не прив’язані</h4>
     <ul id="unassigned" class="list-unstyled">
+         @if($users_id->isEmpty())
+            <li class="node unassigned" data-id="0">🔍 Немає не прив'язаних користувачів</li>
+         @endif
+         {{-- Count of users --}}
       
         {{$users->count() }}
          @foreach ($users_id as $u)
           @php 
             $user = $users->find($u);
           @endphp
-                @if ($user->roles ->isEmpty())
-                    <li class="node unassigned" data-id="{{ $user->id }}">🔍 {{ $user->name }}</li>   
-
-                @elseif ($user->roles->first()->name  === 'Boss')
-                    <li class="node boss" data-id="{{ $user->id }}">👑 {{ $user->name }}
-                         <ul class="children list-unstyled" data-id="{{ $user->id }}"></ul>
-                    </li>
-                @elseif ($user->roles->first()->name   === 'Master')
-                    <li class="node master" data-id="{{ $user->id }}">🛠️ {{ $user->name }}
-                         <ul class="children list-unstyled" data-id="{{ $user->id }}"></ul>
-                    </li>
-                @elseif ($user->roles->first()->name   === 'Brigadir')
-                    <li class="node brigadier" data-id="{{ $user->id }}">👷 {{ $user->name }}
-                         <ul class="children list-unstyled" data-id="{{ $user->id }}"></ul>
-                    </li>   
-                @elseif ($user->roles->first()->name   === 'Worker')
-                    <li class="node worker" data-id="{{ $user->id }}">🔧 {{ $user->name }}</li>               
-                @endif
+            @if ($user->children->isEmpty())
+                <li class="node unassigned" data-id="{{ $user->id }}">
+                    {{ $user->name }} ({{ $user->roles->first()->name ?? 'Невідомо' }})
+                    <ul class="children list-unstyled" data-id="{{ $user->id }}">
+                        @foreach ($user->children as $child)
+                            @include('users.partials.user-tree', ['userId' => $child->id, 'users' => $users])
+                        @endforeach
+                    </ul>
+                </li>
+            @else
+                <li class="node unassigned" data-id="{{ $user->id }}">
+                    {{ $user->name }} ({{ $user->roles->first()->name ?? 'Невідомо' }})
+                </li>
+            @endif             
             
         @endforeach
     </ul>
@@ -92,38 +93,12 @@
                     const draggedEl = evt.item;
                     const draggedId = draggedEl.dataset.id;
                     const targetParent = evt.to.closest('.node');
-                    const related_user_id = targetParent?.dataset?.id;
-                    console.log(`Зв'язування користувача ${draggedId} з ${related_user_id}`);
-                    // якщо є draggedId з parentId post route(connect.users)
-                    if (draggedId && related_user_id) {
-                        fetch(`{{route('connect.users') }}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': @json csrf_token()
-                            },
-                            body: JSON.stringify({
-                                user_id: draggedId,
-                                parent_id: related_user_id
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log('Успішно оновлено:', data);
-                        })
-                        .catch(error => {
-                            console.error('Помилка при оновленні:', error);
-                        });
-                    }
-                  
-
-
+                    const parentId = targetParent?.dataset?.id;
+                    console.log(`Зв'язування користувача ${draggedId} з ${parentId}`);
                     
                 }
-           
+            });
         }
-        );
-    }
     
     // Ініціалізація всіх існуючих вкладених списків
    document.addEventListener('DOMContentLoaded', () => {

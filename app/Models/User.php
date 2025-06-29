@@ -87,4 +87,19 @@ class User extends Authenticatable
     {
         return $this->roles()->where('name', $role)->exists();
     }
+    public function isBoss()
+    {
+        return $this->roles->pluck('name')->contains('Boss');
+    }
+
+    public function isMaster()
+    {
+        return $this->roles->pluck('name')->contains('Master');
+    }
+
+    public function isBrigadir()
+    {
+        return $this->roles->pluck('name')->contains('Brigadir');
+    }
+
 }

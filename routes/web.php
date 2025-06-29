@@ -96,3 +96,18 @@ Route::any('/connectusers', [App\Http\Controllers\UserController::class, 'connec
 // Reports
 //
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+
+// пост tasks.complete
+Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+// пост tasks.start
+Route::post('/tasks/{id}/start', [TaskController::class, 'start'])->name('tasks.start');
+// tasks.pause
+Route::post('/tasks/{id}/pause', [TaskController::class, 'pause'])->name('tasks.pause');
+// tasks.end
+Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end');
+// machines.start
+Route::post('/machines/{id}/start', [MachineController::class, 'start'])->name('machines.start');
+// machines.stop
+Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('machines.stop');
+// tasks.report_issue
+Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])->name('tasks.report_issue');

@@ -224,3 +224,24 @@
 </script>
 
 @endsection
+
+
+         @if(empty($masters_id)    )
+            <li class="node unassigned">🔍 Немає майстрів</li>
+        @else
+            @foreach ($masters_id as $master)
+               <li class="node master" data-id="{{ $master }}">
+                  {{ $icons['Master']}} {{ $users->find($master)->name}}
+                   <ul class="children list-unstyled" data-id="{{ $master }}">
+                    @if(!empty($master))
+                        @foreach ($master as $child)
+                            @include('users.partials.user-tree', ['userId' => $child, 'users' => $users])
+                        @endforeach  
+                    @else
+                        <li class="node unassigned">🔍 Немає майстрів</li>
+                    @endif                   
+                   </ul>
+               </li>
+            @endforeach
+        @endif    
+    </ul>

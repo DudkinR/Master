@@ -198,156 +198,224 @@ class UserController extends Controller
     // Form_teams 
     public function Form_teams()
     {
+        $users_id =[];
+        $bosses_id =[];
+        $masters_id =[];
+        $brigadiers_id =[];
+        $workers_id =[];
+        $clean_users_id =[];
 
-        if(Auth::user()->roles->first()->name ==="Admin")
+        if (Auth::user()->roles->first()->name === "Admin") {
+
+            // Отримати всіх користувачів одразу з потрібними зв'язками
+           $users = User::orderBy('name')
+              ->with(['roles', 'children'])
+           ->get();
+           foreach($users as $user) {
+                if(in_array($user->id, $clean_users_id)) {
+                    continue; // Пропустити користувачів, які вже були додані
+                }
+                $user->load(['roles', 'children','supervisors']);
+                if($user->roles->isEmpty()||optional($user->supervisors)->isEmpty()) {
+                    $users_id[] = $user->id;
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Boss") {
+                    $bosses_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $bosses_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Master") {
+                    $masters_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $masters_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Brigadir") {
+                    $brigadiers_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $brigadiers_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Worker") {
+                    $workers_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $workers_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+             }
+
+            }
+                        // $users->pluck('id') delete all  $clean_users_id  $bosses_id, $masters_id, $brigadiers_id, $workers_id
+            $users_id = $users->pluck('id')
+            ->diff($clean_users_id)
+            ->diff($bosses_id)
+            ->diff($masters_id)
+            ->diff($brigadiers_id)
+            ->diff($workers_id)
+            ->toArray();
+        }
+
+        if(Auth::user()->roles->first()->name ==="Boss" ||Auth::user()->roles->first()->name ==="Engineer") 
         {
-           $users = User::with(['roles', 'departments', 'enterprises' , 'children'])->get();
-           $users_id = $users->pluck('id');
-              $bosses = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Boss']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $bosses_id = $bosses->pluck('id');
-            $masters = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Master']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $masters_id = $masters->pluck('id');
-            $brigadiers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $brigadiers_id = $brigadiers->pluck('id');
-            $workers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Worker']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $workers_id = $workers->pluck('id');
+             // Отримати всіх користувачів одразу з потрібними зв'язками
+           $users = User::orderBy('name')
+              ->whereHas('enterprises', function($query) {
+                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
+                })
+                ->whereHas('departments', function($query) {
+                    $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
+                })
+              ->with(['roles', 'children'])
+           ->get();
+           foreach($users as $user) {
+                if(in_array($user->id, $clean_users_id)) {
+                    continue; // Пропустити користувачів, які вже були додані
+                }
+                $user->load(['roles', 'children','supervisors']);
+                if($user->roles->isEmpty()||optional($user->supervisors)->isEmpty()) {
+                    $users_id[] = $user->id;
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Boss") {
+                    $bosses_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $bosses_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Master") {
+                    $masters_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $masters_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Brigadir") {
+                    $brigadiers_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $brigadiers_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+                }
+                if($user->roles->isNotEmpty() &&  $user->roles->first()->name === "Worker") {
+                    $workers_id[] = $user->id;
+                    if(!$user->children->isEmpty()) {
+                        $workers_id[$user->id]  = $user->children->pluck('id');
+                        $clean_users_id = array_merge($clean_users_id, $user->children->pluck('id')->toArray());
+                    }
+             }
+
+            }
+                        // $users->pluck('id') delete all  $clean_users_id  $bosses_id, $masters_id, $brigadiers_id, $workers_id
+            $users_id = $users->pluck('id')
+            ->diff($clean_users_id)
+            ->diff($bosses_id)
+            ->diff($masters_id)
+            ->diff($brigadiers_id)
+            ->diff($workers_id)
+            ->toArray();
 
         }
-        if(Auth::user()->roles->first()->name ==="Boss")
-        {
-            $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
-            ->get();
-            $users_id = $users->pluck('id');
-            $bosses = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Boss']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $bosses_id = $bosses->pluck('id');
-            $masters = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Master']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $masters_id = $masters->pluck('id');
-            $brigadiers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $brigadiers_id = $brigadiers->pluck('id');
-            $workers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Worker']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $workers_id = $workers->pluck('id');
-
-        }
-         if(Auth::user()->roles->first()->name ==="Engineer")
-        {
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
-            // only Master and Brigadir
-            ->whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Master', 'Brigadir']);
-            })->get();
-            $users_id = $users->pluck('id');
-            $bosses =null;   
-            $masters = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Master']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $masters_id = $masters->pluck('id');
-            $brigadiers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $brigadiers_id = $brigadiers->pluck('id');
-            $workers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Worker']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $workers_id = $workers->pluck('id');
-            
-            
-          
-        }
+    
          if(Auth::user()->roles->first()->name ==="Master")
         {           
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
-            // only Brigadir
-            ->whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir']);
-            })->get();
-            $users_id = $users->pluck('id');
-            $bosses =null;   
-            $masters =null; 
-            $brigadiers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            // Отримати всіх користувачів одразу з потрібними зв'язками
+         $users = User::select('users.*')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
+              ->whereIn('roles.name', ['Master', 'Brigadir', 'Worker'])
+                ->whereHas('enterprises', function($query) {
+                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
+                })
+            ->whereHas('departments', function($query) {
+                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
+                })
+           ->whereDoesntHave('supervisors') 
+            ->with(['roles', 'children'])
+            ->orderBy('roles.id')
             ->get();
-            $brigadiers_id = $brigadiers->pluck('id');
-            $workers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Worker']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
-            ->get();
-            $workers_id = $workers->pluck('id');
-            
+
+           return view('users.teams', compact('users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id')); 
 
         }
         if(Auth::user()->roles->first()->name ==="Brigadir")
         {
-           
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle(User::with(['roles', 'departments', 'enterprises' , 'children']))
-            // only Worker
-            ->whereHas('roles', function($query) {
-                $query->where('roles.name', ['Worker']);
-            })->get();
-            $users_id = $users->pluck('id');
-            $bosses =null;   
-            $masters =null; 
-            $brigadiers =null; 
-            $workers = User::whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Worker']);
-            })->with(['roles', 'departments', 'enterprises' , 'children'])
+            $users = User::select('users.*')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
+              ->whereIn('roles.name', ['Brigadir', 'Worker'])
+                ->whereHas('enterprises', function($query) {
+                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
+                })
+            ->whereHas('departments', function($query) {
+                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
+                })
+          // ->whereDoesntHave('supervisors') 
+            ->with(['roles', 'children'])
+            ->orderBy('roles.id')
             ->get();
-            $workers_id = $workers->pluck('id');
+            $freeUsers = User::select('users.*')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
+              ->whereIn('roles.name', ['Brigadir', 'Worker'])
+                ->whereHas('enterprises', function($query) {
+                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
+                })
+            ->whereHas('departments', function($query) {
+                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
+                })
+            ->whereDoesntHave('supervisors') 
+            ->with(['roles', 'children'])
+            ->orderBy('roles.id')
+            ->get();
+
+           return view('users.teams', compact('users', 'freeUsers'));
+ 
+           
         }
-  
-  
-        return view('users.teams', compact('users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id'));
+   //     return compact( 'users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id');
+        return view('users.teams', compact( 'users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id'));
     }
         // connect.users
     public function connectUsers(Request $request)
     {
-       // return $request->all();
-        
-        $user = User::findOrFail($request->input('user_id'));
-        $relatedUser = User::findOrFail($request->input('parent_id'));
-        // delete releated  children  from any other user
-        $potentialParents = User::whereHas('children', function ($query) use ($user) {
-            $query->where('related_user_id', $relatedUser->id);
-        })->get();
+        $child = User::findOrFail($request->input('user_id')); // Того кого перетягуємо
+        $parentId = $request->input('parent_id');
 
-        foreach ($potentialParents as $parent) {
-            // Detach the related user from any other user
-            $parent->children()->detach($relatedUser->id);
+        if ($parentId!=0) {
+            $parent = User::findOrFail($parentId);
+
+            // Знаходимо всіх користувачів, у яких цей child вже є як дитина, і видаляємо зв’язок
+            $previousParents = User::whereHas('children', function ($query) use ($child) {
+                $query->where('related_user_id', $child->id);
+            })->get();
+
+            foreach ($previousParents as $previousParent) {
+                $previousParent->children()->detach($child->id);
+            }
+
+            // Призначаємо нового батька
+            $parent->children()->attach($child->id);
+
+        } else {
+            // Якщо parent_id немає — прибираємо батьків повністю (знімаємо з ієрархії)
+            $currentParents = User::whereHas('children', function ($query) use ($child) {
+                $query->where('related_user_id', $child->id);
+            })->get();
+
+            foreach ($currentParents as $p) {
+                $p->children()->detach($child->id);
+            }
         }
-        // Attach the related user to the user
-        $user->children()->attach($relatedUser->id);
 
-        return  response()->json([
+        return response()->json([
             'success' => true,
-            'message' => 'Users connected successfully.',
-            'user' => $user->load('children', 'supervisors'), // Load relationships for the response
+            'message' => 'Ієрархія оновлена успішно.',
+            'user' => $child->load('supervisors'), // якщо є зворотній зв'язок
         ]);
     }
+
 }

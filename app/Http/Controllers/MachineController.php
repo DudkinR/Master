@@ -45,11 +45,19 @@ class MachineController extends Controller
             'unit' => $request->input('unit', 'шт'), // Default to 'шт'
         ]);
         $project = Project::findOrFail($request->input('project_id'));
-      
-        return redirect()->route('tasks.edit', $task->id)
+        if ($request->input('views') && $request->input('views') === 'showtask') {
+            
+            return redirect()->route('tasks.show', $task->id)
+                ->with('success', 'Machine created successfully!')
+                ->withInput(['project_id' => $request->input('project_id')])
+                ->withInput(['task_id' => $request->input('task_id')]);
+        } else {
+           return redirect()->route('tasks.edit', $task->id)
                     ->with('success', 'Material created successfully!')                         
                 ->withInput(['project_id' => $request->input('project_id')])
                 ->withInput(['task_id' => $request->input('task_id')]);
+        }
+        
     }
 
     /**

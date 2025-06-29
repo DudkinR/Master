@@ -16,6 +16,8 @@ class Task extends Model
         'order',
         'name',
         'description',
+        //>enum('status', ['pending', 'in_progress', 'completed', 'paused'])
+        'status', // New status column
         'start_date',
         'end_date',
         'estimated_hours',
@@ -58,21 +60,28 @@ class Task extends Model
     public function users()
     {
         return $this->belongsToMany(User::class, 'users_tasks')
-                    ->withPivot('role') // Include the role in the pivot table
-                    ->withTimestamps(); // Include timestamps for the pivot table
+            ->withPivot('role')
+            ->withTimestamps();
     }
+
     public function master()
     {
+        // Один майстер
         return $this->users()->wherePivot('role', 'master')->limit(1);
     }
+
     public function brigadir()
     {
+        // Один бригадир
         return $this->users()->wherePivot('role', 'brigadir')->limit(1);
     }
+
     public function workers()
     {
-        return $this->users()->wherePivot('role', 'worker');        
+        // Багато робітників
+        return $this->users()->wherePivot('role', 'worker');
     }
+
     // All accept master
     public function acceptMaster()
     {
@@ -91,6 +100,17 @@ class Task extends Model
     {
         return $this->belongsToMany(Department::class, 'department_tasks')
                     ->withTimestamps();
+    }
+    // TaskActionLogs
+    public function actionLogs()
+    {
+        return $this->hasMany(TaskActionLog::class);
+    }
+
+    // MachineUsage
+    public function machineUsages()
+    {
+        return $this->hasMany(TaskMachineUsage::class);
     }
 
 

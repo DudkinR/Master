@@ -322,8 +322,7 @@ class UserController extends Controller
     
          if(Auth::user()->roles->first()->name ==="Master")
         {           
-            // Отримати всіх користувачів одразу з потрібними зв'язками
-         $users = User::select('users.*')
+            $users = User::select('users.*')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->join('roles', 'user_roles.role_id', '=', 'roles.id')
               ->whereIn('roles.name', ['Master', 'Brigadir', 'Worker'])
@@ -333,12 +332,26 @@ class UserController extends Controller
             ->whereHas('departments', function($query) {
                  $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
                 })
-           ->whereDoesntHave('supervisors') 
+          // ->whereDoesntHave('supervisors') 
+            ->with(['roles', 'children'])
+            ->orderBy('roles.id')
+            ->get();
+            $freeUsers = User::select('users.*')
+            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
+            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
+              ->whereIn('roles.name', ['Master', 'Brigadir', 'Worker'])
+                ->whereHas('enterprises', function($query) {
+                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
+                })
+            ->whereHas('departments', function($query) {
+                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
+                })
+            ->whereDoesntHave('supervisors') 
             ->with(['roles', 'children'])
             ->orderBy('roles.id')
             ->get();
 
-           return view('users.teams', compact('users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id')); 
+           return view('users.teams', compact( 'users','freeUsers'));
 
         }
         if(Auth::user()->roles->first()->name ==="Brigadir")

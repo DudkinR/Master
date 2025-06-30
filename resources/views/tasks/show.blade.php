@@ -5,12 +5,9 @@
     @if (session('status'))
         <div class="alert alert-success mb-4">{{ session('status') }}</div>
     @endif
-
     <h3 class="mb-4">Картка завдання: <strong>{{ $task->name }}</strong></h3>
-
     <!-- Кнопки управління -->
     <div class="d-flex flex-wrap align-items-center gap-2 mb-4">
-
         {{-- Статус завдання --}}
         @if ($task->status === 'completed')
             <span class="badge bg-success">✅ Завершено</span>
@@ -23,7 +20,6 @@
         @else
             <span class="badge bg-secondary">🕒 Очікує</span>
         @endif
-
         {{-- Остання дія користувача --}}
         @if ($lastAction)
             @php
@@ -36,19 +32,15 @@
                     'issue' => 'Проблема',
                 ];
             @endphp
-
         @else
             <span class="badge bg-secondary">❌ Ще не розпочато</span>
         @endif
-
     </div>
-
     {{-- Кнопки дій --}}
     <div class="d-flex gap-2 mb-4">
         <button id="startBtn" class="btn btn-success {{ ($lastAction && in_array($lastAction->action_type, ['start', 'resume'])) ? 'd-none' : '' }}">
             ▶ Почати роботу
         </button>
-
         <button id="pauseBtn" class="btn btn-warning {{ ($lastAction && in_array($lastAction->action_type, ['start', 'resume'])) ? '' : 'd-none' }}">
             ⏸ Перерва
         </button>

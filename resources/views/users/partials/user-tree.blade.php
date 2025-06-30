@@ -22,18 +22,26 @@
     ];
     $ulex=0;
     @endphp
-
-<li class="node" data-id="{{ $user->id }}">
+    @php
+        if($user->roles->first()->name === "Master") $class_name ='master';
+        elseif($user->roles->first()->name === "Boss") $class_name ='boss';
+        elseif($user->roles->first()->name === "Brigadir") $class_name ='brigadier';
+        else $class_name = 'worker';
+    @endphp
+                
+<li class="node {{$class_name}}" data-id="{{ $user->id }}">
     {{ $icons[$roleName] ?? '🔍' }} {{ $name }}
+    <br>
+    <b>{{ $user->position ?? 'Unknown Position' }}</b>
      <ul class="children list-unstyled" data-id="{{ $user->id }}">
         @forelse ($user->children as $child)
             @include('users.partials.user-tree', ['parentId'=> $user->id, 'userId' => $child->id])
         @empty
             @if($user->roles->first()->name ==="Unassigned" || $user->roles->isEmpty()|| $user->roles->first()->name === "Worker")
-           
+            
             @else 
-               
-            <li class="node unassigned">🔍 Немає підлеглих</li>
+               <li class="unassigned"></li>
+      
             @endif
         @endforelse
     </ul>

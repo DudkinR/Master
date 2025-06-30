@@ -7,18 +7,20 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
 <style>
-    .node {
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        padding: 10px;
-        margin-bottom: 8px;
-        background-color: #fff;
-        cursor: grab;
-    }
-    .boss { background-color: #c8e6c9; }
+  .node {
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: #fff;
+    cursor: grab;
+}
+
+    .boss { background-color:rgb(235, 138, 108); }
     .master { background-color: #fff59d; }
     .brigadier { background-color: #81d4fa; }
-    .worker { background-color: #e0e0e0; }
+    .worker { background-color:rgb(98, 233, 166); }
 
     .children {
         margin-left: 20px;
@@ -56,19 +58,21 @@
                         <li class="node unassigned">🔍 Немає даних про боса з ID {{ $boss_id }}</li>
                         @continue
                     @endif
-                <li class="node boss" data-id="{{ $boss_id }}">
-                    {{ $icons['Boss']}} {{ $boss->name}}
-                    <ul class="children list-unstyled" data-id="{{ $boss_id }}">
-                        @if($boss->children->isNotEmpty())
-                            @foreach ($boss->children as $childId)  
-                                @include('users.partials.user-tree', ['userId' => $childId, 'users' => $users])
-                            @endforeach
-                        @else
-                            <li class="node unassigned">🔍 Немає підлеглих</li>
-                        @endif
+                    <li class="node boss" data-id="{{ $boss_id }}">
+                        {{ $icons['Boss']}} {{ $boss->name}}
+                        <br>
+                        {{ $boss->position }}
+                        <ul class="children list-unstyled" data-id="{{ $boss_id }}">
+                            @if($boss->children->isNotEmpty())
+                                @foreach ($boss->children as $childId)  
+                                    @include('users.partials.user-tree', ['userId' => $childId, 'users' => $users])
+                                @endforeach
+                            @else
+                                 <li class="unassigned"></li>
+                            @endif
 
-                    </ul>
-                </li>
+                        </ul>
+                    </li>
                 @endforeach
             @endif
         @elseif(Auth::user()->roles->first()->name ==="Master")
@@ -79,13 +83,15 @@
             @if($user->roles->first()->name === "Master")
                 <li class="node master" data-id="{{ $user->id }}">
                     {{ $icons['Master']}} {{ $user->name }}
+                    <br> 
+                    <b>{{ $user->position}}</b>
                     <ul class="children list-unstyled" data-id="{{ $user->id }}">
                         @if($user->children->isNotEmpty())
                             @foreach ($user->children as $child)  
                                 @include('users.partials.user-tree', ['parentId'=> $user->id,'userId' => $child->id])
                             @endforeach
                         @else
-                            <li class="node unassigned">🔍 Немає підлеглих</li>
+                            <li class="unassigned"></li>
                         @endif
                     </ul>
                 </li>
@@ -99,13 +105,15 @@
             @if($user->roles->first()->name === "Brigadir")
                 <li class="node brigadier" data-id="{{ $user->id }}">
                     {{ $icons['Brigadir']}} {{ $user->name }}
+                    <br> 
+                    <b>{{ $user->position}}</b>
                     <ul class="children list-unstyled" data-id="{{ $user->id }}">
                         @if($user->children->isNotEmpty())
                             @foreach ($user->children as $child)  
                                 @include('users.partials.user-tree', ['parentId'=> $user->id,'userId' => $child->id])
                             @endforeach
                         @else
-                            <li class="node unassigned">🔍 Немає підлеглих</li>
+                            <li class="unassigned"></li>
                         @endif
                     </ul>
                 </li>
@@ -118,22 +126,39 @@
     <ul id="unassigned" class="list-unstyled">
         @if(Auth::user()->roles->first()->name ==="Master")
         
-         @foreach($freeUsers as $usfuserer)
+         @foreach($freeUsers as $fuser)
             @if($fuser->roles->first()->name !== "Master")
-                <li class="node master" data-id="{{ $fuser->id }}">
+            @php
+                if($fuser->roles->first()->name === "Boss") $class_name ='boss';
+                elseif($fuser->roles->first()->name === "Brigadir") $class_name ='brigadier';
+                elseif($fuser->roles->first()->name === "Worker") $class_name ='worker';
+                else $class_name = 'unassigned';
+            @endphp
+                <li class="node {{$class_name}}" data-id="{{ $fuser->id }}">
                     {{ $icons[$fuser->roles->first()->name]}} {{ $fuser->name }}
+                    <br> 
+                    <b>{{ $fuser->position}}</b>
                     <ul class="children list-unstyled" data-id="{{ $fuser->id }}">                       
                     </ul>
                 </li>
-            @endif
+         @endif
         @endforeach
         @endif
         @if(Auth::user()->roles->first()->name ==="Brigadir")        
             @foreach($freeUsers as $fuser)
-                <li class="node brigadier" data-id="{{ $fuser->id }}">
+            @php
+                if($fuser->roles->first()->name === "Master") $class_name ='master';
+                elseif($user->roles->first()->name === "Boss") $class_name ='boss';
+                elseif($fuser->roles->first()->name === "Brigadir") $class_name ='brigadier';
+                else $class_name = 'worker';
+            @endphp
+                
+                
+                <li class="node {{$class_name}}" data-id="{{ $fuser->id }}">
                  
                     {{ $icons[$fuser->roles->first()->name]}}
-                    {{ $fuser->name }}
+                    {{ $fuser->name }} <br>
+                     <b>{{ $fuser->position}}</b>
                     <ul class="children list-unstyled" data-id="{{ $fuser->id }}">                       
                     </ul>
                 </li>

@@ -133,7 +133,6 @@
 
 <script>
 function set_task_id(task_id) {
-    // Знаходимо  <input type="hidden" name="task_id" value="{{ $task->id }}">
     const taskIdInput = document.querySelector('input[name="task_id"]');
     if (taskIdInput) {
         taskIdInput.value = task_id; // Встановлюємо значення task_id

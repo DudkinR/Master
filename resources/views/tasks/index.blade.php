@@ -2,7 +2,6 @@
 @section('title', 'Завдання')
 @section('content')
 <div class="container my-5">
-
     {{-- Сповіщення --}}
     @if (session('status'))
         <div class="alert alert-success mb-4">
@@ -133,7 +132,6 @@
 
 <script>
 function set_task_id(task_id) {
-    // Знаходимо  <input type="hidden" name="task_id" value="{{ $task->id }}">
     const taskIdInput = document.querySelector('input[name="task_id"]');
     if (taskIdInput) {
         taskIdInput.value = task_id; // Встановлюємо значення task_id

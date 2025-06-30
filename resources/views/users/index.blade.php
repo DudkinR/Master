@@ -123,7 +123,7 @@
             <th scope="col">#</th>
             <th scope="col">Ім'я</th>
             <th scope="col">Електронна пошта</th>
-            <th scope="col">Phone</th>
+            <th scope="col">Position </th>
             <th scope="col">Роль</th>
             <th scope="col">Entrprise</th>
             <th scope="col">Department</th>            
@@ -136,7 +136,7 @@
                 <th scope="row">{{ $user->id }}</th>
                 <td>{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>    
-                <td>{{ $user->phone ?? '-' }}</td>         
+                <td>{{ $user->position ?? '-' }}</td>         
                 <td>
                     @if($user->roles->isEmpty())
                     <span class="text-muted">Без ролі</span>

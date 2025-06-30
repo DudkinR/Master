@@ -92,7 +92,12 @@ Route::post('/usersnew', [App\Http\Controllers\UserController::class, 'store'])-
 Route::get('/Formteams', [App\Http\Controllers\UserController::class, 'Form_teams'])->name('teams.index');
 // // connect.users post
 Route::any('/connectusers', [App\Http\Controllers\UserController::class, 'connectUsers'])->name('connect.users');
-  
+// get loadcsv personals
+Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm'])->name('loadcsv.form');
+// post loadcsv personals
+Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
+// connect.users post
+
 // Reports
 //
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');

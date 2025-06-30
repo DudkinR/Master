@@ -111,7 +111,11 @@
                                          <!-- Формируем команди -->
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
-                                        </a>                                      
+                                        </a>  
+                                        {{--loadcsv.form --}}                                    
+                                        <a class="dropdown-item" href="{{ route('loadcsv.form') }}">
+                                            {{ __('Load CSV') }}
+                                        </a>
 
                                     </div>
                                 </li>

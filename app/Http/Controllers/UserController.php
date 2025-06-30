@@ -418,4 +418,98 @@ class UserController extends Controller
         ]);
     }
 
+    ///loadCsvForm resources\views\users\admin\loadcsv.blade.php
+    public function loadCsvForm()
+    {
+        if (Auth::user()->roles->first()->name !== "Admin") {
+            return redirect()->route('users.index')->with('error', 'You do not have permission to access this page.');
+        }
+        return view('users.admin.loadcsv');
+    }
+    // loadCsv
+    public function loadCsv(Request $request)
+    {
+        if (Auth::user()->roles->first()->name !== "Admin") {
+            return redirect()->route('users.index')->with('error', 'You do not have permission to access this page.');
+        }
+       if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['csv_file'])) {
+            $fileTmpPath = $_FILES['csv_file']['tmp_name'];
+           
+            $handle = fopen($fileTmpPath, 'r');
+
+            if ($handle === false) {
+                die('Не вдалося відкрити файл.');
+            }
+
+            $headerFound = false;
+            $dataRows = [];
+             $workerRole= Role::where('name', 'Worker')->first();
+            while (($row = fgetcsv($handle, 0, ",")) !== false) {
+                // structure of csv file 
+                //tn name department2 department2 position
+                // 12931,	Андрощук Андрій Васильович,	23 ЕРП,	РБУ	, водій навантажувача з потужністю двигуна до 73,5 кВт 4р.
+                // email = tn .@khnpp.atom.gov.ua passw =tn role = Worker 
+                $tn = trim($row[0]);
+                $email = $tn . '@khnpp.atom.gov.ua';
+                $name = trim($row[1]);
+                $departmentId = 1;
+                $enterprisesId = 1;
+                $position = trim($row[4]);
+                // Перевірка наявності користувача з таким же tn
+                $existingUser = User::Where('email', $email)->first();
+                if ($existingUser) {
+                    // Якщо користувач вже існує, оновлюємо його дані
+                    $existingUser->name = $name;
+                    $existingUser->email = $email;
+                    $existingUser->phone =  $tn; // Можливо, телефон це tn
+                    $existingUser->password = bcrypt($tn); // Пароль за замовчування
+                    $existingUser->position = $position; // Додаємо позицію
+                    $existingUser->save();
+                    // Додаємо роль, якщо її ще немає
+                    $existingUser->roles()->detach(); // Видаляємо всі ролі, щоб уникнути дублювання
+                    $existingUser->roles()->attach($workerRole);
+                    // Додаємо департамент, якщо його ще немає
+                    $existingUser->departments()->detach(); // Видаляємо всі департаменти, щоб уникнути дублювання
+                    $existingUser->departments()->attach($departmentId);
+                   
+                    // Додаємо підприємство, якщо його ще немає
+                    $existingUser->enterprises()->detach(); // Видаляємо всі підприємства, щоб уникнути дублювання
+                    $existingUser->enterprises()->attach($enterprisesId);
+                    
+                } else {
+                    // Якщо користувача немає, створюємо нового
+                    $user = new User();
+                    $user->name = $name;
+                    $user->email = $tn . '@khnpp.atom.gov.ua';
+                    $user->phone = $tn; // Можливо, телефон це tn
+                    $user->password = bcrypt($tn); // Пароль за замовчування
+                    $user->position = $position; // Додаємо позицію
+                    $user->save();
+                    // Додаємо роль
+                    $workerRole = Role::where('name', 'Worker')->first();
+                    if ($workerRole) {
+                        $user->roles()->attach($workerRole);
+                    }
+                    // Додаємо департамент
+                    $user->departments()->attach($departmentId);
+                    // Додаємо підприємство
+                    $user->enterprises()->attach($enterprisesId);
+                }
+                // Додаємо користувача до масиву для подальшої обробки
+                $users[] = [
+                    'tn' => $tn,
+                    'name' => $name,
+                    'email' => $tn . '@khnpp.atom.gov.ua',
+                    'phone' => $tn, // Можливо, телефон це tn
+                    'position' => $position,
+                    'department_id' => $departmentId,
+                    'enterprises_id' => $enterprisesId,
+                ];
+            }
+        }
+        
+  
+
+        return redirect()->route('users.index')->with('success', 'Users imported successfully from CSV.');
+    }
 }

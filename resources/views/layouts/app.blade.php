@@ -50,6 +50,8 @@
                                 </li>
                             @endif
                         @else
+                        @php 
+                        /*
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                
@@ -77,6 +79,8 @@
                                     </a>
                                 </div>
                             </li>
+                        */
+                        @endphp
                               @if (!Auth::user()->roles->first())
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -91,12 +95,7 @@
                                         <a class="dropdown-item" href="{{ route('projects.index') }}">
                                             {{ __('Projects') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
+                                     
                                         <a class="dropdown-item" href="">
                                             {{ __('Objects') }}
                                         </a>
@@ -112,10 +111,7 @@
                                          <!-- Формируем команди -->
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Settings') }}
-                                        </a>
+                                        </a>                                      
 
                                     </div>
                                 </li>
@@ -126,9 +122,6 @@
                                         <a class="dropdown-item" href="{{ route('projects.index') }}">
                                             {{ __('Projects') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
@@ -142,9 +135,7 @@
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Settings') }}
-                                        </a>
+              
                                     </div>
                                 </li>
                             @elseif(Auth::user()->roles->first()->name == 'Engineer')
@@ -154,9 +145,7 @@
                                         <a class="dropdown-item" href="{{ route('projects.index') }}">
                                             {{ __('Projects') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
+                                        
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
@@ -167,9 +156,7 @@
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Reports') }}
-                                        </a>
+                                       
                                     </div>
                                 </li>
                             @elseif(Auth::user()->roles->first()->name == 'Master')
@@ -179,15 +166,11 @@
                                         <a class="dropdown-item" href="{{ route('projects.index') }}">
                                             {{ __('Projects') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
+                                        
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Reports') }}
-                                        </a>
+                                       
                                          <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
@@ -195,13 +178,7 @@
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Workers') }}
-                                        </a>
-                                        
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Settings') }}
-                                        </a>
+                                      
                                     </div>
                                 </li>
                             @elseif(Auth::user()->roles->first()->name == 'Brigadir')
@@ -211,18 +188,12 @@
                                         <a class="dropdown-item" href="{{ route('projects.index') }}">
                                             {{ __('Projects') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
+                                       
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Reports') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Workers') }}
-                                        </a>
+                                       
+                                       
                                          <!-- Формируем команди -->
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
@@ -230,54 +201,21 @@
                                          <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Settings') }}
-                                        </a>
+                                       
                                     </div>
                                 </li>
                             @elseif(Auth::user()->roles->first()->name == 'Worker')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Worker Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Reports') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Settings') }}
-                                        </a>
+                                        
                                     </div>
                                 </li>
                             @elseif(Auth::user()->roles->first()->name == 'Guest')
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('reports.index') }}">
-                                            {{ __('Reports') }}
-                                        </a>
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Settings') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{route('users.index')}}">
-                                            {{ __('Users') }}
-                                        </a>
+                                      
                                             
                                     </div>
                                 </li>
@@ -293,6 +231,9 @@
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('home') }}">
+                                        {{ __('Home') }}
                                     </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

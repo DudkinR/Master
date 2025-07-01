@@ -30,10 +30,11 @@
     @endphp
                 
 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
-    {{ $icons[$roleName] ?? '🔍' }} {{ $name }}
+    
+     <ul class="children list-unstyled" data-id="{{ $user->id }}">
+        {{ $icons[$roleName] ?? '🔍' }} {{ $name }} {{ $user->id }}
     <br>
     <b>{{ $user->position ?? 'Unknown Position' }}</b>
-     <ul class="children list-unstyled" data-id="{{ $user->id }}">
         @forelse ($user->children as $child)
             @include('users.partials.user-tree', ['parentId'=> $user->id, 'userId' => $child->id])
         @empty

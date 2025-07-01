@@ -21,6 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'position', // added position field
+        'status', // added status field
         'phone',
         'password',
     ];
@@ -81,7 +82,10 @@ class User extends Authenticatable
     // Підлеглий → його начальники
     public function supervisors()
     {
-        return $this->belongsToMany(User::class, 'user_user', 'related_user_id', 'user_id')->withTimestamps();
+        // only one supervisor
+        return $this->belongsToMany(User::class, 'user_user', 'related_user_id', 'user_id')
+                    ->withTimestamps()
+                    ->limit(1); // Assuming a user can have only one supervisor
     }
     // role
     public function hasRole($role)
@@ -103,4 +107,5 @@ class User extends Authenticatable
         return $this->roles->pluck('name')->contains('Brigadir');
     }
 
+   
 }

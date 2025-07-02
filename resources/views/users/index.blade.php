@@ -23,9 +23,9 @@
     </div>
     <div id="userFilters" class="collapse">
         <div class="card-body">
-        <form  action="{{ route('users.index') }}">
+        <form  action="{{ route('users.index') }}" method="POST" class="mb-3">
             @csrf
-            @method('PUT')
+           
             <div class="input-group mb-3">
             <input type="text" name="search" class="form-control" placeholder="Пошук за ім'ям або email" value="{{ request('search') }}">
             <button class="btn btn-primary" type="submit">Пошук</button>
@@ -132,12 +132,12 @@
         </thead>
         <tbody>
             @foreach($users as $user)
-            <tr>
+                <tr>
                 <th scope="row">{{ $user->id }}</th>
                 <td>{{ $user->name }}</td>
                 <td>{{ $user->email }}</td>    
                 <td>{{ $user->position ?? '-' }}</td>         
-                <td>
+                <td @if($user->status === 'sick') class="text-warning" @elseif($user->status === 'vacation') class="text-success" @endif>
                     @if($user->roles->isEmpty())
                     <span class="text-muted">Без ролі</span>
                     @else
@@ -156,6 +156,8 @@
                         data-name="{{ $user->name }}"
                         data-email="{{ $user->email }}"
                         data-phone="{{ $user->phone }}"
+                        data-position="{{ $user->position }}"
+                        data-status="{{ $user->status }}"
                         data-roles='@json($user->roles->pluck("id"))'
                         data-enterprises='@json($user->enterprises->pluck("id"))'
                         data-departments='@json($user->departments->pluck("id"))'>
@@ -168,7 +170,92 @@
                     </form>
                     @endif
                 </td>
-            </tr>
+                </tr>
+                @if(Auth::user()->roles->first()->name !== 'Admin')
+                    @foreach($user->children as $child)
+                        <tr>
+                            <td>{{ $child->id }}</td>
+                            <td>{{ $child->name }}</td>
+                            <td>{{ $child->email }}</td>
+                            <td>{{ $child->position ?? '-' }}</td>
+                            <td @if($child->status === 'sick') class="text-warning" @elseif($child->status === 'vacation') class="text-success" @endif>
+                                @if($child->roles->isEmpty())
+                                <span class="text-muted">Без ролі</span>
+                                @else
+                                {{ $child->roles->first()->name }}
+                                @endif
+                            </td>
+                            <td>{{ $child->enterprises->first()->name ?? '-' }}</td>
+                            <td>{{ $child->departments->first()->name ?? '-' }}</td>
+                            <td>
+                            @if((Auth::user()->roles->first()->name !== 'Admin' && isset($child->roles->first()->name) && $child->roles->first()->name == 'Admin') || Auth::user()->id == $child->id)
+                            <span class="text-muted">Редагування та видалення недоступні</span>
+                            @else
+                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                data-id="{{ $child->id }}"
+                                data-name="{{ $child->name }}"
+                                data-email="{{ $child->email }}"
+                                data-phone="{{ $child->phone }}"
+                                data-position="{{ $child->position }}"
+                                data-status="{{ $child->status }}"
+                                data-roles='@json($child->roles->pluck("id"))'
+                                data-enterprises='@json($child->enterprises->pluck("id"))'
+                                data-departments='@json($child->departments->pluck("id"))'>
+                                Редагувати
+                            </button>
+                            <form action="{{ route('users.destroy', $child->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                            </form>
+                            @endif
+                            </td>
+                        </tr>                       
+                 
+                        @if($child->children->isNotEmpty())
+                            @foreach($child->children as $grandChild)
+                                <tr>
+                                    <td>{{ $grandChild->id }}</td>
+                                    <td>{{ $grandChild->name }}</td>
+                                    <td>{{ $grandChild->email }}</td>
+                                    <td>{{ $grandChild->position ?? '-' }}</td>
+                                    <td @if($grandChild->status === 'sick') class="text-warning" @elseif($grandChild->status === 'vacation') class="text-success" @endif    >
+                                        @if($grandChild->roles->isEmpty())
+                                        <span class="text-muted">Без ролі</span>
+                                        @else                        
+                                        {{ $grandChild->roles->first()->name }} 
+                                        @endif
+                                    </td>
+                                    <td>{{ $grandChild->enterprises->first()->name ?? '-' }}</td>
+                                    <td>{{ $grandChild->departments->first()->name ?? '-' }}</td>
+                                    <td>
+                                        @if((Auth::user()->roles->first()->name !== 'Admin' && isset($grandChild->roles->first()->name) && $grandChild->roles->first()->name == 'Admin') || Auth::user()->id == $grandChild->id)
+                                        <span class="text-muted">Редагування та видалення недоступні</span>
+                                        @else
+                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                            data-id="{{ $grandChild->id }}"
+                                            data-name="{{ $grandChild->name }}"
+                                            data-email="{{ $grandChild->email }}"
+                                            data-phone="{{ $grandChild->phone }}"
+                                            data-position="{{ $grandChild->position }}"
+                                            data-status="{{ $grandChild->status }}"
+                                            data-roles='@json($grandChild->roles->pluck("id"))'
+                                            data-enterprises='@json($grandChild->enterprises->pluck("id"))'
+                                            data-departments='@json($grandChild->departments->pluck("id"))'>
+                                            Редагувати
+                                        </button>
+                                        <form action="{{ route('users.destroy', $grandChild->id) }}" method="POST" style="display:inline;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                                        </form> 
+                                        @endif    
+                                    </td>
+                                </tr>
+                            @endforeach   
+                        @endif             
+                    @endforeach
+                @endif              
             @endforeach
         </tbody>
         </table>    
@@ -210,18 +297,25 @@
                     </div>
                     <div class="mb-3">
                         <label for="roles" class="form-label">Ролі</label>
-                        <select class="form-select" id="roles" name="roles[]" multiple>
+                        <select class="form-select" id="roles" name="roles" >
                             @foreach($roles as $role)
                                 @if(Auth::user()->roles->first()->name !== 'Admin' && $role->name === 'Admin')
                                     @continue
+                                @elseif(Auth::user()->roles->first()->name == 'Boss' && ($role->name === 'Boss' || $role->name === 'Master' || $role->name === 'Brigadir' || $role->name === 'Worker'))
+                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }}</option>
+                                @elseif(Auth::user()->roles->first()->name == 'Master' && ($role->name === 'Master' || $role->name === 'Brigadir' || $role->name === 'Worker'))
+                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }} </option>
+                                @elseif(Auth::user()->roles->first()->name == 'Brigadir' && ($role->name === 'Brigadir' || $role->name === 'Worker'))
+                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }} </option>
+                                @elseif(Auth::user()->roles->first()->name == 'Worker' && $role->name === 'Worker')
+                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }} </option>
                                 @endif
-                                <option value="{{ $role->id }}">{{ __($role->name) }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="mb-3">
                         <label for="enterprises" class="form-label">Підприємства</label>
-                        <select class="form-select" id="enterprises" name="enterprises[]" multiple>
+                        <select class="form-select" id="enterprises" name="enterprises" >
                             @foreach($enterprises as $enterprise)
                                 <option value="{{ $enterprise->id }}">{{ $enterprise->name }}</option>
                             @endforeach
@@ -229,12 +323,27 @@
                     </div>
                     <div class="mb-3">
                         <label for="departments" class="form-label">Підрозділи</label>
-                        <select class="form-select" id="departments" name="departments[]" multiple>
+                        <select class="form-select" id="departments" name="departments" >
                             @foreach($departments as $department)
                                 <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach
                         </select>
                     </div>
+                    <div class="mb-3">
+                        <label for="position" class="form-label">Посада</label>
+                        <input type="text" class="form-control" id="position" name="position" placeholder="Посада користувача">
+                    </div>
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Статус</label>
+                        <select class="form-select" id="status" name="status">
+                            <option value="active">Активний</option>
+                            <option value="sick">На лікарняному</option>
+                            <option value="vacation">У відпустці</option>
+                            </select>
+                    </div>
+
+
+
 
                     <!-- Додайте інші поля за потребою -->
                     <button type="submit" class="btn btn-primary">Зберегти зміни</button>
@@ -256,6 +365,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const name = button.dataset.name;
         const email = button.dataset.email;
         const phone = button.dataset.phone;
+        const position = button.dataset.position;
+        const status = button.dataset.status;
 
         // Парсимо JSON атрибути
         let roles = [], enterprises = [], departments = [];
@@ -274,6 +385,8 @@ document.addEventListener('DOMContentLoaded', function () {
         modalEl.querySelector('#name').value = name || '';
         modalEl.querySelector('#email').value = email || '';
         modalEl.querySelector('#phone').value = phone || '';
+        modalEl.querySelector('#position').value = position || '';
+        modalEl.querySelector('#status').value = status || 'active';
 
         const setSelected = (selectId, values) => {
             const select = modalEl.querySelector(`#${selectId}`);

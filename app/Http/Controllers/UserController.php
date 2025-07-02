@@ -27,68 +27,71 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request) 
-    {
-       // return $request->all();
-       // Get all enterprises, departments, and roles
-       // and users with their relationships
-       
-       $enterprises = Enterprise::all();
-       $departments = Department::all();
-       $roles = Role::all(); 
-        // eager load users with roles, departments, and enterprises
-        // and apply filters if any 
-       $users = User::with(['roles', 'departments', 'enterprises']);
-        //if request has search query, filter users
-        if($request->input('search')!== null) {
-            $users = (new UserFilter($request))->apply($users);
-        }
-        if(Auth::user()->roles->first()->name ==="Boss")
-        {
+{
+    $enterprises = Enterprise::all();
+    $departments = Department::all();
+    $roles = Role::all(); 
+    
+
+    // Отримати базових користувачів відповідно до ролі
+    $role = Auth::user()->roles->first()->name;
+
+    switch ($role) {
+        case 'Boss':
+            $users = User::find(Auth::id())->children()
+                ->with(['roles', 'departments', 'enterprises', 'children']);
+            break;
+
+        case 'Engineer':
+            $users = User::with(['roles', 'departments', 'enterprises']);
             $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users);
-        }
-         if(Auth::user()->roles->first()->name ==="Engineer")
-        {
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Master and Brigadir
-            ->whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Master', 'Brigadir']);
+            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users);
+            $users = $users->whereHas('roles', function ($query) {
+                $query->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker']);
             });
-        }
-         if(Auth::user()->roles->first()->name ==="Master")
-        {
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Brigadir
-            ->whereHas('roles', function($query) {
-                $query->whereIn('roles.name', ['Brigadir', 'Worker']);
-            });
-        }
-        if(Auth::user()->roles->first()->name ==="Brigadir")
-        {
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users)
-            // only Worker
-            ->whereHas('roles', function($query) {
-                $query->where('roles.name', ['Worker']);
-            });
-        }
-        elseif($request->has('enterprises')) {
-            $users = (new EnterpriseFilter($request->enterprises))->handle($users);  
-        }
-        // no_enterprise
+            break;
 
-        if($request->has('roles')) {
-            $users = (new RoleFilter($request->roles))->handle($users);
-        }
-        // no_role
+        case 'Master':
+            $users = User::find(Auth::id())->children()
+                ->with(['roles', 'departments', 'enterprises', 'children']);
+            break;
 
-        if($request->has('departments')) {
-            $users = (new DepartmentFilter($request->departments))->handle($users);    
-        }
-        // no_department
+        case 'Brigadir':
+            $users = User::find(Auth::id())->children()
+                ->with(['roles', 'departments', 'enterprises', 'children']);
+             
+            break;
 
-        $users = $users->get(); 
-     
-        return view('users.index', compact('users' , 'enterprises', 'departments', 'roles'));
+        default:
+            // Наприклад, для адміністраторів або повний список
+            $users = User::with(['roles', 'departments', 'enterprises', 'children']);
+            break;
     }
+
+    // 🔍 Пошук
+    if ($request->input('search') !== null) {
+        $users = (new UserFilter($request))->apply($users);
+    }
+
+    // Додаткові фільтри
+    if ($request->has('roles')) {
+        $users = (new RoleFilter($request->roles))->handle($users);
+    }
+
+    if ($request->has('departments')) {
+        $users = (new DepartmentFilter($request->departments))->handle($users);    
+    }
+
+    if ($request->has('enterprises')) {
+        $users = (new EnterpriseFilter($request->enterprises))->handle($users);    
+    }
+
+    // Завантаження
+    $users = $users->get(); 
+
+    return view('users.index', compact('users', 'enterprises', 'departments', 'roles'));
+}
+
 
     /**
      * Show the form for creating a new resource.
@@ -198,10 +201,11 @@ class UserController extends Controller
     // Form_teams 
     public function Form_teams()
     {
-       
+        
         if (Auth::user()->roles->first()->name === "Admin") {
-
-           $users = User::select('users.*')
+            $healthUsers = User::where('status', 'sick')->get();
+            $vacationUsers = User::where('status', 'vacation')->get();
+            $users = User::select('users.*')
             ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
             ->join('roles', 'user_roles.role_id', '=', 'roles.id')
             ->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker'])
@@ -218,117 +222,93 @@ class UserController extends Controller
             ->with(['roles', 'children'])
             ->orderBy('roles.id')
             ->get();
-            $healthUsers = User::where('status', 'sick')->get();
-            $vacationUsers = User::where('status', 'vacation')->get();
 
-           return view('users.teams', compact('users', 'freeUsers', 'healthUsers', 'vacationUsers'));
-        }
+    }
 
         if(Auth::user()->roles->first()->name ==="Boss" ||Auth::user()->roles->first()->name ==="Engineer") 
         {
-           $users = User::select('users.*')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-              ->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker'])
-                ->whereHas('enterprises', function($query) {
-                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
-                })
-            ->whereHas('departments', function($query) {
-                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
-                })
-          // ->whereDoesntHave('supervisors') 
-            ->with(['roles', 'children'])
-            ->orderBy('roles.id')
+            $users = User::find(Auth::user()->id)->children()
+            ->with(['roles', 'departments', 'enterprises','children'])
             ->get();
-            $freeUsers = User::select('users.*')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-              ->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker'])
-                ->whereHas('enterprises', function($query) {
-                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
-                })
-            ->whereHas('departments', function($query) {
-                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
-                })
-            ->whereDoesntHave('supervisors') 
-            ->with(['roles', 'children'])
-            ->orderBy('roles.id')
-            ->get();    
-            return view('users.teams', compact('users', 'freeUsers'));
+            // all users without supervisors
+            $freeUsers = User::find(Auth::user()->id)->children()
+            ->with(['roles', 'departments', 'enterprises','children'])
+            ->whereDoesntHave('supervisors')
+            ->get();
+            // Користувачі на лікарняному
+            $healthUsers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))
+            ->handle(
+                (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))
+                    ->handle(User::where('status', 'sick'))
+            )
+            ->get();
 
+
+            // Користувачі у відпустці
+            $vacationUsers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))
+                ->handle(
+                   ( new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))
+                   ->handle(User::where('status', 'vacation'))
+                )
+                ->get();           
+          
         }
     
          if(Auth::user()->roles->first()->name ==="Master")
         {           
-            $users = User::select('users.*')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-              ->whereIn('roles.name', ['Master', 'Brigadir', 'Worker'])
-                ->whereHas('enterprises', function($query) {
-                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
-                })
-            ->whereHas('departments', function($query) {
-                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
-                })
-          // ->whereDoesntHave('supervisors') 
-            ->with(['roles', 'children'])
-            ->orderBy('roles.id')
+            $users = User::find(Auth::user()->id)->children()
+            ->with(['roles', 'departments', 'enterprises','children'])
             ->get();
-            $freeUsers = User::select('users.*')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-              ->whereIn('roles.name', ['Master', 'Brigadir', 'Worker'])
-                ->whereHas('enterprises', function($query) {
-                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
-                })
-            ->whereHas('departments', function($query) {
-                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
-                })
-            ->whereDoesntHave('supervisors') 
-            ->with(['roles', 'children'])
-            ->orderBy('roles.id')
+            // all users without supervisors
+            $freeUsers = User::find(Auth::user()->id)->children()
+            ->with(['roles', 'departments', 'enterprises','children'])
+            ->whereDoesntHave('supervisors')
             ->get();
+            // Користувачі на лікарняному
+            $healthUsers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))
+            ->handle(
+                (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))
+                    ->handle(User::where('status', 'sick'))
+            )
+            ->get();
+            // Користувачі у відпустці
+            $vacationUsers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))
+                ->handle(
+                   ( new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))
+                   ->handle(User::where('status', 'vacation'))
+                )
+                ->get();
 
-           return view('users.teams', compact( 'users','freeUsers'));
+            
 
         }
         if(Auth::user()->roles->first()->name ==="Brigadir")
         {
-            $users = User::select('users.*')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-              ->whereIn('roles.name', ['Brigadir', 'Worker'])
-                ->whereHas('enterprises', function($query) {
-                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
-                })
-            ->whereHas('departments', function($query) {
-                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
-                })
-          // ->whereDoesntHave('supervisors') 
-            ->with(['roles', 'children'])
-            ->orderBy('roles.id')
+            $users = User::find(Auth::user()->id)->children()
+            ->with(['roles', 'departments', 'enterprises','children'])
             ->get();
-            $freeUsers = User::select('users.*')
-            ->join('user_roles', 'users.id', '=', 'user_roles.user_id')
-            ->join('roles', 'user_roles.role_id', '=', 'roles.id')
-              ->whereIn('roles.name', ['Brigadir', 'Worker'])
-                ->whereHas('enterprises', function($query) {
-                 $query->whereIn('enterprise.id', Auth::user()->enterprises->pluck('id'));
-                })
-            ->whereHas('departments', function($query) {
-                 $query->whereIn('department.id', Auth::user()->departments->pluck('id'));
-                })
-            ->whereDoesntHave('supervisors') 
-            ->with(['roles', 'children'])
-            ->orderBy('roles.id')
+            // all users without supervisors
+            $freeUsers = User::find(Auth::user()->id)->children()
+            ->with(['roles', 'departments', 'enterprises','children'])
+            ->whereDoesntHave('supervisors')
             ->get();
-
-           return view('users.teams', compact('users', 'freeUsers'));
- 
-           
+            // Користувачі на лікарняному
+            $healthUsers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))
+            ->handle(
+                (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))
+                    ->handle(User::where('status', 'sick'))
+            )
+            ->get();
+            // Користувачі у відпустці
+            $vacationUsers = (new DepartmentFilter(Auth::user()->departments->pluck('id')))
+                ->handle(
+                   ( new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))
+                   ->handle(User::where('status', 'vacation'))
+                )
+                ->get();    
         }
-   //     return compact( 'users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id');
-        return view('users.teams', compact( 'users', 'users_id',  'bosses_id', 'masters_id', 'brigadiers_id', 'workers_id'));
+        return view('users.teams', compact('users', 'freeUsers', 'healthUsers', 'vacationUsers'));
+
     }
         // connect.users
     public function connectUsers(Request $request)

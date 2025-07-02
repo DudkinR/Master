@@ -75,7 +75,7 @@ Route::get('/worker', [App\Http\Controllers\WorkerController::class, 'index'])->
 
 
 // users
-Route::get('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+Route::any('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
 // user.show
 Route::get('/users/{id}', [App\Http\Controllers\UserController::class, 'show'])->name('users.show');
 // user.edit

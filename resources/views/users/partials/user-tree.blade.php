@@ -32,7 +32,7 @@
 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
     
      <ul class="children list-unstyled" data-id="{{ $user->id }}">
-        {{ $icons[$roleName] ?? '🔍' }} {{ $name }} {{ $user->id }}
+        {{ $icons[$roleName] ?? '🔍' }} {{ $name }} 
     <br>
     <b>{{ $user->position ?? 'Unknown Position' }}</b>
         @forelse ($user->children as $child)

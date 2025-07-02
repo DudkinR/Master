@@ -63,7 +63,7 @@
             
                 
                 <ul class="children list-unstyled" data-id="{{ $user->id }}">
-                    {{ $icon}} {{ $user->name }}{{ $user->id }}
+                    {{ $icon}} {{ $user->name }}
                 <br> 
                 <b>{{ $user->position}}</b>
                     @if($user->children->isNotEmpty())
@@ -78,6 +78,8 @@
             
         @endforeach
     </ul>    
+
+   @if(Auth::user()->hasRole(['Admin', 'Boss', 'Master']))
     <div class="row">
         <div class="col-md-6 bg-warning">
             <h4>Лікарнянний</h4>
@@ -109,7 +111,7 @@
                 }
                 @endphp
                 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
-                    {{ $icon }} {{ $user->name }}{{ $user->id }}
+                    {{ $icon }} {{ $user->name }}
                     <br>
                     <b>{{ $user->position }}</b>
                 </li>
@@ -147,8 +149,7 @@
                 }
                 @endphp
                 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
-                    {{ $icon }} {{ $user->name }}{{ $user->id }}
-                    <br>
+                    {{ $icon }} {{ $user->name }}
                     <b>{{ $user->position }}</b>
                 </li>
             @endforeach
@@ -156,6 +157,7 @@
     </ul>           
     </div>   
 </div>
+    @endif
 </div>
 <script>
     function makeSortable(el) {

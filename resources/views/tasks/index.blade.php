@@ -8,7 +8,14 @@
             {{ session('status') }}
         </div>
     @endif
-
+    {{-- create new task button w-100 success --}}
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a type="button"  class="btn btn-success w-100"  href="{{ route('tasks.create') }}" style="text-decoration: none;">
+                Створити нове завдання
+            </a>
+        </div>
+    </div>
     {{-- Завдання --}}
     @foreach ($tasks as $task)
         <div class="card mb-3 shadow-sm">

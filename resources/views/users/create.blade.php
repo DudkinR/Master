@@ -40,8 +40,8 @@
                         <div class="row mb-3">
                             <label for="enterprise" class="col-md-4 col-form-label text-md-end">{{ __('Enterprise') }}</label>
                             <div class="col-md-6">
-                                <input id="enterprise" type="text" class="form-control @error('enterprise') is-invalid @enderror" name="enterprise" value="ХАЕС" required autocomplete="enterprise">
-                                <input id="enterprises" type="hidden" name="enterprises[]" value="1">
+                                <input id="enterprise" type="text" class="form-control @error('enterprise') is-invalid @enderror" name="enterprise_text" value="ХАЕС" required autocomplete="enterprise">
+                                <input id="enterprises" type="hidden" name="enterprise" value="1">
                                 <small class="form-text text-muted">Enter the name of your enterprise.</small>
                                 @error('enterprise')
                                     <span class="invalid-feedback" role="alert">
@@ -54,7 +54,7 @@
                             <label for="department" class="col-md-4 col-form-label text-md-end">{{ __('Department') }}</label>
                             <div class="col-md-6">
                                 <input id="department" type="text" class="form-control @error('department') is-invalid @enderror" name="department" value="РБУ ЕРП" required autocomplete="department">
-                                <input id="departments" type="hidden" name="departments[]" value="1">
+                                <input id="departments" type="hidden" name="department" value="1">
                                 <small class="form-text text-muted">Enter the name of your department.</small>
                                 @error('department')
                                     <span class="invalid-feedback" role="alert">
@@ -66,7 +66,7 @@
                         <div class="row mb-3">
                             <label for="role" class="col-md-4 col-form-label text-md-end">{{ __('Role') }}</label>
                             <div class="col-md-6">
-                                <select id="role" class="form-select @error('role') is-invalid @enderror" name="role" required>
+                                <select id="role" class="form-select @error('role') is-invalid @enderror" name="role" >
                                    <option value="" disabled {{ old('role') ? '' : '' }}>Select a role</option>
                                         @foreach($roles as $role)
                                             @if(!Auth::user()->roles->contains('name', 'Admin') && $role->name === 'Admin')
@@ -90,6 +90,33 @@
                                 @enderror
                             </div>
                         </div>
+                        <div class="row mb-3">
+                            <label for="position" class="col-md-4 col-form-label text-md-end">{{ __('Position') }}</label>  
+                            <div class="col-md-6">
+                                <input id="position" type="text" class="form-control @error('position') is-invalid @enderror" name="position" value="{{ old('position') }}" required autocomplete="position">
+                                <small class="form-text text-muted">Enter your position.</small>
+                                @error('position')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                @enderror
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <label for="status" class="col-md-4 col-form-label text-md-end">{{ __('Status') }}</label>
+                            <div class="col-md-6">
+                                <select id="status" class="form-select @error('status') is-invalid @enderror" name="status">
+                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
+                                  <option value="sick" {{ old('status') == 'sick' ? 'selected' : '' }}>Sick</option>
+                                    <option value="vacation" {{ old('status') == 'vacation' ? 'selected' : '' }}>Vacation</option>
+                                </select>
+                                    @error('status')
+                                    <span class="invalid-feedback" role="alert">
+                                        <strong>{{ $message }}</strong>
+                                    </span>
+                                    @enderror
+                            </div>
+                        </div>
 
                          <div class="row mb-3">
                             <label for="phone" class="col-md-4 col-form-label text-md-end">{{ __('Phone') }}</label>
@@ -103,6 +130,7 @@
                                 @enderror
                             </div>
                         </div>
+
 
                         <div class="row mb-3">
                             <label for="password" class="col-md-4 col-form-label text-md-end">{{ __('Password') }}</label>

@@ -10,6 +10,7 @@
             <p><strong>Оновлено:</strong> {{ $project->updated_at->format('d.m.Y H:i') }}</p>
         </div>
         <div class="col-md-6 mb-4">
+            @if($project->location !== null) 
             @php 
                 $location = explode(',', $project->location);
                 $latitude = trim($location[0]);
@@ -18,6 +19,7 @@
             <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2157.4766747305384!2d{{ $longitude }}!3d{{ $latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1suk!2sua!4v1750329277888" 
                 width="400" height="350" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
+        @endif
     </div>
     <div class="mt-4">
         <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning">Редагувати</a>
@@ -40,7 +42,7 @@
                     <form action="{{ route('tasks.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="project_id" value="{{ $project->id }}">
-                    <div class="modal-content">
+                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createTaskModalLabel">Створити нове завдання</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
@@ -114,7 +116,11 @@
                             <button type="submit" class="btn btn-primary w-100" id="submit_button">Створити завдання</button>
                         </div>
                     </div>
+
                 </div>
+                        
+                    </div>
+                    </form>
                 </div>
             </div>
         </div>

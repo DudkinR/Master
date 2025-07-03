@@ -274,7 +274,7 @@
             </div>
             <div class="modal-body">
                 <!-- Форма редагування користувача -->
-                <form id="editUserForm" method="POST" >
+                <form id="editUserForm"  action="{{ route('users.update', 0) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <input type="hidden" name="id" id="userId">
@@ -295,27 +295,29 @@
                         <input type="password" class="form-control" id="password" name="password">
                         <small class="form-text text-muted">Залиште порожнім, якщо не хочете змінювати пароль.</small>
                     </div>
-                    <div class="mb-3">
-                        <label for="roles" class="form-label">Ролі</label>
-                        <select class="form-select" id="roles" name="roles" >
-                            @foreach($roles as $role)
-                                @if(Auth::user()->roles->first()->name !== 'Admin' && $role->name === 'Admin')
-                                    @continue
-                                @elseif(Auth::user()->roles->first()->name == 'Boss' && ($role->name === 'Boss' || $role->name === 'Master' || $role->name === 'Brigadir' || $role->name === 'Worker'))
-                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }}</option>
-                                @elseif(Auth::user()->roles->first()->name == 'Master' && ($role->name === 'Master' || $role->name === 'Brigadir' || $role->name === 'Worker'))
-                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }} </option>
-                                @elseif(Auth::user()->roles->first()->name == 'Brigadir' && ($role->name === 'Brigadir' || $role->name === 'Worker'))
-                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }} </option>
-                                @elseif(Auth::user()->roles->first()->name == 'Worker' && $role->name === 'Worker')
-                                    <option value="{{ $role->id }}" selected>{{ __($role->name) }} </option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
+                   <select class="form-select" id="role" name="role">
+                        @foreach($roles as $role)
+                            @php
+                                $currentRole = Auth::user()->roles->first()->name;
+                                $allowed = match ($currentRole) {
+                                    'Admin' => true,
+                                    'Boss' => in_array($role->name, ['Boss', 'Master', 'Brigadir', 'Worker']),
+                                    'Master' => in_array($role->name, ['Master', 'Brigadir', 'Worker']),
+                                    'Brigadir' => in_array($role->name, ['Brigadir', 'Worker']),
+                                    'Worker' => $role->name === 'Worker',
+                                    default => false,
+                                };
+                            @endphp
+
+                            @if ($allowed && ($currentRole !== 'Admin' || $role->name !== 'Admin'))
+                                <option value="{{ $role->id }}">{{ __($role->name) }}</option>
+                            @endif
+                        @endforeach
+                    </select>
+
                     <div class="mb-3">
                         <label for="enterprises" class="form-label">Підприємства</label>
-                        <select class="form-select" id="enterprises" name="enterprises" >
+                        <select class="form-select" id="enterprises" name="enterprise" >
                             @foreach($enterprises as $enterprise)
                                 <option value="{{ $enterprise->id }}">{{ $enterprise->name }}</option>
                             @endforeach
@@ -323,7 +325,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="departments" class="form-label">Підрозділи</label>
-                        <select class="form-select" id="departments" name="departments" >
+                        <select class="form-select" id="departments" name="department" >
                             @foreach($departments as $department)
                                 <option value="{{ $department->id }}">{{ $department->name }}</option>
                             @endforeach

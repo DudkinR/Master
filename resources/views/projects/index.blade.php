@@ -38,12 +38,12 @@
                                 <!-- Локація -->
                                 <div class="mb-3">
                                     <label for="location" class="form-label">Місце реалізації (локація)</label>
-                                    <input type="text" class="form-control" id="location" name="location" required>
+                                    <input type="text" class="form-control" id="location" name="location" >
                                 </div>
                                 <!-- Керівник проєкту -->
                                 <div class="mb-3">
                                     <label for="engineer" class="form-label">Інженерна підтримка проєкту</label> 
-                                    <select class="form-select" name="engineer_id" id="engineer_id" required>
+                                    <select class="form-select" name="engineer_id" id="engineer_id" >
                                         <option value="">-- Виберіть Інженера --</option>
                                         @foreach ($engs as $eng)
                                             <option value="{{ $eng->id }}">{{ $eng->name }}</option>
@@ -53,17 +53,17 @@
                                 <!-- Орієнтовна дата початку -->
                                 <div class="mb-3">
                                     <label for="startDate" class="form-label">Дата початку робіт</label>
-                                    <input type="date" class="form-control" id="startDate" name="startDate" value="{{ date('Y-m-d') }}" required>
+                                    <input type="date" class="form-control" id="startDate" name="startDate" value="{{ date('Y-m-d') }}" >
                                 </div>
                                 <!-- Орієнтовна дата завершення -->
                                 <div class="mb-3">
                                     <label for="endDate" class="form-label">Дата завершення робіт</label>
-                                    <input type="date" class="form-control" id="endDate" name="endDate" value="{{ date('Y-m-d', strtotime('+1 month')) }}" required>
+                                    <input type="date" class="form-control" id="endDate" name="endDate" value="{{ date('Y-m-d', strtotime('+1 month')) }}" >
                                 </div>
                                 <!-- Загальний кошторис -->
                                 <div class="mb-3">
                                     <label for="budget" class="form-label">Загальний кошторис (грн)</label>
-                                    <input type="number" class="form-control" id="budget" name="budget" min="0" step="0.01" value="0" required>
+                                    <input type="number" class="form-control" id="budget" name="budget" min="0" step="0.01" value="0" >
                                 </div>
                                 <!-- Короткий опис проєкту -->
                                 <div class="mb-3">
@@ -112,6 +112,7 @@
                             </div>
                         </td>
                         <td>
+                            @if($project->location !== null) 
                             @php 
                                 [$latitude, $longitude] = array_map('trim', explode(',', $project->location));
                             @endphp
@@ -124,6 +125,7 @@
                                     width="100%" height="250" style="border:0;" loading="lazy" allowfullscreen
                                     referrerpolicy="no-referrer-when-downgrade"></iframe>
                             </div>
+                            @endif
                         </td>
                     </tr>
                     @endforeach

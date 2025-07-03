@@ -110,24 +110,34 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+
+    'enterprise.*' => ['exists:enterprise,id'],
+    ]);
+
         $user = new User();
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->phone = $request->input('phone');
+        // position
+        $user->position = $request->input('position', ''); // Додаємо поле position, якщо воно не передано, то буде порожнім
+        // status
+        $user->status = $request->input('status', 'active'); // Додаємо поле status, якщо воно не передано, то буде 'active'
+        // password
         $user->password = bcrypt($request->input('password'));
         // Save user
         $user->save();
         // Attach roles
-        if($request->has('roles')) {
-            $user->roles()->attach($request->input('roles'));
+        if($request->has('role')) {
+            $user->roles()->attach($request->input('role'));
         }
         // Attach departments
-        if($request->has('departments')) {
-            $user->departments()->attach($request->input('departments'));
+        if($request->has('department')) {
+            $user->departments()->attach($request->input('department'));
         }
         // Attach enterprises
-        if($request->has('enterprises')) {
-            $user->enterprises()->attach($request->input('enterprises'));
+        if($request->has('enterprise')) {
+            $user->enterprises()->attach($request->input('enterprise'));
         }
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
@@ -153,29 +163,34 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+//return $request->all();
         $user = User::findOrFail($id);
         $user->name = $request->input('name');
         $user->email = $request->input('email');
         $user->phone = $request->input('phone');
+        // Update position
+        $user->position = $request->input('position', ''); // Додаємо поле position, якщо воно не передано, то буде порожнім
+        // Update status
+        $user->status = $request->input('status', 'active'); // Додаємо поле status, якщо воно не передано, то буде 'active'
+        // Update password
         if($request->input('password')!== null) {         
             $user->password = bcrypt($request->input('password'));
         }
         // Update roles
-        if($request->has('roles')) {
-            $user->roles()->sync($request->input('roles'));
+        if($request->has('role')) {
+            $user->roles()->sync($request->input('role'));
         } else {
             $user->roles()->detach();
         }
         // Update departments
-        if($request->has('departments')) {
-            $user->departments()->sync($request->input('departments'));
+        if($request->has('department')) {
+            $user->departments()->sync($request->input('department'));
         } else {
             $user->departments()->detach();
         }
         // Update enterprises
-        if($request->has('enterprises')) {
-            $user->enterprises()->sync($request->input('enterprises'));
+        if($request->has('enterprise')) {
+            $user->enterprises()->sync($request->input('enterprise'));
         } else {
             $user->enterprises()->detach();
         }

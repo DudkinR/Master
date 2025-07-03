@@ -10,12 +10,22 @@ use App\Models\User; // Assuming you have a User model for masters
 use Illuminate\Support\Facades\Auth; // For authentication
 use App\Models\TaskActionLog; // Assuming you have a TaskActionLog model for logging task actions
 use App\Models\Problem;
+use App\Models\Material;
+use App\Models\Equipment;
+use App\Models\Machine;
 class TaskController extends Controller
 {
     public function index()
     {
         //
-      
+        if(Auth::user()->roles->first()->name ==="Admin")
+        {
+            $tasks = Task::with(['users', 'equipments', 'materials', 'machines'])->get();
+            $masters = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Master');
+            })->with('roles')->get();
+            return view('tasks.admin_index', compact('tasks', 'masters'));
+        }
         if(Auth::user()->roles->first()->name ==="Boss")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
@@ -66,33 +76,32 @@ class TaskController extends Controller
     }
     public function create()
     {
+        $enterprise_id = Auth::user()->enterprises->pluck('id');
+        $department_id = Auth::user()->departments->pluck('id');
+        $projects = Project::where(function ($query) use ($enterprise_id, $department_id) {
+            $query->whereHas('enterprises', function ($q) use ($enterprise_id) {
+                $q->whereIn('enterprise.id', $enterprise_id);
+            })->orWhereHas('departments', function ($q) use ($department_id) {
+                $q->whereIn('department.id', $department_id);
+            });
+        })->get();
+        return view('tasks.create', compact('projects'));
     }
     public function store(Request $request)
-    {        $request->validate([
-            'order' => 'required|integer|min:1',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'estimated_hours' => 'nullable|numeric|min:0',
-            'actual_hours' => 'nullable|numeric|min:0',
-            'progress' => 'nullable|integer|min:0|max:100',
-            'quantity' => 'nullable|numeric|min:0',
-            'unit' => 'nullable|string|max:50',
-            'project_id' => 'required|exists:projects,id',
-        ]);
+    {       
         $task = new Task();
-        $task->order = $request->input('order');
-        $task->name = $request->input('name');
-        $task->description = $request->input('description');
-        $task->start_date = $request->input('start_date');
-        $task->end_date = $request->input('end_date');
-        $task->estimated_hours = $request->input('estimated_hours');
-        $task->actual_hours = $request->input('actual_hours');
-        $task->progress = $request->input('progress', 0); // Default to 0 if not provided
-        $task->quantity = $request->input('quantity', 0); // Default to 0 if not provided
-        $task->unit = $request->input('unit', 'шт'); // Default to 'шт' if not provided
-        $task->project_id = $request->input('project_id');
+        $task->order = $request->input('order')? $request->input('order') : 0; // Default to 0 if not provided
+        $task->name = $request->input('name')? $request->input('name') : 'Нове завдання'; // Default name if not provided
+        $task->description = $request->input('description')? $request->input('description') : 'Опис не надано'; // Default description if not provided
+        $task->start_date = $request->input('start_date')? $request->input('start_date') : now(); // Default to current date if not provided
+        $task->end_date = $request->input('end_date')? $request->input('end_date') : now()->addDays(7); // Default to 7 days from now if not provided
+        $task->estimated_hours = $request->input('estimated_hours')? $request->input('estimated_hours') : 0; // Default to 0 if not provided
+        $task->actual_hours = $request->input('actual_hours')? $request->input('actual_hours') : 0; // Default to 0 if not provided
+
+        $task->progress = $request->input('progress', 0)? $request->input('progress') : 0; // Default to 0 if not provided
+        $task->quantity = $request->input('quantity', 0)? $request->input('quantity') : 0; // Default to 0 if not provided
+        $task->unit = $request->input('unit', 'шт')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
+        $task->project_id = $request->input('project_id')? $request->input('project_id') : null; // Default to null if not provided
         $task->save();
 
         if(isset($request->etalon_task)){
@@ -115,6 +124,64 @@ class TaskController extends Controller
         $departmentId = Auth::user()->departments->pluck('id');
         $task->enterprises()->sync($enterpriseId);
         $task->departments()->sync($departmentId);
+
+        // Прив’язка завдання до проекту з додатковими даними
+    $project = Project::findOrFail($task->project_id);
+    $project->tasks()->attach($task->id, ['status' => 'active']);
+
+    // Прив’язка підрозділів і підприємств (як у вашому коді)
+    $enterpriseIds = Auth::user()->enterprises->pluck('id');
+    $departmentIds = Auth::user()->departments->pluck('id');
+    $task->enterprises()->sync($enterpriseIds);
+    $task->departments()->sync($departmentIds);
+
+    // Збереження матеріалів
+    if (!empty($validated['materials'])) {
+        foreach ($validated['materials'] as $materialData) {
+            $material = Material::firstOrCreate(
+                ['name' => $materialData['name'], 'description' => $materialData['description'] ?? ''],
+                ['unit' => $materialData['unit'] ?? 'шт']
+            );
+            $task->materials()->attach($material->id, [
+                'quantity' => $materialData['quantity'] ?? 0,
+                'unit' => $materialData['unit'] ?? 'шт',
+            ]);
+        }
+    }
+
+    // Збереження обладнання
+    if (!empty($validated['equipments'])) {
+        foreach ($validated['equipments'] as $equipmentData) {
+            $equipment = Equipment::firstOrCreate(
+                ['name' => $equipmentData['name'], 'description' => $equipmentData['description'] ?? ''],
+                ['unit' => $equipmentData['unit'] ?? 'шт']
+            );
+            $task->equipments()->attach($equipment->id, [
+                'quantity' => $equipmentData['quantity'] ?? 0,
+                'unit' => $equipmentData['unit'] ?? 'шт',
+            ]);
+        }
+    }
+
+    // Збереження техніки
+    if (!empty($validated['machines'])) {
+        foreach ($validated['machines'] as $machineData) {
+            $machine = Machine::firstOrCreate(
+                ['name' => $machineData['name'], 'description' => $machineData['description'] ?? ''],
+                ['unit' => $machineData['unit'] ?? 'шт']
+            );
+            $task->machines()->attach($machine->id, [
+                'quantity' => $machineData['quantity'] ?? 0,
+                'unit' => $machineData['unit'] ?? 'шт',
+            ]);
+        }
+    }
+        // if back_route in request, redirect to that route
+        if ($request->has('back_route')) {
+            return redirect($request->input('back_route'))
+                             ->with('success', 'Завдання успішно створено!')
+                             ->with('etalons', $etalons);
+        }
 
         return redirect()->route('projects.show', [$project->id]) 
                          ->with('success', 'Завдання успішно створено!')

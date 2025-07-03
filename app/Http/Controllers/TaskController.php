@@ -89,6 +89,8 @@ class TaskController extends Controller
     }
     public function store(Request $request)
     {       
+      //  return $request->all(); // For debugging purposes, remove this line in production
+        $log="";
         $task = new Task();
         $task->order = $request->input('order')? $request->input('order') : 0; // Default to 0 if not provided
         $task->name = $request->input('name')? $request->input('name') : 'Нове завдання'; // Default name if not provided
@@ -100,7 +102,7 @@ class TaskController extends Controller
 
         $task->progress = $request->input('progress', 0)? $request->input('progress') : 0; // Default to 0 if not provided
         $task->quantity = $request->input('quantity', 0)? $request->input('quantity') : 0; // Default to 0 if not provided
-        $task->unit = $request->input('unit', 'шт')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
+        $task->unit = $request->input('unit')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
         $task->project_id = $request->input('project_id')? $request->input('project_id') : null; // Default to null if not provided
         $task->save();
 
@@ -115,6 +117,7 @@ class TaskController extends Controller
                 $etalon->unit = $task->unit;
                 $etalon->save();
             }
+             $log.= "Завдання збережено як еталон: {$task->name} ({$task->description})";
         }
 
         $etalons = Etalon::all();
@@ -126,68 +129,79 @@ class TaskController extends Controller
         $task->departments()->sync($departmentId);
 
         // Прив’язка завдання до проекту з додатковими даними
-    $project = Project::findOrFail($task->project_id);
-    $project->tasks()->attach($task->id, ['status' => 'active']);
+        $project = Project::findOrFail($task->project_id);
+        $project->tasks()->attach($task->id, ['status' => 'active']);
 
-    // Прив’язка підрозділів і підприємств (як у вашому коді)
-    $enterpriseIds = Auth::user()->enterprises->pluck('id');
-    $departmentIds = Auth::user()->departments->pluck('id');
-    $task->enterprises()->sync($enterpriseIds);
-    $task->departments()->sync($departmentIds);
+        // Прив’язка підрозділів і підприємств (як у вашому коді)
+        $enterpriseIds = Auth::user()->enterprises->pluck('id');
+        $departmentIds = Auth::user()->departments->pluck('id');
+        $task->enterprises()->sync($enterpriseIds);
+        $task->departments()->sync($departmentIds);
 
-    // Збереження матеріалів
-    if (!empty($validated['materials'])) {
-        foreach ($validated['materials'] as $materialData) {
-            $material = Material::firstOrCreate(
-                ['name' => $materialData['name'], 'description' => $materialData['description'] ?? ''],
-                ['unit' => $materialData['unit'] ?? 'шт']
-            );
-            $task->materials()->attach($material->id, [
-                'quantity' => $materialData['quantity'] ?? 0,
-                'unit' => $materialData['unit'] ?? 'шт',
-            ]);
+        $materials = $request->input('materials', []);
+        $equipments = $request->input('equipments', []);
+        $machines = $request->input('machines', []);
+
+
+        // Збереження матеріалів
+        if (!empty($materials)) {
+            foreach ($materials as $materialData) {
+                $material = Material::firstOrCreate(
+                    ['name' => $materialData['name'], 'description' => $materialData['description'] ?? ''],
+                    ['unit' => $materialData['unit'] ?? 'шт']
+                );
+                $task->materials()->attach($material->id, [
+                    'quantity' => $materialData['quantity'] ?? 0,
+                    'unit' => $materialData['unit'] ?? 'шт',
+                ]);
+            }
+             $log.= "Матеріали збережено: ";
         }
-    }
 
-    // Збереження обладнання
-    if (!empty($validated['equipments'])) {
-        foreach ($validated['equipments'] as $equipmentData) {
-            $equipment = Equipment::firstOrCreate(
-                ['name' => $equipmentData['name'], 'description' => $equipmentData['description'] ?? ''],
-                ['unit' => $equipmentData['unit'] ?? 'шт']
-            );
-            $task->equipments()->attach($equipment->id, [
-                'quantity' => $equipmentData['quantity'] ?? 0,
-                'unit' => $equipmentData['unit'] ?? 'шт',
-            ]);
+        // Збереження обладнання
+        if (!empty($equipments)) {
+            foreach ($equipments as $equipmentData) {
+                $equipment = Equipment::firstOrCreate(
+                    ['name' => $equipmentData['name'], 'description' => $equipmentData['description'] ?? ''],
+                    ['unit' => $equipmentData['unit'] ?? 'шт']
+                );
+                $task->equipments()->attach($equipment->id, [
+                    'quantity' => $equipmentData['quantity'] ?? 0,
+                    'unit' => $equipmentData['unit'] ?? 'шт',
+                ]);
+            }
+             $log.= "Обладнання збережено: " ;
         }
-    }
 
-    // Збереження техніки
-    if (!empty($validated['machines'])) {
-        foreach ($validated['machines'] as $machineData) {
-            $machine = Machine::firstOrCreate(
-                ['name' => $machineData['name'], 'description' => $machineData['description'] ?? ''],
-                ['unit' => $machineData['unit'] ?? 'шт']
-            );
-            $task->machines()->attach($machine->id, [
-                'quantity' => $machineData['quantity'] ?? 0,
-                'unit' => $machineData['unit'] ?? 'шт',
-            ]);
+        // Збереження техніки
+        if (!empty($machines)) {
+            foreach ($machines as $machineData) {
+                $machine = Machine::firstOrCreate(
+                    ['name' => $machineData['name'], 'description' => $machineData['description'] ?? ''],
+                    ['unit' => $machineData['unit'] ?? 'шт']
+                );
+                $task->machines()->attach($machine->id, [
+                    'quantity' => $machineData['quantity'] ?? 0,
+                    'unit' => $machineData['unit'] ?? 'шт',
+                ]);
+            }
+             $log.= "Техніка збережена: ";
         }
-    }
         // if back_route in request, redirect to that route
         if ($request->has('back_route')) {
             return redirect($request->input('back_route'))
-                             ->with('success', 'Завдання успішно створено!')
-                             ->with('etalons', $etalons);
+                            ->with('success', 'Завдання успішно створено!'. $log)
+                            ->with('etalons', $etalons);
         }
 
         return redirect()->route('projects.show', [$project->id]) 
-                         ->with('success', 'Завдання успішно створено!')
-                         ->with('etalons', $etalons);
+                        ->with('success', 'Завдання успішно створено!'. $log)
+                        ->with('etalons', $etalons);
+
 
     }
+
+
     public function edit(string $id)
     {
         //
@@ -224,9 +238,14 @@ class TaskController extends Controller
             $task->users()->wherePivot('role', 'master')->detach();
             $task->users()->attach($request->input('master_id'), ['role' => 'master']);
 
+
         } elseif ($role === 'brigadir') {
             $task->users()->wherePivot('role', 'brigadir')->detach();
             $task->users()->attach($request->input('master_id'), ['role' => 'brigadir']);
+            $user = User::findOrFail($request->input('master_id'));
+            // add children  to task
+            $task->users()->attach($user->children->pluck('id'), ['role' => 'worker']);
+
 
         } elseif ($role === 'worker') {
             $task->users()->wherePivot('role', 'worker')->detach();

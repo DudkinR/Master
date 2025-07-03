@@ -242,6 +242,8 @@
             </div>
 
     <!-- Модальне завершення роботи -->
+   
+
     <div class="modal fade" id="endWorkModal" tabindex="-1" aria-labelledby="endWorkModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <form class="modal-content" method="POST" action="{{ route('tasks.complete', $task->id) }}">

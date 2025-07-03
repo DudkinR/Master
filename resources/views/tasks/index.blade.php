@@ -8,6 +8,12 @@
             {{ session('status') }}
         </div>
     @endif
+    {{-- with('success' --}}
+    @if (session('success'))
+        <div class="alert alert-success mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
     {{-- create new task button w-100 success --}}
     <div class="row mb-4">
         <div class="col-md-12">

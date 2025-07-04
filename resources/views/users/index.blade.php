@@ -239,6 +239,8 @@
                                             data-phone="{{ $grandChild->phone }}"
                                             data-position="{{ $grandChild->position }}"
                                             data-status="{{ $grandChild->status }}"
+                                            data-boss="{{ optional($user->supervisors->first())->id }}"
+                                            data-subordinates='@json($user->children->pluck("id"))'
                                             data-roles='@json($grandChild->roles->pluck("id"))'
                                             data-enterprises='@json($grandChild->enterprises->pluck("id"))'
                                             data-departments='@json($grandChild->departments->pluck("id"))'>
@@ -343,11 +345,34 @@
                             <option value="vacation">У відпустці</option>
                             </select>
                     </div>
-
-
-
-
                     <!-- Додайте інші поля за потребою -->
+                     {{-- Хто начальник --}}
+                    <div class="mb-3">
+                        <label for="boss" class="form-label">Начальник</label>
+                        <select class="form-select" id="boss" name="boss">
+                            <option value="">Не вказано</option>
+                            @foreach($users as $user)
+                                @if(Auth::user()->id == $user->id  || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Worker')
+                                    @continue
+                                @endif
+                                <option value="{{ $user->id }}">{{$user->roles->first()->name}} {{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                    </div> 
+                    {{-- Хто підлеглий [] --}}
+                    <div class="mb-3">
+                        <label for="subordinates" class="form-label">Підлеглі</label>
+                        <select class="form-select" id="subordinates" row=10 name="subordinates[]" multiple>
+                            @foreach($users as $user)
+                                @if(Auth::user()->id == $user->id || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Boss')
+                                    @continue
+                                @endif
+                                <option value="{{ $user->id }}">{{$user->roles->first()->name}} {{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                        <small class="form-text text-muted">Виберіть підлеглих користувача. Ви можете вибрати декілька користувачів.</small>
+                    </div>
+
                     <button type="submit" class="btn btn-primary">Зберегти зміни</button>
                 </form>
             </div>
@@ -369,38 +394,34 @@ document.addEventListener('DOMContentLoaded', function () {
         const phone = button.dataset.phone;
         const position = button.dataset.position;
         const status = button.dataset.status;
+        // Супер JSON-атрибути
+        const boss         = button.dataset.boss; // рядок з одним ID або ""
+        const subordinates = JSON.parse(button.dataset.subordinates || '[]');
+        const roles        = JSON.parse(button.dataset.roles        || '[]');
+        const enterprises  = JSON.parse(button.dataset.enterprises  || '[]');
+        const departments  = JSON.parse(button.dataset.departments  || '[]');
 
-        // Парсимо JSON атрибути
-        let roles = [], enterprises = [], departments = [];
-        try {
-            roles = JSON.parse(button.dataset.roles);
-            enterprises = JSON.parse(button.dataset.enterprises);
-            departments = JSON.parse(button.dataset.departments);
-        } catch (e) {
-            console.warn('Помилка при парсингу JSON атрибутів', e);
-        }
-
-        // Заповнення форми
-        const form = modalEl.querySelector('#editUserForm');
-        form.action = `/users/${id}`;
-        modalEl.querySelector('#userId').value = id;
-        modalEl.querySelector('#name').value = name || '';
-        modalEl.querySelector('#email').value = email || '';
-        modalEl.querySelector('#phone').value = phone || '';
-        modalEl.querySelector('#position').value = position || '';
-        modalEl.querySelector('#status').value = status || 'active';
-
-        const setSelected = (selectId, values) => {
+ 
+      // Універсальна функція для мульти-селектів
+        const setMultiSelect = (selectId, values) => {
             const select = modalEl.querySelector(`#${selectId}`);
             if (!select) return;
-            [...select.options].forEach(option => {
-                option.selected = values.includes(parseInt(option.value));
+            [...select.options].forEach(opt => {
+                opt.selected = values.includes(parseInt(opt.value));
             });
         };
 
-        setSelected('roles', roles);
-        setSelected('enterprises', enterprises);
-        setSelected('departments', departments);
+        // Установлюємо ролі, підприємства, підрозділи
+        setMultiSelect('roles',       roles);
+        setMultiSelect('enterprises', enterprises);
+        setMultiSelect('departments', departments);
+
+        // Встановлюємо начальника (single select)
+        const bossSelect = modalEl.querySelector('#boss');
+        if (bossSelect) bossSelect.value = boss || '';
+
+        // Встановлюємо підлеглих (multiple select)
+        setMultiSelect('subordinates', subordinates);
     });
 });
 </script>

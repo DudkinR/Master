@@ -159,7 +159,62 @@
 </div>
     @endif
 </div>
+{{-- modal window find children and send }}
+<div class="modal fade" id="findChildrenModal" tabindex="-1" aria-labelledby="findChildrenModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="findChildrenModalLabel">Знайти підлеглих</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="findChildrenForm">
+                    <div class="mb-3">
+                        
+                        <label for="searchName" class="form-label">Ім'я користувача</label>
+                        <input type="text" class="form-control" id="searchName" name="searchName" placeholder="Введіть ім'я користувача">
+                        <input type="hidden" class="form-control" id="userId" name="userId">
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="searchChildren" class="form-label">Вибрати</label>
+                        <select class="form-select" id="searchChildren" name="searchChildren">
+                            @foreach($users as $user)
+                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->position }})</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="isVacation" class="form-label">Відпустка</label>
+                        <input type="checkbox" id="isVacation" name="isVacation">
+                    </div>
+                    <div class="mb-3">
+                        <label for="isHealth" class="form-label">Лікарняний</label>
+                        <input type="checkbox" id="isHealth" name="isHealth">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Знайти</button>
+                </form>
+            </div>
+        </div>
+    </div>
 <script>
+document.addEventListener('DOMContentLoaded', function () {
+    const findChildrenForm = document.getElementById('findChildrenForm');
+    findChildrenForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const searchName = document.getElementById('searchName').value;
+        const searchChildren = document.getElementById('searchChildren').value;
+        const userId = document.getElementById('userId').value; 
+        console.log(`Знайдено підлеглого: ${searchName} (ID: ${searchChildren}) для користувача з ID: ${userId}`);
+        const parentId = userId;
+        const draggedId = searchChildren;
+        const isVacation = document.getElementById('isVacation').checked;
+        const isHealth = document.getElementById('isHealth').checked;
+        sendPostRequest(parentId, draggedId, isVacation, isHealth);  
+
+        $('#findChildrenModal').modal('hide');
+    });
+});
     function makeSortable(el) {
          new Sortable(el, {
                 group: 'nested',
@@ -186,34 +241,7 @@
                     const url = @json(route('connect.users'));                   
                     if(draggedId)
                     {
-                        if(!parentId) parentId = 0; // Якщо немає батьківського елемента, встановлюємо 0
-                        console.log(`Зв'язування користувача ${draggedId} з ${parentId}`);
-                        fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                            },
-                            body: JSON.stringify({
-                                parent_id: parentId,
-                                user_id: draggedId,
-                                status: isVacation ? 'vacation' : (isHealth ? 'sick' : 'active')
-                            })
-                        })
-                        .then(response => {
-                            if (!response.ok) {
-                                return response.text().then(text => {
-                                    throw new Error(`Помилка: ${response.status} - ${text}`);
-                                });
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Успішно оновлено:', data);
-                        })
-                        .catch(error => {
-                            console.error('Помилка:', error);
-                        });                                
+                         sendPostRequest(parentId, draggedId, isVacation, isHealth);                              
                     }                    
                 }
             });
@@ -222,6 +250,37 @@
    document.addEventListener('DOMContentLoaded', () => {
    document.querySelectorAll('ul').forEach(makeSortable);
 });
+function sendPostRequest( parentId, droppedId, isVacation, isHealth) {
+    const url = @json(route('connect.users'));     
+    if(!parentId) parentId = 0; // Якщо немає батьківського елемента, встановлюємо 0
+        console.log(`Зв'язування користувача ${droppedId} з ${parentId}`);
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            parent_id: parentId,
+            user_id: draggedId,
+            status: isVacation ? 'vacation' : (isHealth ? 'sick' : 'active')
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`Помилка: ${response.status} - ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Успішно оновлено:', data);
+    })
+    .catch(error => {
+        console.error('Помилка:', error);
+    }); 
+}
 </script>
 
 @endsection

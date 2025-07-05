@@ -34,7 +34,9 @@
      <ul class="children list-unstyled" data-id="{{ $user->id }}">
         {{ $icons[$roleName] ?? '🔍' }} {{ $name }} 
     <br>
+    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal"  onclick="setUserId({{ $user->id }})">
     <b>{{ $user->position ?? 'Unknown Position' }}</b>
+    </button>
         @forelse ($user->children as $child)
             @include('users.partials.user-tree', ['parentId'=> $user->id, 'userId' => $child->id])
         @empty

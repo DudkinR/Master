@@ -66,7 +66,7 @@ class ProjectController extends Controller
         }
         // остолне перевіряем що їснує якщо ні то нулл
     
-        $project->name = $request->input('projectName');
+        $project->name = $request->input('projectName')? $request->input('projectName') : "Без назви"; // Default value if not provided
         
         $project->location = $request->input('location')? $request->input('location') : NULL; // Default value if not provided
         $project->manager = $request->input('manager') ? $request->input('manager') : NULL; // Default value if not provided
@@ -76,7 +76,7 @@ class ProjectController extends Controller
         $project->description = $request->input('description')? $request->input('description') : NULL; // Default value if not provided
         $project->status = 'active'; // Default status, can be changed later
         $project->save();
-         $enterpriseId = Auth::user()->enterprises->pluck('id');
+        $enterpriseId = Auth::user()->enterprises->pluck('id');
         $departmentId = Auth::user()->departments->pluck('id');
         $project->enterprises()->sync($enterpriseId);
         $project->departments()->sync($departmentId);

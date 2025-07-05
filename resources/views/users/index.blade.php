@@ -147,10 +147,14 @@
                 
                 <td>{{ $user->enterprises->first()->name ?? '-' }}</td>
                 <td>{{ $user->departments->first()->name ?? '-' }}</td>
-                <td>
+                <td> 
+                    
+                     
                     @if((Auth::user()->roles->first()->name !== 'Admin' && isset($user->roles->first()->name)&& $user->roles->first()->name == 'Admin') || Auth::user()->id == $user->id)
                     <span class="text-muted">Редагування та видалення недоступні</span>                   
                     @else
+                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
+                   
                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
                         data-id="{{ $user->id }}"
                         data-name="{{ $user->name }}"
@@ -191,6 +195,8 @@
                             @if((Auth::user()->roles->first()->name !== 'Admin' && isset($child->roles->first()->name) && $child->roles->first()->name == 'Admin') || Auth::user()->id == $child->id)
                             <span class="text-muted">Редагування та видалення недоступні</span>
                             @else
+                              <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
+                
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
                                 data-id="{{ $child->id }}"
                                 data-name="{{ $child->name }}"
@@ -232,6 +238,8 @@
                                         @if((Auth::user()->roles->first()->name !== 'Admin' && isset($grandChild->roles->first()->name) && $grandChild->roles->first()->name == 'Admin') || Auth::user()->id == $grandChild->id)
                                         <span class="text-muted">Редагування та видалення недоступні</span>
                                         @else
+                                          <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
+                
                                         <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
                                             data-id="{{ $grandChild->id }}"
                                             data-name="{{ $grandChild->name }}"
@@ -363,6 +371,8 @@
                     <div class="mb-3">
                         <label for="subordinates" class="form-label">Підлеглі</label>
                         <select class="form-select" id="subordinates" row=10 name="subordinates[]" multiple>
+                        <option value="">Не вказано</option>
+                            {{-- Виводимо всіх користувачів, окрім поточного та адміністраторів --}}    
                             @foreach($users as $user)
                                 @if(Auth::user()->id == $user->id || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Boss')
                                     @continue

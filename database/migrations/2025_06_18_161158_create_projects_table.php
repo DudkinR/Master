@@ -17,7 +17,7 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable(false)->comment('Назва проєкту');
-            $table->string('location')->nullable(false)->comment('Місце реалізації (локація)');
+            $table->string('location')->nullable()->comment('Місце реалізації (локація)');
             $table->string('manager')->nullable()->comment('Керівник проєкту');
             $table->date('start_date')->nullable()->comment('Орієнтовна дата початку');
             $table->date('end_date')->nullable()->comment('Орієнтовна дата завершення');

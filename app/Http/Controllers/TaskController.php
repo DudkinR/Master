@@ -322,7 +322,6 @@ class TaskController extends Controller
         // Отримуємо всі дії поточного користувача по цьому завданню
         $allAction = TaskActionLog::where('task_id', $task->id)
             ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'asc')
             ->get();
 
         // Розрахунок витраченого часу

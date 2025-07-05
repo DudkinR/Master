@@ -106,6 +106,18 @@ class User extends Authenticatable
     {
         return $this->roles->pluck('name')->contains('Brigadir');
     }
-
+    // Рекурсивна перевірка, чи користувач є в ієрархії підлеглих
+    public function hasInChildrenRecursive($searchId)
+    {
+        foreach ($this->children as $child) {
+            if ($child->id == $searchId) {
+                return true;
+            }
+            if ($child->hasInChildrenRecursive($searchId)) {
+                return true;
+            }
+        }
+        return false;
+    }
    
 }

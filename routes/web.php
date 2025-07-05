@@ -30,6 +30,8 @@ Route::resource('tasks', TaskController::class);
 Route::resource('roles', RoleController::class);
 Route::resource('materials', MaterialController::class);
 Route::resource('machines', MachineController::class);
+// raports
+Route::resource('raports', App\Http\Controllers\RaportController::class);
 // tasks.assignMaster
 Route::post('assignMaster', [TaskController::class, 'assignMaster'])->name('tasks.assignMaster');
 

@@ -21,6 +21,9 @@
         margin-left: 20px;
         margin-top: 10px;
     }
+    .hide {
+        display: none !important;
+    }
 </style>
 @php
  $icons = [
@@ -65,7 +68,9 @@
                 <ul class="children list-unstyled" data-id="{{ $user->id }}">
                     {{ $icon}} {{ $user->name }}
                 <br> 
+                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal" onclick="setUserId({{ $user->id }});">
                 <b>{{ $user->position}}</b>
+                </button>
                     @if($user->children->isNotEmpty())
                         @foreach ($user->children as $child)  
                             @include('users.partials.user-tree', ['parentId'=> $user->id,'userId' => $child->id])
@@ -113,7 +118,9 @@
                 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
                     {{ $icon }} {{ $user->name }}
                     <br>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal" onclick="setUserId({{ $user->id }});">
                     <b>{{ $user->position }}</b>
+                    </button>
                 </li>
             @endforeach
         @endif
@@ -150,7 +157,10 @@
                 @endphp
                 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
                     {{ $icon }} {{ $user->name }}
+                    <br>
+                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal" onclick="setUserId({{ $user->id }})">
                     <b>{{ $user->position }}</b>
+                    </button>
                 </li>
             @endforeach
         @endif
@@ -159,7 +169,7 @@
 </div>
     @endif
 </div>
-{{-- modal window find children and send }}
+{{-- modal window find children and send --}}
 <div class="modal fade" id="findChildrenModal" tabindex="-1" aria-labelledby="findChildrenModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -169,16 +179,14 @@
             </div>
             <div class="modal-body">
                 <form id="findChildrenForm">
-                    <div class="mb-3">
-                        
-                        <label for="searchName" class="form-label">Ім'я користувача</label>
+                    <div class="mb-3">                        
+                        <label for="searchName"  id="LsearchName" class="form-label">Ім'я користувача</label>
                         <input type="text" class="form-control" id="searchName" name="searchName" placeholder="Введіть ім'я користувача">
                         <input type="hidden" class="form-control" id="userId" name="userId">
-
                     </div>
                     <div class="mb-3">
                         <label for="searchChildren" class="form-label">Вибрати</label>
-                        <select class="form-select" id="searchChildren" name="searchChildren">
+                        <select class="form-select" id="searchChildren" name="searchChildren[]" multiple>
                             @foreach($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->position }})</option>
                             @endforeach
@@ -198,50 +206,97 @@
         </div>
     </div>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const findChildrenForm = document.getElementById('findChildrenForm');
-    findChildrenForm.addEventListener('submit', function (event) {
-        event.preventDefault();
-        const searchName = document.getElementById('searchName').value;
-        const searchChildren = document.getElementById('searchChildren').value;
-        const userId = document.getElementById('userId').value; 
-        console.log(`Знайдено підлеглого: ${searchName} (ID: ${searchChildren}) для користувача з ID: ${userId}`);
-        const parentId = userId;
-        const draggedId = searchChildren;
-        const isVacation = document.getElementById('isVacation').checked;
-        const isHealth = document.getElementById('isHealth').checked;
-        sendPostRequest(parentId, draggedId, isVacation, isHealth);  
+     const users = @json($users);
+    const healthUsers = @json($healthUsers);
+    const vacationUsers = @json($vacationUsers);
 
-        $('#findChildrenModal').modal('hide');
+    document.addEventListener('DOMContentLoaded', function () {
+        const findChildrenForm = document.getElementById('findChildrenForm');
+
+        // Уникаємо багаторазового додавання обробника
+        if (findChildrenForm.dataset.listenerAdded !== "true") {
+            findChildrenForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const searchName = document.getElementById('searchName');
+                const searchChildren = document.getElementById('searchChildren');
+                const userId = document.getElementById('userId').value;
+
+                const user = users.find(user => user.id == userId);
+              
+                const childrenIds = Array.from(searchChildren.selectedOptions).map(option => option.value);
+
+                if(user){
+                    searchName.value = user.name;
+                }
+               
+                const isVacation = document.getElementById('isVacation').checked;
+                const isHealth = document.getElementById('isHealth').checked;
+
+                sendPostRequest(userId, childrenIds, isVacation, isHealth);
+
+                // Закриваємо модальне вікно після відправки
+                const modal = document.getElementById('findChildrenModal');
+                const modalInstance = bootstrap.Modal.getInstance(modal);
+                if (modalInstance) {
+                    modalInstance.hide();
+                } else {
+                    bootstrap.Modal.getOrCreateInstance(modal).hide();
+                }
+            });
+
+            // Маркер, що слухач додано
+            findChildrenForm.dataset.listenerAdded = "true";
+        }
     });
-});
+
+    function setUserId(userId) {       
+        document.getElementById('userId').value = userId;
+        const user = users.find(user => user.id == userId);
+        if( !user) {
+            console.error(`Користувача з ID ${userId} не знайдено`);            
+            document.getElementById('LsearchName').classList.add('hide');
+            document.getElementById('searchName').classList.add('hide');         
+        }
+        else{
+        document.getElementById('LsearchName').classList.remove('hide');
+        document.getElementById('searchName').classList.remove('hide');
+        document.getElementById('searchName').value = user ? user.name : '';
+        }
+    }
+    
     function makeSortable(el) {
          new Sortable(el, {
                 group: 'nested',
                 animation: 150,
                 onAdd: function (evt) {
                     const draggedEl = evt.item;
-                    const draggedId = draggedEl.dataset.id;
+                    const draggedIds = [draggedEl.dataset.id];
+                   
                     const targetList = evt.to;
                     const isVacation = targetList.classList.contains('list-vacation');
                     if (isVacation) {
-                        console.log(`Користувача ${draggedId} кинули в список ВІДПУСТКИ`);
+                        console.log(`Користувача ${draggedIds} кинули в список ВІДПУСТКИ`);
                     } else {
-                        console.log(`Користувача ${draggedId} кинули в інший список`);
+                        console.log(`Користувача ${draggedIds} кинули в інший список`);
                     }
                     const isHealth = targetList.classList.contains('list-health');
                     if (isHealth) {
-                        console.log(`Користувача ${draggedId} кинули в список ЛІКАРНЯННОГО`);
+                        console.log(`Користувача ${draggedIds} кинули в список ЛІКАРНЯННОГО`);
                     } else {
-                        console.log(`Користувача ${draggedId} кинули в інший список`);
+                        console.log(`Користувача ${draggedIds} кинули в інший список`);
                     }
 
                     const targetParent = evt.to.closest('.node');
                     let parentId = targetParent?.dataset?.id;
                     const url = @json(route('connect.users'));                   
-                    if(draggedId)
+                    if(draggedIds.length === 0) {
+                        alert('Будь ласка, виберіть хоча б одного підлеглого');
+                        return;
+                    }
+                    else
                     {
-                         sendPostRequest(parentId, draggedId, isVacation, isHealth);                              
+                        sendPostRequest(parentId, draggedIds, isVacation, isHealth);                              
                     }                    
                 }
             });
@@ -250,10 +305,11 @@ document.addEventListener('DOMContentLoaded', function () {
    document.addEventListener('DOMContentLoaded', () => {
    document.querySelectorAll('ul').forEach(makeSortable);
 });
-function sendPostRequest( parentId, droppedId, isVacation, isHealth) {
+function sendPostRequest( parentId, droppedIds, isVacation, isHealth) {
     const url = @json(route('connect.users'));     
+   
     if(!parentId) parentId = 0; // Якщо немає батьківського елемента, встановлюємо 0
-        console.log(`Зв'язування користувача ${droppedId} з ${parentId}`);
+        console.log(`Зв'язування користувача ${droppedIds}  ааа з ${parentId}`);
     fetch(url, {
         method: 'POST',
         headers: {
@@ -262,9 +318,12 @@ function sendPostRequest( parentId, droppedId, isVacation, isHealth) {
         },
         body: JSON.stringify({
             parent_id: parentId,
-            user_id: draggedId,
+            user_id: droppedIds,
             status: isVacation ? 'vacation' : (isHealth ? 'sick' : 'active')
         })
+    })    
+    .catch(error => {
+        console.error('Помилка при відправці запиту:', error);
     })
     .then(response => {
         if (!response.ok) {

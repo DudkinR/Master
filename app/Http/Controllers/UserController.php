@@ -38,7 +38,11 @@ class UserController extends Controller
 
     switch ($role) {
         case 'Boss':
-            $users = User::find(Auth::id())->children()
+        case 'Master':
+        case 'Brigadir':
+           $childIds = User::find( Auth::user()->id)->children()->pluck('users.id');
+
+            $users = User::whereIn('id', $childIds)
                 ->with(['roles', 'departments', 'enterprises', 'children']);
             break;
 
@@ -51,19 +55,7 @@ class UserController extends Controller
             });
             break;
 
-        case 'Master':
-            $users = User::find(Auth::id())->children()
-                ->with(['roles', 'departments', 'enterprises', 'children']);
-            break;
-
-        case 'Brigadir':
-            $users = User::find(Auth::id())->children()
-                ->with(['roles', 'departments', 'enterprises', 'children']);
-             
-            break;
-
         default:
-            // Наприклад, для адміністраторів або повний список
             $users = User::with(['roles', 'departments', 'enterprises', 'children']);
             break;
     }
@@ -147,7 +139,13 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $user = User::with(['roles', 'departments', 'enterprises', 'supervisors', 'children'])->findOrFail($id);
+        $roles = Role::all();
+        $enterprises = Enterprise::all();
+        $departments = Department::all();
+        $users = User::with(['roles', 'departments', 'enterprises', 'children'])->get(); // Отримуємо всіх користувачів, які не мають супервізорів
+        $children= $user->children()->get();
+        return view('users.show', compact('user', 'roles', 'enterprises', 'departments', 'users', 'children'));
     }
 
     /**
@@ -163,7 +161,7 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-//return $request->all();
+
         $user = User::findOrFail($id);
         $user->name = $request->input('name');
         $user->email = $request->input('email');
@@ -184,17 +182,34 @@ class UserController extends Controller
         }
         // Update departments
         if($request->has('department')) {
-            $user->departments()->sync($request->input('department'));
-        } else {
             $user->departments()->detach();
-        }
+            $user->departments()->sync($request->input('department'));
+        } 
         // Update enterprises
         if($request->has('enterprise')) {
-            $user->enterprises()->sync($request->input('enterprise'));
-        } else {
             $user->enterprises()->detach();
-        }
+            $user->enterprises()->sync($request->input('enterprise'));
+        } 
         $user->save();
+        // if $request->input('boss') !== null
+        if($request->input('boss') !== null) {
+            $boss = User::findOrFail($request->input('boss'));
+            // Detach all current supervisors
+            $user->supervisors()->detach();
+            // Attach new boss
+            $user->supervisors()->attach($boss);
+        }
+        // if $request->input('subordinates') subordinates[]
+        if($request->input('subordinates')) {
+            $subordinates = $request->input('subordinates');
+            // Detach all current subordinates
+            $user->children()->detach();
+            // Attach new subordinates
+            foreach ($subordinates as $subordinateId) {
+                $subordinate = User::findOrFail($subordinateId);
+                $user->children()->attach($subordinate);
+            }
+        } 
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 
@@ -216,6 +231,8 @@ class UserController extends Controller
     // Form_teams 
     public function Form_teams()
     {
+        // clear users
+        $this->removeCycles(); // Видаляємо цикли в ієрархії користувачів
         
         if (Auth::user()->roles->first()->name === "Admin") {
             $healthUsers = User::where('status', 'sick')->get();
@@ -329,41 +346,52 @@ class UserController extends Controller
     public function connectUsers(Request $request)
     {
         
-        $child = User::findOrFail($request->input('user_id')); // Того кого перетягуємо
-        $child->status= $request->input('status', 'active'); // статус по замовчуванню active
-        $child->save(); // Зберігаємо статус
-        $parentId = $request->input('parent_id');
+       
+        foreach ($request->input('user_id') as $userId) {
+            $child = User::findOrFail($userId); // Того кого перетягуємо
+            if ($child) {
+                $child->status= $request->input('status', 'active'); // статус по замовчуванню active
+                $child->save(); // Зберігаємо статус     
+                 $parentId = $request->input('parent_id');
 
-        if ($parentId!=0) {
-            $parent = User::findOrFail($parentId);
+                if ($parentId!=0) {
+                    $parent = User::findOrFail($parentId);
 
-            // Знаходимо всіх користувачів, у яких цей child вже є як дитина, і видаляємо зв’язок
-            $previousParents = User::whereHas('children', function ($query) use ($child) {
-                $query->where('related_user_id', $child->id);
-            })->get();
+                    // Знаходимо всіх користувачів, у яких цей child вже є як дитина, і видаляємо зв’язок
+                    $previousParents = User::whereHas('children', function ($query) use ($child) {
+                        $query->where('related_user_id', $child->id);
+                    })->get();
 
-            foreach ($previousParents as $previousParent) {
-                $previousParent->children()->detach($child->id);
+                    foreach ($previousParents as $previousParent) {
+                        $previousParent->children()->detach($child->id);
+                    }
+
+                    // Призначаємо нового батька
+                    $parent->children()->attach($child->id);
+
+                } else {
+                    // Якщо parent_id немає — прибираємо батьків повністю (знімаємо з ієрархії)
+                    $currentParents = User::whereHas('children', function ($query) use ($child) {
+                        $query->where('related_user_id', $child->id);
+                    })->get();
+
+                    foreach ($currentParents as $p) {
+                        $p->children()->detach($child->id);
+                    }
+                }           
             }
-
-            // Призначаємо нового батька
-            $parent->children()->attach($child->id);
-
-        } else {
-            // Якщо parent_id немає — прибираємо батьків повністю (знімаємо з ієрархії)
-            $currentParents = User::whereHas('children', function ($query) use ($child) {
-                $query->where('related_user_id', $child->id);
-            })->get();
-
-            foreach ($currentParents as $p) {
-                $p->children()->detach($child->id);
-            }
-        }
-
+        }    
         return response()->json([
             'success' => true,
-            'message' => 'Ієрархія оновлена успішно. status ' . $child->status,
-            'user' => $child->load('supervisors'), // якщо є зворотній зв'язок
+            'message' => 'Ієрархія оновлена успішно. status ' . $request->input('status', 'active'),
+            'parent_id' => $request->input('parent_id'),
+            'user_id' => $request->input('user_id'),
+            'status' => $request->input('status', 'active')
+        ])->withHeaders([
+            'Content-Type' => 'application/json',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+            'Expires' => '0',
         ]);
     }
 
@@ -460,5 +488,20 @@ class UserController extends Controller
   
 
         return redirect()->route('users.index')->with('success', 'Users imported successfully from CSV.');
+    }
+
+    function removeCycles()
+    {
+        $users = User::with('children')->get();
+
+        foreach ($users as $user) {
+            foreach ($user->children as $child) {
+                if ($child->hasInChildrenRecursive($user->id)) {
+                    // 🔥 Видаляємо зв’язок, бо він створює цикл
+                    $user->children()->detach($child->id);
+                   // echo "Видалено цикл: {$user->id} → {$child->id}\n";
+                }
+            }
+        }
     }
 }

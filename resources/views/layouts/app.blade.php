@@ -15,6 +15,8 @@
     <!-- Scripts -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
     
 </head>
 <body>
@@ -102,7 +104,7 @@
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
+                                        <a class="dropdown-item" href="{{ route('raports.index') }}">
                                             {{ __('Reports') }}
                                         </a>
                                         <a class="dropdown-item" href="{{ route('users.index') }}">
@@ -129,7 +131,7 @@
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                        <a class="dropdown-item" href="">
+                                        <a class="dropdown-item" href="{{ route('raports.index') }}">
                                             {{ __('Reports') }}
                                         </a>
                                         <a class="dropdown-item" href="{{ route('users.index') }}">
@@ -156,6 +158,9 @@
                                          <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
+                                        <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                            {{ __('Reports') }}
+                                        </a>
                                         <!-- Формируем команди -->
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}
@@ -174,7 +179,9 @@
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                       
+                                       <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                            {{ __('Reports') }}
+                                        </a>
                                          <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
@@ -197,7 +204,9 @@
                                             {{ __('Tasks') }}
                                         </a>
                                        
-                                       
+                                       <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                            {{ __('Reports') }}
+                                        </a>
                                          <!-- Формируем команди -->
                                          <a class="dropdown-item" href="{{ route('teams.index') }}">
                                             {{ __('Teams') }}

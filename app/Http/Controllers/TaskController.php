@@ -32,7 +32,9 @@ class TaskController extends Controller
             $departmentId = Auth::user()->departments->pluck('id');
             $projects = Project::with(['tasks', 'tasks.equipments', 'tasks.materials', 'tasks.machines'])
             ->get();
-             $tasks = Task::with('enterprises')->get();
+             $tasks = Task::with('enterprises', 'departments', 'users', 'equipments', 'materials', 'machines', 'master', 'brigadir', 'workers')
+             ->get();
+             
             $masters = User::whereHas('roles', function ($query) {
                 $query->where('name', 'Master');
             })
@@ -53,7 +55,7 @@ class TaskController extends Controller
             $tasks = Task::whereHas('users', function ($query) {
                 $query->where('role', 'master')
                       ->where('user_id', Auth::id());
-            })->with(['users', 'equipments', 'materials', 'machines'])->get();
+            })->with(['users', 'equipments', 'materials', 'machines','master','brigadir','workers'])->get();
             $brigadirs = Auth::user()->children()->whereHas('roles', function ($query) {
                 $query->where('name', 'brigadir');
             })->with('roles')->get();
@@ -65,7 +67,7 @@ class TaskController extends Controller
             $tasks = Task::whereHas('users', function ($query) {
                 $query->where('role', 'brigadir')
                       ->where('user_id', Auth::id());
-            })->with(['users', 'equipments', 'materials', 'machines'])->get();
+            })->with(['users', 'equipments', 'materials', 'machines','master','brigadir','workers'])->get();
             $workers = Auth::user()->children()->whereHas('roles', function ($query) {
                 $query->where('name', 'worker');
             })->with('roles')->get();
@@ -204,7 +206,7 @@ class TaskController extends Controller
 
     public function edit(string $id)
     {
-        //
+      
         $task = Task::findOrFail($id);
         
         $etalons = Etalon::all();
@@ -215,6 +217,31 @@ class TaskController extends Controller
     }
     public function update(Request $request, string $id)
     {
+        $task = Task::findOrFail($id);
+        $task->order = $request->input('order')? $request->input('order') : 0; // Default to 0 if not provided
+        $task->name = $request->input('name')? $request->input('name') : 'Нове завдання'; // Default name if not provided
+        $task->description = $request->input('description')? $request->input('description') : 'Опис не надано'; // Default description if not provided
+        $task->start_date = $request->input('start_date')? $request->input('start_date') : now(); // Default to current date if not provided
+        $task->end_date = $request->input('end_date')? $request->input('end_date') : now()->addDays(7); // Default to 7 days from now if not provided
+        $task->estimated_hours = $request->input('estimated_hours')? $request->input('estimated_hours') : 0; // Default to 0 if not provided
+        $task->actual_hours = $request->input('actual_hours')? $request->input('actual_hours') : 0; // Default to 0 if not provided
+
+        $task->progress = $request->input('progress', 0)? $request->input('progress') : 0; // Default to 0 if not provided
+        $task->quantity = $request->input('quantity', 0)? $request->input('quantity') : 0; // Default to 0 if not provided
+        $task->unit = $request->input('unit')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
+        //$task->project_id = $request->input('project_id'); // Project ID is not updated here, assuming it remains the same
+        //$task->save();
+
+        // Update the task in the database
+        if ($task) {
+            // Update the task attributes
+            $task->update($request->all());
+            return redirect()->route('tasks.index')->with('success', 'Завдання успішно оновлено!');
+        } else {
+            return redirect()->back()->withErrors(['error' => 'Завдання не знайдено']);
+        }
+
+
     }
     public function destroy(string $id)
     {
@@ -241,7 +268,8 @@ class TaskController extends Controller
 
         } elseif ($role === 'brigadir') {
             $task->users()->wherePivot('role', 'brigadir')->detach();
-            $task->users()->attach($request->input('master_id'), ['role' => 'brigadir']);
+            $task->users()->wherePivot('role', 'worker')->detach();
+            $task->users()->attach($request->input('master_id'), ['role' => 'brigadir']);            
             $user = User::findOrFail($request->input('master_id'));
             // add children  to task
             $task->users()->attach($user->children->pluck('id'), ['role' => 'worker']);
@@ -316,6 +344,11 @@ class TaskController extends Controller
     }
     public function show(string $id)
     {
+       
+        // якщо користувач не бригадир або робітнік то редірект на сторінку редактування завданя
+        if(!Auth::user()->hasRole(['brigadir', 'worker'])) {
+            return redirect()->route('tasks.edit', $id);
+        }
         // Завантажуємо завдання разом з усіма зв'язками
         $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($id);
 

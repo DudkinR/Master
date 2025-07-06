@@ -8,9 +8,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MachineController;
 
-Route::get('/', function () {
-    return view('home');
-});
+Route::get('/',  [App\Http\Controllers\HomeController::class, 'index']);
 
 Route::get('/login', function () {
     return view('auth.login');

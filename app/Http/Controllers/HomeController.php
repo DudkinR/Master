@@ -30,22 +30,30 @@ class HomeController extends Controller
             return view('home');
         }
         if(Auth::user()->roles->first()->name== 'Boss'){
-            return view('reports.index_boss');
+            // Redirect to the route raports.index 
+            return redirect()->route('raports.index');
         }
         if(Auth::user()->roles->first()->name== 'Master'){
-            return view('reports.index_master');
+            return redirect()->route('raports.index');
         }
         if(Auth::user()->roles->first()->name== 'Brigadir'){
-            return view('reports.index_brig');
+            // якщо відкрита хоч якесь завдання та task.show 
+            if(session('task_id')) {
+                return redirect()->route('tasks.show', session('task_id'));
+            }
+            // якщо немає відкритого завдання то редірект на сторінку завдань            
+            return redirect()->route('raports.index');
         }
         if(Auth::user()->roles->first()->name== 'Worker'){
             return view('reports.index_guest');
         }
         if(Auth::user()->roles->first()->name== 'Admin'){
-            return view('reports.index_admin');
+            // Redirect to the route raports.index 
+            return redirect()->route('raports.index');
         }
         if(Auth::user()->roles->first()->name== 'Engineer'){
-            return view('reports.index_eng');
+            // Redirect to the route raports.index 
+            return redirect()->route('raports.index');
         }
         return view('home');
 

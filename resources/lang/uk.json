@@ -1,0 +1,21 @@
+{
+    "dashboard": "Панель керування",
+    "Reports": "Звіти",
+    "Users": "Користувачі",
+    "Tasks": "Завдання",
+    "Projects": "Проекти",
+    "Master Panel": "Головна панель",
+    "Boss Panel": "Панель керівника",
+    "Brigadir Panel": "Панель бригадира",
+    "Admin Panel": "Панель адміністратора",
+    "Login": "Вхід",
+    "Email Address": "Електронна адреса",
+    "Password": "Пароль",
+    "Remember Me": "Запам'ятати мене",
+    "Forgot Your Password?": "Забули свій пароль?",
+    "Register": "Реєстрація",
+    "Logout": "Вихід",
+    "Home": "Головна",
+
+    "Teams": "Команди"
+}

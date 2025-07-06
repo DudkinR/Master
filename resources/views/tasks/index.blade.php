@@ -22,66 +22,37 @@
             </a>
         </div>
     </div>
+    <div class="container" id="tasksContainer">
     {{-- Завдання --}}
-    @foreach ($tasks as $task)
-        <div class="card mb-3 shadow-sm">
-            <div class="card-body" data-bs-toggle="modal" data-bs-target="#taskDetailsModal{{ $task->id }}" style="cursor: pointer;">
-                <h5 class="card-title">{{ $task->name }}</h5>
-                <p class="mb-1"><strong>Майстер:</strong> {{ optional($task->master->first())->name ?? 'Не призначено' }}</p>
-                <p class="mb-1"><strong>Бригадир:</strong> {{ optional($task->brigadir->first())->name ?? 'Не призначено' }}</p>
-                <p class="mb-1"><strong>Робітники:</strong>
-                    @forelse ($task->workers as $worker)
-                        {{ $worker->name }}@if(!$loop->last), @endif
-                    @empty
-                        Не призначено
-                    @endforelse
-                </p>
-                <div class="mt-2 text-end">
-                    <button class="btn btn-sm btn-outline-secondary assign-master-btn"
-                            data-bs-toggle="modal" 
-                            data-bs-target="#assignMasterModal"
-                            data-task-id="{{ $task->id }}"
-                            onClick ="set_task_id({{ $task->id }})" 
-                            data-action="{{ route('tasks.assignMaster', $task->id) }}">
-                        Змінити
-                    </button>
-                </div>
-            </div>
-        </div>
-
+     </div>   
         {{-- Модальне вікно деталей завдання --}}
-        <div class="modal fade" id="taskDetailsModal{{ $task->id }}" tabindex="-1" aria-labelledby="taskDetailsModalLabel{{ $task->id }}" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content shadow">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="taskDetailsModalLabel{{ $task->id }}">{{ $task->name }}</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p><strong>Опис:</strong> {{ $task->description }}</p>
-                        <p><strong>Порядок:</strong> {{ $task->order }}</p>
-                        <p><strong>Дата початку:</strong> {{ $task->start_date }}</p>
-                        <p><strong>Дата завершення:</strong> {{ $task->end_date }}</p>
-                        <p><strong>Орієнтовні години:</strong> {{ $task->estimated_hours }} год</p>
-                        <p><strong>Статус:</strong>
-                            @php
-                                $statusLabels = [
-                                    'completed' => ['Виконано', 'success'],
-                                    'in_progress' => ['В процесі', 'warning text-dark'],
-                                    'pending' => ['Не розпочато', 'secondary'],
-                                ];
-                                [$label, $class] = $statusLabels[$task->status] ?? ['Невідомо', 'dark'];
-                            @endphp
-                            <span class="badge bg-{{ $class }}">{{ $label }}</span>
-                        </p>
-                    </div>
+    <div class="modal fade" id="taskDetailsModal" tabindex="-1" aria-labelledby="taskDetailsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="taskDetailsModalLabel">Назва завдання</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Опис:</strong> <span id="taskDescription"></span></p>
+                    <p><strong>Порядок:</strong> <span id="taskOrder"></span></p>
+                    <p><strong>Дата початку:</strong> <span id="taskStartDate"></span></p>
+                    <p><strong>Дата завершення:</strong> <span id="taskEndDate"></span></p>
+                    <p><strong>Орієнтовні години:</strong> <span id="taskEstimatedHours"></span> год</p>
+                    <p><strong>Статус:</strong>
+                    <span class="badge" id="taskStatusLabel"></span>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                   <a href="" id="showTaskLink" class="btn btn-primary">
+                   {{__('Show')}}
+                     </a>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+
                 </div>
             </div>
         </div>
-    @endforeach
-
-</div>
-
+    </div>
 <!-- Modal: Призначення виконавця -->
 <div class="modal fade" id="assignMasterModal" tabindex="-1" aria-labelledby="assignMasterModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -144,6 +115,133 @@
 </div>
 
 <script>
+    // заповнення карток завдань
+  document.addEventListener('DOMContentLoaded', function () {
+    const tasks = @json($tasks);
+
+    const tasksContainer = document.getElementById('tasksContainer');
+
+    tasks.forEach(task => {
+        const card = document.createElement('div');
+        card.className = 'card mb-3 shadow-sm';
+       
+        const masterName = task.master[0]?.name ?? 'Не призначено';
+        const brigadirName = task.brigadir[0]?.name ?? 'Не призначено';
+        const workers = Array.isArray(task.workers) && task.workers.length > 0
+            ? task.workers.map(worker => worker.name).join(', ')
+            : 'Не призначено';
+
+        const statusMap = {
+            in_progress: ['Виконується', 'bg-warning'],
+            completed: ['Завершено', 'bg-success'],
+            pending: ['Очікує', 'bg-secondary']
+        };
+        const [statusLabel, statusClass] = statusMap[task.status] ?? ['Невідомо', 'bg-dark'];
+
+        const progressHtml = task.progress !== null
+            ? `<div class="progress" style="height: 20px;">
+                    <div class="progress-bar" role="progressbar" style="width: ${task.progress}%;"
+                        aria-valuenow="${task.progress}" aria-valuemin="0" aria-valuemax="100">
+                        ${task.progress}%
+                    </div>
+               </div>`
+            : '<span class="text-muted">Не визначено</span>';
+
+        card.innerHTML = `
+            <div class="card-body task-item"
+                data-id="${task.id}"
+                data-name="${task.name}"
+                data-description="${task.description}"
+                data-order="${task.order}"
+                data-start-date="${task.start_date}"
+                data-end-date="${task.end_date}"
+                data-estimated-hours="${task.estimated_hours}"
+                data-status="${task.status}"
+                data-bs-toggle="modal"
+                data-bs-target="#taskDetailsModal"
+                style="cursor: pointer;">
+                <h5 class="card-title">${task.name}</h5>
+                <p class="mb-1"><strong>Початок:</strong> ${task.start_date}</p>
+                <p class="mb-1"><strong>Кінець:</strong> ${task.end_date}</p>
+                <p class="mb-1"><strong>Орієнтовні години:</strong> ${task.estimated_hours} год</p>
+                <p class="mb-1"><strong>Статус:</strong>
+                    <span class="badge ${statusClass}">${statusLabel}</span>
+                </p>
+                <p class="mb-1"><strong>Виконання:</strong> ${progressHtml}</p>
+                <p class="mb-1"><strong>Майстер:</strong> ${masterName}</p>
+                <p class="mb-1"><strong>Бригадир:</strong> ${brigadirName}</p>
+                <p class="mb-1"><strong>Робітники:</strong> ${workers}</p>
+                <div class="mt-2 text-end">
+                    <button class="btn btn-sm btn-outline-secondary assign-master-btn"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#assignMasterModal"
+                            data-task-id="${task.id}"
+                            onclick="set_task_id(${task.id})"
+                            data-action="/tasks/assign/${task.id}">
+                        Змінити
+                    </button>
+                </div>
+            </div>
+        `;
+
+        tasksContainer.appendChild(card);
+    });
+});  
+// зробити сортіровку  перши назначени сьогодні завдання, потім ті що на завтра, потім по процетному виконанню
+document.addEventListener('DOMContentLoaded', function () {
+    const tasksContainer = document.getElementById('tasksContainer');
+    const taskItems = document.querySelectorAll('.task-item');
+    const showTaskLink = document.getElementById('showTaskLink');
+    // Заповнення модального вікна при натисканні на картку
+    taskItems.forEach(item => {
+        item.addEventListener('click', function () {
+            console.log('Task clicked:', this.dataset.id);
+            document.getElementById('taskDetailsModalLabel').innerText = this.dataset.name;
+            document.getElementById('taskDescription').innerText = this.dataset.description;
+            document.getElementById('taskOrder').innerText = this.dataset.order;
+            document.getElementById('taskStartDate').innerText = this.dataset.startDate;
+            document.getElementById('taskEndDate').innerText = this.dataset.endDate;
+            document.getElementById('taskEstimatedHours').innerText = this.dataset.estimatedHours; 
+            // showTaskLink
+            document.getElementById('showTaskLink').href = `/tasks/${this.dataset.id}`;          
+         
+            
+         });
+        });
+    });
+
+    // 🧠 Сортування завдань (сьогодні → завтра → інше, потім % виконання)
+function sortTasks() {
+        const cards = Array.from(tasksContainer.querySelectorAll('.card'));
+        const now = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+
+        cards.sort((a, b) => {
+            const aDate = a.querySelector('.task-item').dataset.startDate || '9999-12-31';
+            const bDate = b.querySelector('.task-item').dataset.startDate || '9999-12-31';
+
+            // Сьогоднішні перші
+            if (aDate === now && bDate !== now) return -1;
+            if (bDate === now && aDate !== now) return 1;
+
+            // Завтра другі
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = tomorrow.toISOString().slice(0, 10);
+
+            if (aDate === tomorrowStr && bDate !== tomorrowStr) return -1;
+            if (bDate === tomorrowStr && aDate !== tomorrowStr) return 1;
+
+            // Інакше сортуємо за датою
+            return aDate.localeCompare(bDate);
+        });
+
+        // Перемальовуємо
+        tasksContainer.innerHTML = '';
+        cards.forEach(card => tasksContainer.appendChild(card));
+    }
+
+    sortTasks();
+
 function set_task_id(task_id) {
     const taskIdInput = document.querySelector('input[name="task_id"]');
     if (taskIdInput) {
@@ -152,6 +250,18 @@ function set_task_id(task_id) {
         console.error('Не знайдено input з ім\'ям "task_id"');
     }
 }
+
+    // Додаємо оброботку tasks
+    document.querySelectorAll('.assign-master-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const taskId = this.dataset.taskId;
+            const actionUrl = this.dataset.action.replace(':id', taskId);
+            const modal = document.getElementById('assignMasterModal');
+            modal.querySelector('form').action = actionUrl;
+            modal.querySelector('input[name="task_id"]').value = taskId;
+        });
+    });
+
 </script>
 
 @endsection

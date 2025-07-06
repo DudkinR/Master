@@ -41,7 +41,7 @@
                     <div class="text-muted">Завершені Проекти</div>
                     <div class="fw-bold fs-5 text-secondary">24</div>
                 </div>
-                <div class="col">
+                <div class="col bg-light">
                     <div class="text-muted">Усього завдань</div>
                     <div class="fw-bold fs-5 text-dark">
                     
@@ -91,7 +91,7 @@
                     <div class="text-muted">Відпустка</div>
                     <div class="fw-bold fs-5 text-secondary">6</div>
                 </div>
-                <div class="col">
+                <div class="col bg-warning text-dark">
                     <div class="text-muted">Усьго проблемних питань</div>
                     <div class="fw-bold fs-5 text-dark">9</div>
                     <div class="text-muted">Проблемні завдання</div>

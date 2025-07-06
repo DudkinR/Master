@@ -16,6 +16,11 @@
     "Register": "Реєстрація",
     "Logout": "Вихід",
     "Home": "Головна",
+    "Availability of materials": "Наявність ТМЦ",
+    "Add material": "Додати матеріал",
+    "New material": "Новий матеріал",
+    "Title": "Назва",
+    "Description": "Опис",
 
     "Teams": "Команди"
 }

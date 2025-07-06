@@ -113,6 +113,8 @@ Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end'
 // machines.start
 Route::post('/machines/{id}/start', [MachineController::class, 'start'])->name('machines.start');
 // machines.stop
-Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('machines.stop');
+Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('machines.end');
+// 'machines.pause
+Route::post('/machines/{id}/pause', [MachineController::class, 'pause'])->name('machines.pause');
 // tasks.report_issue
 Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])->name('tasks.report_issue');

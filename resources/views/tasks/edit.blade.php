@@ -129,7 +129,6 @@
                                 Кількість: <span class="fw-semibold">{{ $material->pivot->quantity }}</span> ({{ $material->unit }})
                             </div>
                         </div>
-
                         <div class="btn-group" role="group">
                             <form action="{{ route('materials.update', $material->id) }}" method="POST">
                                 @csrf @method('PUT')

@@ -97,4 +97,16 @@ class MachineController extends Controller
         return redirect()->route('tasks.edit', $task->id)
             ->with('success', 'Machine deleted successfully!');
     }
+    public function start(Request $request, $id)
+    {
+     return $request->all();
+    }
+    public function pause(Request $request, $id)
+    {
+        return $request->all();
+    }
+    public function stop(Request $request, $id)
+    {
+        return $request->all();     
+    }
 }

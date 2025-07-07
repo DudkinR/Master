@@ -19,8 +19,20 @@ Route::get('/register', function () {
 Route::get('/password/reset', function () {
     return view('auth.passwords.reset');
 })->name('password.request');
-// Auth routes
+Route::get('/help', function () {
+    return view('help');
+})->name('help');
+// about
+Route::get('/about', function () {
+    return view('about');
+})->name('about');
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Auth::routes();
+//  якщо авторізований користувач 
+Route::middleware(['auth'])->group(function () {
+    // Додайте тут маршрути, які потребують автентифікації
+
+
 // resourse routes projects, equipment, tasks, roles , materials , machines, tasks
 Route::resource('projects', ProjectController::class);
 Route::resource('equipments', EquipmentController::class);
@@ -28,16 +40,8 @@ Route::resource('tasks', TaskController::class);
 Route::resource('roles', RoleController::class);
 Route::resource('materials', MaterialController::class);
 Route::resource('machines', MachineController::class);
-// raports
 Route::resource('raports', App\Http\Controllers\RaportController::class);
-// tasks.assignMaster
 Route::post('assignMaster', [TaskController::class, 'assignMaster'])->name('tasks.assignMaster');
-
-
-
-Auth::routes();
-
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 // master.index
 Route::get('/master', [App\Http\Controllers\TaskController::class, 'Masterindex'])->name('tasks.Master');
 // resources/views/tasks/brigadir_index.blade.php
@@ -46,21 +50,10 @@ Route::get('/brigadir', [App\Http\Controllers\TaskController::class, 'Brigadirin
 Route::get('/brigadir/{id}', [App\Http\Controllers\TaskController::class, 'Brigadirshow'])->name('tasks.Brigadirshow');
 // tasks.assignBrigadir assignBrigadir
 Route::post('assignBrigadir', [TaskController::class, 'assignBrigadir'])->name('tasks.assignBrigadir');
-
 //profile.show
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile.show');
 //settings.index
 Route::get('/settings', [App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
-// help 
-Route::get('/help', function () {
-    return view('help');
-})->name('help');
-// about
-Route::get('/about', function () {
-    return view('about');
-})->name('about');
-
-// admin.index
 Route::get('/admin', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.index');
 // boss.index
 Route::get('/boss', [App\Http\Controllers\BossController::class, 'index'])->name('boss.index');
@@ -72,8 +65,6 @@ Route::get('/brigadir', [App\Http\Controllers\BrigadirController::class, 'index'
 Route::get('/master', [App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
 // worker.index
 Route::get('/worker', [App\Http\Controllers\WorkerController::class, 'index'])->name('worker.index');
-
-
 // users
 Route::any('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
 // user.show
@@ -96,12 +87,7 @@ Route::any('/connectusers', [App\Http\Controllers\UserController::class, 'connec
 Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm'])->name('loadcsv.form');
 // post loadcsv personals
 Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
-// connect.users post
-
-// Reports
-//
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
-
 // пост tasks.complete
 Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
 // пост tasks.start
@@ -118,3 +104,4 @@ Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('ma
 Route::post('/machines/{id}/pause', [MachineController::class, 'pause'])->name('machines.pause');
 // tasks.report_issue
 Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])->name('tasks.report_issue');
+});

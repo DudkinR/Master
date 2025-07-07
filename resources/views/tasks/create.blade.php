@@ -123,7 +123,7 @@
                         </div>
                         <div class="col-md-1">
                             <label class="form-label">Одиниця</label>
-                            <input type="text" name="materials[0][unit]" class="form-control" placeholder="">
+                            <input type="text" name="materials[0][unit]" class="form-control" placeholder=""  value="шт">
                         </div>
                     </div>
                 </div>
@@ -147,7 +147,7 @@
                         </div>
                         <div class="col-md-1">
                             <label class="form-label">Одиниця</label>
-                            <input type="text" name="equipments[0][unit]" class="form-control" placeholder="">
+                            <input type="text" name="equipments[0][unit]" class="form-control" placeholder=""  value="шт">
                         </div>
                     </div>
                 </div>
@@ -171,7 +171,7 @@
                         </div>
                         <div class="col-md-1">
                             <label class="form-label">Одиниця</label>
-                            <input type="text" name="machines[0][unit]" class="form-control" placeholder="">
+                            <input type="text" name="machines[0][unit]" class="form-control" placeholder=""  value="шт">
                         </div>
                     </div>
                 </div>

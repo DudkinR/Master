@@ -21,6 +21,15 @@ class ProjectController extends Controller
         })->with(['roles' => function ($q) {
             $q->where('name', 'Engineer');
         }])->get();
+         if(Auth::user()->roles->first()->name ==="Admin")
+         {
+             $engs = User::whereHas('roles', function ($query) {
+                 $query->where('name', 'Engineer');
+             })->with(['roles' => function ($q) {
+                 $q->where('name', 'Engineer');
+             }])->get();
+                $projects = Project::with(['enterprises', 'departments'])->get();
+         }
          if(Auth::user()->roles->first()->name ==="Boss")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
@@ -38,9 +47,53 @@ class ProjectController extends Controller
             ->with(['roles' => function ($q) {
                 $q->where('name', 'Engineer');
             }])->get();
+            $projects = Project::whereHas('enterprises', function ($query) use ($enterpriseId) {
+                $query->whereIn('enterprise.id', $enterpriseId);
+            })->orWhereHas('departments', function ($query) use ($departmentId) {
+                $query->whereIn('department.id', $departmentId);
+            })->with(['enterprises', 'departments'])->get();
 
         }
-       $projects = Project::all();
+        if(Auth::user()->roles->first()->name ==="Master")
+        {
+            $enterpriseId = Auth::user()->enterprises->pluck('id');
+            $departmentId = Auth::user()->departments->pluck('id');
+            $engs = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Engineer');
+            })
+            ->where(function ($query) use ($enterpriseId, $departmentId) {
+                $query->whereHas('enterprises', function ($q) use ($enterpriseId) {
+                    $q->whereIn('enterprise.id', $enterpriseId);
+                })->orWhereHas('departments', function ($q) use ($departmentId) {
+                    $q->whereIn('department.id', $departmentId);
+                });
+            })
+            ->with(['roles' => function ($q) {
+                $q->where('name', 'Engineer');
+            }])->get();
+            $projects = Project::whereHas('enterprises', function ($query) use ($enterpriseId) {
+                $query->whereIn('enterprise.id', $enterpriseId);
+            })->orWhereHas('departments', function ($query) use ($departmentId) {
+                $query->whereIn('department.id', $departmentId);
+            })->with(['enterprises', 'departments'])->get();            
+        }
+        else{
+            $projects = Project::whereHas('enterprises', function ($query) {
+                $query->where('enterprise.id', Auth::user()->enterprises->first()->id);
+            })->orWhereHas('departments', function ($query) {
+                $query->where('department.id', Auth::user()->departments->first()->id);
+            })->with(['enterprises', 'departments'])->get();
+            $engs = User::whereHas('roles', function ($query) {
+                $query->where('name', 'Engineer');
+            })->whereHas('enterprises', function ($query) {
+                $query->where('enterprise.id', Auth::user()->enterprises->first()->id);
+            })->orWhereHas('departments', function ($query) {   
+                $query->where('department.id', Auth::user()->departments->first()->id);
+            })->with(['roles' => function ($q) {
+                $q->where('name', 'Engineer');
+            }])->get();
+        }
+       
         return view('projects.index' , compact('projects' , 'engs'));
     }
 

@@ -123,8 +123,48 @@
             </ul>
         </div>
     </div>
+    @else
+    {{-- Якщо немає активних завдань  показати як це буде виглядати--}}
+    <div class="card mb-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h6 class="mb-0"><i class="bi bi-person-check-fill me-2"></i>Активні завдання</h6>
+        </div>
+        <div class="card-body">
+             <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong> Ставим паркан : Проект "НТЦ" </strong> —
+                        <span class="text-muted"> Працівників: 3</span><br>
+                        <small class="text-dark"> Обладнення: 2, ТМЦ: 1 ; техника: 1</small><br>
+                        <small class="text-dark"> Проблем: 0</small><br>
+                        <small class="text-dark"> Час роботи на робочому місці: 12 год</small><br>
+                        <small class="text-dark"> Час чоловікогодин: 36 год</small><br>
+                        <small class="text-dark"> Час початку роботи согодні: <strong> 08:10</strong></small><br>
+                        <small class="text-dark"> Виконання: 75%</small>
+                </li>
+                <li class="list-group-item">
+                    <strong> Ремонт дороги : Проект "Автошлях" </strong> —
+                        <span class="text-muted"> Працівників: 5</span><br>
+                        <small class="text-dark"> Обладнання: 1, ТМЦ: 1 ; техника: 2</small><br>
+                        <small class="text-dark"> Проблем: 1</small><br>
+                        <small class="text-dark"> Час роботи на робочому місці: 10 год</small><br>
+                        <small class="text-dark"> Час чоловікогодин: 50 год</small><br>
+                        <small class="text-dark"> Час початку роботи согодні:<strong> 09:00</strong></small><br>
+                        <small class="text-dark"> Виконання: 60%</small>
+                </li>
+                <li class="list-group-item">
+                    <strong> Будівництво мосту : Проект "Міст" </strong> —
+                        <span class="text-muted"> Працівників: 4</span><br>
+                        <small class="text-dark"> Обладнання: 3, ТМЦ: 2 ; техника: 1</small><br>
+                        <small class="text-dark"> Проблем: 0</small><br>
+                        <small class="text-dark"> Час роботи на робочому місці: 12 год</small><br>
+                        <small class="text-dark"> Час чоловікогодин: 48 год</small><br>
+                        <small class="text-dark"> Час початку роботи согодні:<strong> 08:00</strong></small><br>
+                        <small class="text-dark"> Виконання: 85%</small>
+                </li>
+            </ul>
+        </div>
+    </div>
     @endif
-
     @if(count($raports['inactive_tasks']))
     <div class="card mb-4 border-danger">
         <div class="card-header bg-danger text-white">

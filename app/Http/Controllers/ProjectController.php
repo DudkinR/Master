@@ -78,11 +78,20 @@ class ProjectController extends Controller
             })->with(['enterprises', 'departments'])->get();            
         }
         else{
-            $projects = Project::whereHas('enterprises', function ($query) {
-                $query->where('enterprise.id', Auth::user()->enterprises->first()->id);
-            })->orWhereHas('departments', function ($query) {
-                $query->where('department.id', Auth::user()->departments->first()->id);
-            })->with(['enterprises', 'departments'])->get();
+             $projects = Project::where(function ($query) {
+                $query->whereHas('enterprises', function ($q) {
+                    $q->where('enterprise.id', Auth::user()->enterprises->first()->id);
+                })->orWhereHas('departments', function ($q) {
+                    $q->where('department.id', Auth::user()->departments->first()->id);
+                });
+            })->whereHas('tasks.users', function ($q) {
+                $q->where('users.id', Auth::id());
+            })
+            ->with(['enterprises', 'departments'])
+            //->with(['tasks'])
+            ->get();
+
+
             $engs = User::whereHas('roles', function ($query) {
                 $query->where('name', 'Engineer');
             })->whereHas('enterprises', function ($query) {

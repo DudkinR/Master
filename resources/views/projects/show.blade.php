@@ -21,6 +21,7 @@
         </div>
         @endif
     </div>
+     @if(Auth::user()->roles->first()->name ==="Boss" || Auth::user()->roles->first()->name ==="Engineer" || Auth::user()->roles->first()->name ==="Admin")
     <div class="mt-4">
         <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning">Редагувати</a>
         <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="d-inline">
@@ -29,6 +30,7 @@
             <button type="submit" class="btn btn-danger">Видалити</button>
         </form>
     </div>
+    @endif
     <div class="mt-5">
         <h3>Завдання в рамках цього проекту</h3>
                     <!-- Кнопка відкриття модального вікна -->

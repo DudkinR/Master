@@ -28,11 +28,11 @@
 
                     <div class="col-md-6">
                         <label class="form-label">Дата початку</label>
-                        <input type="date" class="form-control" name="start_date" value="{{ optional($task->start_date)->format('Y-m-d') }}">
+                        <input type="date" class="form-control" name="start_date" value="{{ $task->start_date}}">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Дата завершення</label>
-                        <input type="date" class="form-control" name="end_date" value="{{ optional($task->end_date)->format('Y-m-d') }}">
+                        <input type="date" class="form-control" name="end_date" value="{{ $task->end_date}}">
                     </div>
 
                     <div class="col-md-4">
@@ -108,7 +108,7 @@
                                         <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
                                     </div>
                                     <div class="col-6">
-                                        <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
+                                        <input type="text" class="form-control" name="unit" placeholder="Одиниця" required value="шт">
                                     </div>
                                 </div>
                             </div>
@@ -174,7 +174,7 @@
                                         <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
                                     </div>
                                     <div class="col-6">
-                                        <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
+                                        <input type="text" class="form-control" name="unit" placeholder="Одиниця" required value="шт">
                                     </div>
                                 </div>
                             </div>
@@ -238,7 +238,7 @@
                                         <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
                                     </div>
                                     <div class="col-6">
-                                        <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
+                                        <input type="text" class="form-control" name="unit" placeholder="Одиниця" required value="шт">
                                     </div>
                                 </div>
                             </div>

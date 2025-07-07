@@ -51,7 +51,7 @@
                             <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
                         </div>
                         <div class="col-6">
-                            <input type="text" class="form-control" name="unit" placeholder="Одиниця" required>
+                            <input type="text" class="form-control" name="unit" placeholder="Одиниця" required  value="шт">
                         </div>
                     </div>
                 </div>

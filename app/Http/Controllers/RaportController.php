@@ -21,7 +21,7 @@ class RaportController extends Controller
             $tasks = Task::with(['users', 'equipments', 'materials', 'machines'])->get();
           
         }
-        if(Auth::user()->roles->first()->name ==="Boss")
+        elseif(Auth::user()->roles->first()->name ==="Boss")
         {
            $enterpriseIds = Auth::user()->enterprises->pluck('id');
            $departmentIds = Auth::user()->departments->pluck('id');
@@ -39,7 +39,30 @@ class RaportController extends Controller
     ->with([ 'actionLogs']) // без пробілу!
     ->get();  
         }
-        if(Auth::user()->roles->first()->name ==="Master")
+        elseif(Auth::user()->roles->first()->name ==="Engineer")
+        {
+            $enterpriseIds = Auth::user()->enterprises->pluck('id');
+            $departmentIds = Auth::user()->departments->pluck('id');
+
+            // Витягуємо проєкти, які мають хоча б одне з підприємств або підрозділів
+            $projects = Project::whereHas('enterprises', function ($q) use ($enterpriseIds) {
+                    $q->whereIn('enterprise.id', $enterpriseIds);
+                })
+                ->orWhereHas('departments', function ($q) use ($departmentIds) {
+                    $q->whereIn('department.id', $departmentIds);
+                })
+                ->get();
+
+            // Витягуємо всі завдання, пов’язані з цими проєктами
+            $tasks = Task::whereIn('project_id', $projects->pluck('id'))
+            // users == Auth::user()
+                ->whereHas('users', function ($query) {
+                    $query->where('user_id', Auth::id());
+                })
+                ->with(['users', 'equipments', 'materials', 'machines'])
+                ->get();
+        }
+        elseif(Auth::user()->roles->first()->name ==="Master")
         {
             $enterpriseIds = Auth::user()->enterprises->pluck('id');
             $departmentIds = Auth::user()->departments->pluck('id');
@@ -63,7 +86,7 @@ class RaportController extends Controller
                 ->get();
 
         }
-        if(Auth::user()->roles->first()->name ==="Brigadir")
+        elseif(Auth::user()->roles->first()->name ==="Brigadir")
         {
             $enterpriseIds = Auth::user()->enterprises->pluck('id');
             $departmentIds = Auth::user()->departments->pluck('id');
@@ -87,6 +110,24 @@ class RaportController extends Controller
                 ->get();
             
         }
+        elseif(Auth::user()->roles->first()->name ==="Worker")
+        {
+            $tasks = Task::whereHas('users', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->with(['users', 'equipments', 'materials', 'machines'])
+            ->get();
+        }
+        else
+        {
+            $tasks = Task::whereHas('users', function ($query) {
+                $query->where('user_id', Auth::id());
+            })
+            ->with(['users', 'equipments', 'materials', 'machines'])
+            ->get();
+        }
+
+
 
         $raports = $this->reportForMaster($tasks);
         return view('raports.index', [

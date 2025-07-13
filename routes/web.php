@@ -29,15 +29,21 @@ Route::get('/about', function () {
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Auth::routes();
 //  якщо авторізований користувач 
+Route::get('/test-error', function () {
+    abort(400); // Або 500, 400, 403
+});
+
+
+
 Route::middleware(['auth'])->group(function () {
     // Додайте тут маршрути, які потребують автентифікації
 
 
 // resourse routes projects, equipment, tasks, roles , materials , machines, tasks
-Route::resource('projects', ProjectController::class);
-Route::resource('equipments', EquipmentController::class);
-Route::resource('tasks', TaskController::class);
-Route::resource('roles', RoleController::class);
+Route::resource('projects', ProjectController::class)->middleware('auth.role.redirect');
+Route::resource('equipments', EquipmentController::class)->middleware('auth.role.redirect');
+Route::resource('tasks', TaskController::class) ->middleware('auth.role.redirect');
+Route::resource('roles', RoleController::class)->middleware('auth.role.redirect');
 Route::resource('materials', MaterialController::class);
 Route::resource('machines', MachineController::class);
 Route::resource('raports', App\Http\Controllers\RaportController::class);
@@ -87,7 +93,7 @@ Route::any('/connectusers', [App\Http\Controllers\UserController::class, 'connec
 Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm'])->name('loadcsv.form');
 // post loadcsv personals
 Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
-Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index');
+Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware('auth.role.redirect');
 // пост tasks.complete
 Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
 // пост tasks.start

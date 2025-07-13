@@ -68,9 +68,9 @@
                 <ul class="children list-unstyled" data-id="{{ $user->id }}">
                     {{ $icon}} {{ $user->name }}
                 <br> 
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal" onclick="setUserId({{ $user->id }});">
-                <b>{{ $user->position}}</b>
-                </button>
+                <a href="{{route('users.show', $user->id)}}" class="btn btn-secondary btn-sm">
+                    <b>{{ $user->position}}</b>
+                </a>
                     @if($user->children->isNotEmpty())
                         @foreach ($user->children as $child)  
                             @include('users.partials.user-tree', ['parentId'=> $user->id,'userId' => $child->id])
@@ -118,9 +118,9 @@
                 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
                     {{ $icon }} {{ $user->name }}
                     <br>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal" onclick="setUserId({{ $user->id }});">
+                    <a href="{{route('users.show', $user->id)}}" class="btn btn-secondary btn-sm">
                     <b>{{ $user->position }}</b>
-                    </button>
+                    </a>
                 </li>
             @endforeach
         @endif
@@ -158,9 +158,9 @@
                 <li class="node {{$class_name}}" data-id="{{ $user->id }}">
                     {{ $icon }} {{ $user->name }}
                     <br>
-                    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#findChildrenModal" onclick="setUserId({{ $user->id }})">
+                    <a href="{{route('users.show', $user->id)}}" class="btn btn-secondary btn-sm">
                     <b>{{ $user->position }}</b>
-                    </button>
+                    </a>
                 </li>
             @endforeach
         @endif
@@ -169,42 +169,7 @@
 </div>
     @endif
 </div>
-{{-- modal window find children and send --}}
-<div class="modal fade" id="findChildrenModal" tabindex="-1" aria-labelledby="findChildrenModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="findChildrenModalLabel">Знайти підлеглих</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <form id="findChildrenForm">
-                    <div class="mb-3">                        
-                        <label for="searchName"  id="LsearchName" class="form-label">Ім'я користувача</label>
-                        <input type="text" class="form-control" id="searchName" name="searchName" placeholder="Введіть ім'я користувача">
-                        <input type="hidden" class="form-control" id="userId" name="userId">
-                    </div>
-                    <div class="mb-3">
-                        <label for="searchChildren" class="form-label">Вибрати</label>
-                        <select class="form-select" id="searchChildren" name="searchChildren[]" multiple>
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }} ({{ $user->position }})</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="isVacation" class="form-label">Відпустка</label>
-                        <input type="checkbox" id="isVacation" name="isVacation">
-                    </div>
-                    <div class="mb-3">
-                        <label for="isHealth" class="form-label">Лікарняний</label>
-                        <input type="checkbox" id="isHealth" name="isHealth">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Знайти</button>
-                </form>
-            </div>
-        </div>
-    </div>
+
 <script>
      const users = @json($users);
     const healthUsers = @json($healthUsers);

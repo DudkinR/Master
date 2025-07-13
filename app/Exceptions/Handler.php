@@ -33,17 +33,12 @@ class Handler extends ExceptionHandler
         //
     }
 
-    public function render($request, Throwable $exception)
+   public function render($request, Throwable $exception)
     {
-        // Редирект на маршрут home при 404
-        if ($exception instanceof NotFoundHttpException) {
-            return redirect()->route('home');
-        }
-
-        // Редирект на маршрут home при інших кодах (403, 419, 500)
         if ($exception instanceof HttpExceptionInterface) {
-            $status = $exception->getStatusCode();
-            if (in_array($status, [403, 419, 500])) {
+            $statusCode = $exception->getStatusCode();
+
+            if (in_array($statusCode, [400, 403, 404, 419, 429, 500, 503])) {
                 return redirect()->route('home');
             }
         }

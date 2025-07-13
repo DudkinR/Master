@@ -78,6 +78,31 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-12">
+            <!-- Інфо о завданні хто створив, до якого проекту, хто призначен майстром , бригадиром -->
+            <div class="card mb-4 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Інформація про завдання</h5>
+                    <p class="card-text">
+                        <strong>Проект:</strong> {{ $task->projects->first()->name }}<br>
+                        <strong>Створено:</strong> {{ $task->created_at->format('d.m.Y H:i') }}<br>
+                        <strong>Останнє оновлення:</strong> {{ $task->updated_at->format('d.m.Y H:i') }}<br>
+                        <strong>Створив:</strong> <strong>Створив:</strong> {{ $task->author->first()?->name ?? 'Невідомий' }}
+<br>
+                        <strong>Призначено майстру:</strong>  {{ $task->master->first()?->name ?? 'Не призначено' }}<br>
+                        <strong>Призначено бригадиру:</strong> {{ $task->brigadir->first()?->name ?? 'Не призначено' }}<br>
+                    </p>
+                    <div class="d-flex justify-content-end">
+                        <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-primary btn-sm me-2">👁️ Переглянути</a>
+                        <a href="{{ route('tasks.index') }}" class="btn btn-secondary btn-sm">🔙 Повернутися до списку</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
             <!-- Матеріали -->
             <h3>Матеріали</h3>        <!-- Кнопка -->
             <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createMaterialModal-{{ $task->id }}">

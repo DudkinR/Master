@@ -20,19 +20,22 @@ class TaskController extends Controller
         //
         if(Auth::user()->roles->first()->name ==="Admin")
         {
-            $tasks = Task::with(['users', 'equipments', 'materials', 'machines'])->get();
+            $tasks = Task::with(['users', 'equipments', 'materials', 'machines'])
+            ->orderBy('created_at', 'desc')
+            ->get();
             $masters = User::whereHas('roles', function ($query) {
                 $query->where('name', 'Master');
             })->with('roles')->get();
             return view('tasks.admin_index', compact('tasks', 'masters'));
         }
-        if(Auth::user()->roles->first()->name ==="Boss")
+        elseif(Auth::user()->roles->first()->name ==="Boss")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
             $departmentId = Auth::user()->departments->pluck('id');
             $projects = Project::with(['tasks', 'tasks.equipments', 'tasks.materials', 'tasks.machines'])
             ->get();
              $tasks = Task::with('enterprises', 'departments', 'users', 'equipments', 'materials', 'machines', 'master', 'brigadir', 'workers')
+             ->orderBy('created_at', 'desc')
              ->get();
              
             $masters = User::whereHas('roles', function ($query) {
@@ -50,19 +53,20 @@ class TaskController extends Controller
             }])->get();
             return view('tasks.index', compact('tasks' , 'masters'));
         }
-        if(Auth::user()->roles->first()->name ==="Master")
+        elseif(Auth::user()->roles->first()->name ==="Master")
         {
             $tasks = Task::whereHas('users', function ($query) {
                 $query->where('role', 'master')
                       ->where('user_id', Auth::id());
-            })->with(['users', 'equipments', 'materials', 'machines','master','brigadir','workers'])->get();
+            })->with(['users', 'equipments', 'materials', 'machines','master','brigadir','workers'])
+            ->orderBy('created_at', 'desc')->get();
             $brigadirs = Auth::user()->children()->whereHas('roles', function ($query) {
                 $query->where('name', 'brigadir');
             })->with('roles')->get();
             return view('tasks.index', compact('tasks', 'brigadirs'));
             
         }
-        if(Auth::user()->roles->first()->name ==="Brigadir")
+        elseif(Auth::user()->roles->first()->name ==="Brigadir")
         {
             $tasks = Task::whereHas('users', function ($query) {
                 $query->where('role', 'brigadir')
@@ -74,6 +78,8 @@ class TaskController extends Controller
              
             return view('tasks.index_brig', compact('tasks', 'workers'));
         }
+        redirect()->route('home')
+            ->with('message', 'Ви не маєте доступу до цієї сторінки.');
         
     }
     public function create()
@@ -129,6 +135,9 @@ class TaskController extends Controller
         $departmentId = Auth::user()->departments->pluck('id');
         $task->enterprises()->sync($enterpriseId);
         $task->departments()->sync($departmentId);
+
+        // Прив’язка користувачів до завдання auth()->id is author 
+        $task->users()->attach(Auth::id(), ['role' => 'author']); // Assuming the creator is a master
 
         // Прив’язка завдання до проекту з додатковими даними
         $project = Project::findOrFail($task->project_id);
@@ -207,8 +216,9 @@ class TaskController extends Controller
     public function edit(string $id)
     {
       
-        $task = Task::findOrFail($id);
-        
+        $task = Task::findOrFail($id)
+        ->load('users', 'author', 'master', 'brigadir', 'workers', 'materials', 'machines', 'equipments'); 
+        // Завантажуємо користувачів, матеріали, машини та обладнання
         $etalons = Etalon::all();
         $masters = User::whereHas('roles', function ($query) {
             $query->where('name', 'Master');
@@ -341,26 +351,32 @@ class TaskController extends Controller
             $task->status = 'in_progress'; // Якщо прогрес не 100%, залишаємо статус "в процесі"
         }
         $task->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Завдання успішно завершено',
+            'task' => $task
+        ]);
+       
     }
     public function show(string $id)
     {
-       
+      
         // якщо користувач не бригадир або робітнік то редірект на сторінку редактування завданя
         if(!Auth::user()->hasRole(['brigadir', 'worker'])) {
             return redirect()->route('tasks.edit', $id);
         }
         // Завантажуємо завдання разом з усіма зв'язками
         $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($id);
-
         // Отримуємо всі дії поточного користувача по цьому завданню
         $allAction = TaskActionLog::where('task_id', $task->id)
-            ->where('user_id', Auth::id())
+            ->where(function ($query) {
+            $query->where('user_id', Auth::id()); // Вибираємо всі дії, окрім початку
+            })
             ->get();
 
         // Розрахунок витраченого часу
         $timeSpent = 0;
         $startTime = null;
-
         foreach ($allAction as $action) {
             if ($action->action_type === 'start') {
                 $startTime = $action->created_at;
@@ -371,18 +387,15 @@ class TaskController extends Controller
                 }
             }
         }
-
         // Якщо останній start не завершений — додаємо час до теперішнього
         if ($startTime) {
             $timeSpent += now()->diffInSeconds($startTime);
         }
-
         // Остання дія по завданню (не лише поточного користувача)
-        $lastAction = TaskActionLog::where('task_id', $task->id)
+         $lastAction = TaskActionLog::where('task_id', $task->id)
             ->orderBy('created_at', 'desc')
             ->first();
         $problems = Problem::where('task_id', $task->id)->get();    
-
         return view('tasks.show', compact('task', 'timeSpent', 'lastAction', 'allAction', 'problems'));
     }
     public function start(Request $request, $id)

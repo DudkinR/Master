@@ -17,101 +17,10 @@
     <!-- Фільтри користувачів -->
     <div class="card mb-3">
     <div class="card-header">
-        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#userFilters">
         🔍 Фільтри користувачів
-        </button>
+       <input type="text" id="searchInput" class="form-control mb-3" placeholder="Пошук за ім'ям або email">
     </div>
-    <div id="userFilters" class="collapse">
-        <div class="card-body">
-        <form  action="{{ route('users.index') }}" method="POST" class="mb-3">
-            @csrf
-           
-            <div class="input-group mb-3">
-            <input type="text" name="search" class="form-control" placeholder="Пошук за ім'ям або email" value="{{ request('search') }}">
-            <button class="btn btn-primary" type="submit">Пошук</button>
-            </div>
-            <div class="accordion" id="filterAccordion">
-            <!-- Ролі -->
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingRoles">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRoles">
-                    Ролі
-                </button>
-                </h2>
-                <div id="collapseRoles" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
-                <div class="accordion-body">
-                    @foreach($roles as $role)
-                        @if(Auth::user()->roles->first()->name !== 'Admin' && $role->name === 'Admin')
-                            @continue
-                        @endif
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="checkbox"  name="roles[]" value="{{ $role->id }}" id="role_{{ $role->id }}"
-                                {{ in_array($role->id, request('roles', [])) ? 'checked' : '' }}>
-                                <label class="form-check-label" for="role_{{ $role->id }}">{{ __($role->name) }}</label>
-                            </div>
-                    @endforeach
-                    <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="no_role" id="no_role" {{ request('no_role') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="no_role">Без ролі</label>
-                    </div>
-                </div>
-                </div>
-            </div>
-            <!-- Підприємства -->
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingEnterprises">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseEnterprises">
-                    Підприємства
-                </button>
-                </h2>
-                <div id="collapseEnterprises" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
-                <div class="accordion-body">
-                    @foreach($enterprises as $enterprise)
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox"  name="enterprises[]" value="{{ $enterprise->id }}" id="enterprise_{{ $enterprise->id }}"
-                        {{ in_array($enterprise->id, request('enterprises', [])) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="enterprise_{{ $enterprise->id }}">{{ $enterprise->name }}</label>
-                    </div>
-                    @endforeach
-                    <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" name="no_enterprise" id="no_enterprise" {{ request('no_enterprise') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="no_enterprise">Без підприємства</label>
-                    </div>
-                </div>
-                </div>
-            </div>
-            <!-- Підрозділи -->
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingDepartments">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDepartments">
-                    Підрозділи
-                </button>
-                </h2>
-                <div id="collapseDepartments" class="accordion-collapse collapse" data-bs-parent="#filterAccordion">
-                <div class="accordion-body">
-                    @foreach($departments as $department)
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox"  name="departments[]" value="{{ $department->id }}" id="department_{{ $department->id }}"
-                        {{ in_array($department->id, request('departments', [])) ? 'checked' : '' }}>
-                        <label class="form-check-label" for="department_{{ $department->id }}">{{ $department->name }}</label>
-                    </div>
-                    @endforeach
-                    <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox"  name="no_department" id="no_department" {{ request('no_department') ? 'checked' : '' }}>
-                    <label class="form-check-label" for="no_department">Без підрозділу</label>
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-            <div class="mt-3 d-flex gap-2 flex-wrap">
-            <button type="submit" class="btn btn-success">Застосувати фільтри</button>
-            <a href="{{ route('users.index') }}" class="btn btn-outline-secondary">Скинути фільтри</a>
-            </div>
-        </form>
-        </div>
-    </div>
-    </div>
+    
     <!-- Кінець фільтрів -->
     @if($users->isEmpty())
       <div class="alert alert-info">Немає користувачів для відображення.</div>
@@ -130,7 +39,7 @@
             <th scope="col">Дії</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="userTableBody">
             @foreach($users as $user)
                 <tr>
                 <th scope="row">{{ $user->id }}</th>
@@ -239,26 +148,25 @@
                                         <span class="text-muted">Редагування та видалення недоступні</span>
                                         @else
                                           <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
-                
-                                        <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
-                                            data-id="{{ $grandChild->id }}"
-                                            data-name="{{ $grandChild->name }}"
-                                            data-email="{{ $grandChild->email }}"
-                                            data-phone="{{ $grandChild->phone }}"
-                                            data-position="{{ $grandChild->position }}"
-                                            data-status="{{ $grandChild->status }}"
-                                            data-boss="{{ optional($user->supervisors->first())->id }}"
-                                            data-subordinates='@json($user->children->pluck("id"))'
-                                            data-roles='@json($grandChild->roles->pluck("id"))'
-                                            data-enterprises='@json($grandChild->enterprises->pluck("id"))'
-                                            data-departments='@json($grandChild->departments->pluck("id"))'>
-                                            Редагувати
-                                        </button>
-                                        <form action="{{ route('users.destroy', $grandChild->id) }}" method="POST" style="display:inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
-                                        </form> 
+                                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
+                                                data-id="{{ $grandChild->id }}"
+                                                data-name="{{ $grandChild->name }}"
+                                                data-email="{{ $grandChild->email }}"
+                                                data-phone="{{ $grandChild->phone }}"
+                                                data-position="{{ $grandChild->position }}"
+                                                data-status="{{ $grandChild->status }}"
+                                                data-boss="{{ optional($user->supervisors->first())->id }}"
+                                                data-subordinates='@json($user->children->pluck("id"))'
+                                                data-roles='@json($grandChild->roles->pluck("id"))'
+                                                data-enterprises='@json($grandChild->enterprises->pluck("id"))'
+                                                data-departments='@json($grandChild->departments->pluck("id"))'>
+                                                Редагувати
+                                            </button>
+                                            <form action="{{ route('users.destroy', $grandChild->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                                            </form> 
                                         @endif    
                                     </td>
                                 </tr>
@@ -268,171 +176,146 @@
                 @endif              
             @endforeach
         </tbody>
-        </table>    
+        </table>  
+      
+
+        <nav>
+            <ul class="pagination" id="pagination"></ul>
+        </nav>  
         <div class="mt-3">
         <a href="{{ route('users.create') }}" class="btn btn-primary">Додати нового користувача</a>
         </div>
     </div>
 </div>  
-<!-- modal вікно для редгування користувача -->
-<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editUserModalLabel">Редагувати користувача</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <!-- Форма редагування користувача -->
-                <form id="editUserForm"  action="{{ route('users.update', 0) }}" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="id" id="userId">
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Ім'я</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>                    
-                    <div class="mb-3">
-                        <label for="phone" class="form-label">Телефон</label>
-                        <input type="text" class="form-control" id="phone" name="phone">
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Електронна пошта</label>
-                        <input type="email" class="form-control" id="email" name="email" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password">
-                        <small class="form-text text-muted">Залиште порожнім, якщо не хочете змінювати пароль.</small>
-                    </div>
-                   <select class="form-select" id="role" name="role">
-                        @foreach($roles as $role)
-                            @php
-                                $currentRole = Auth::user()->roles->first()->name;
-                                $allowed = match ($currentRole) {
-                                    'Admin' => true,
-                                    'Boss' => in_array($role->name, ['Boss', 'Master', 'Brigadir', 'Worker']),
-                                    'Master' => in_array($role->name, ['Master', 'Brigadir', 'Worker']),
-                                    'Brigadir' => in_array($role->name, ['Brigadir', 'Worker']),
-                                    'Worker' => $role->name === 'Worker',
-                                    default => false,
-                                };
-                            @endphp
-
-                            @if ($allowed && ($currentRole !== 'Admin' || $role->name !== 'Admin'))
-                                <option value="{{ $role->id }}">{{ __($role->name) }}</option>
-                            @endif
-                        @endforeach
-                    </select>
-
-                    <div class="mb-3">
-                        <label for="enterprises" class="form-label">Підприємства</label>
-                        <select class="form-select" id="enterprises" name="enterprise" >
-                            @foreach($enterprises as $enterprise)
-                                <option value="{{ $enterprise->id }}">{{ $enterprise->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="departments" class="form-label">Підрозділи</label>
-                        <select class="form-select" id="departments" name="department" >
-                            @foreach($departments as $department)
-                                <option value="{{ $department->id }}">{{ $department->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="position" class="form-label">Посада</label>
-                        <input type="text" class="form-control" id="position" name="position" placeholder="Посада користувача">
-                    </div>
-                    <div class="mb-3">
-                        <label for="status" class="form-label">Статус</label>
-                        <select class="form-select" id="status" name="status">
-                            <option value="active">Активний</option>
-                            <option value="sick">На лікарняному</option>
-                            <option value="vacation">У відпустці</option>
-                            </select>
-                    </div>
-                    <!-- Додайте інші поля за потребою -->
-                     {{-- Хто начальник --}}
-                    <div class="mb-3">
-                        <label for="boss" class="form-label">Начальник</label>
-                        <select class="form-select" id="boss" name="boss">
-                            <option value="">Не вказано</option>
-                            @foreach($users as $user)
-                                @if(Auth::user()->id == $user->id  || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Worker')
-                                    @continue
-                                @endif
-                                <option value="{{ $user->id }}">{{$user->roles->first()->name}} {{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                    </div> 
-                    {{-- Хто підлеглий [] --}}
-                    <div class="mb-3">
-                        <label for="subordinates" class="form-label">Підлеглі</label>
-                        <select class="form-select" id="subordinates" row=10 name="subordinates[]" multiple>
-                        <option value="">Не вказано</option>
-                            {{-- Виводимо всіх користувачів, окрім поточного та адміністраторів --}}    
-                            @foreach($users as $user)
-                                @if(Auth::user()->id == $user->id || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Boss')
-                                    @continue
-                                @endif
-                                <option value="{{ $user->id }}">{{$user->roles->first()->name}} {{ $user->name }}</option>
-                            @endforeach
-                        </select>
-                        <small class="form-text text-muted">Виберіть підлеглих користувача. Ви можете вибрати декілька користувачів.</small>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const modalEl = document.getElementById('editUserModal');
 
-    modalEl.addEventListener('shown.bs.modal', function (event) {
-        const button = event.relatedTarget;
-        if (!button) return;
+     @php
+    $icons = [
+                'Admin' => '👑👑👑',
+                'Boss' => '👑',
+                'Engineer' => '👨‍🔧',
+                'Master' => '👷',
+                'Brigadir' => '🛠️',
+                'Worker' => '🔧',
+                'Unassigned' => '🔍',
+            ];
+    @endphp
+    const icons = @json($icons);
+    const usersRaw = @json($users->values());
+   
+    const users = usersRaw.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        position: user.position ?? '-',
+        role: user.roles.length ? user.roles[0].name : 'Без ролі',
+        enterprise: user.enterprises.length ? user.enterprises[0].name : '-',
+        department: user.departments.length ? user.departments[0].name : '-',
+        status: user.status
+    }));
+    console.log(users);
+    const userTableBody = document.getElementById('userTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const pagination = document.getElementById('pagination');
 
-        // Отримання даних з атрибутів
-        const id = button.dataset.id;
-        const name = button.dataset.name;
-        const email = button.dataset.email;
-        const phone = button.dataset.phone;
-        const position = button.dataset.position;
-        const status = button.dataset.status;
-        // Супер JSON-атрибути
-        const boss         = button.dataset.boss; // рядок з одним ID або ""
-        const subordinates = JSON.parse(button.dataset.subordinates || '[]');
-        const roles        = JSON.parse(button.dataset.roles        || '[]');
-        const enterprises  = JSON.parse(button.dataset.enterprises  || '[]');
-        const departments  = JSON.parse(button.dataset.departments  || '[]');
+    let currentPage = 1;
+    const rowsPerPage = 10;
 
- 
-      // Універсальна функція для мульти-селектів
-        const setMultiSelect = (selectId, values) => {
-            const select = modalEl.querySelector(`#${selectId}`);
-            if (!select) return;
-            [...select.options].forEach(opt => {
-                opt.selected = values.includes(parseInt(opt.value));
-            });
-        };
+    function displayList(items, wrapper, rowsPerPage, page) {
+        wrapper.innerHTML = '';
+        page--;
 
-        // Установлюємо ролі, підприємства, підрозділи
-        setMultiSelect('roles',       roles);
-        setMultiSelect('enterprises', enterprises);
-        setMultiSelect('departments', departments);
+        const start = page * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedItems = items.slice(start, end);
+        
+        for (let user of paginatedItems) {
+            const row = document.createElement('tr');
+            @if(Auth::user()->roles->first()->name == 'Admin' ||Auth::user()->roles->first()->name == 'Boss' ||Auth::user()->roles->first()->name == 'Master' )
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td><a href="/users/${user.id}" >${user.name}</a></td>
+                    <td>${user.email}</td>
+                    <td>${user.position}</td>
+                    <td class="${user.status === 'sick' ? 'text-warning' : user.status === 'vacation' ? 'text-success' : ''}">
+                    ${icons[user.role] || ''}
+                    ${user.role}
+                    </td>
+                    <td>${user.enterprise}</td>
+                    <td>${user.department}</td>
+                    <td> 
+                    <a href="/users/${user.id}" class="btn btn-info btn-sm">{{__('View')}}</a>
+                    </td>
+                `;   
+            @else
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.position}</td>
+                    <td class="${user.status === 'sick' ? 'text-warning' : user.status === 'vacation' ? 'text-success' : ''}">${icons[user.role] || ''}${user.role}</td>
+                    <td>${user.enterprise}</td>
+                    <td>${user.department}</td>
+                    <td>
+                        -
+                    </td>
+                `;
+            @endif
+            wrapper.appendChild(row);
+        }
+     
+    }
 
-        // Встановлюємо начальника (single select)
-        const bossSelect = modalEl.querySelector('#boss');
-        if (bossSelect) bossSelect.value = boss || '';
+    function setupPagination(items, wrapper, rowsPerPage) {
+        wrapper.innerHTML = '';
 
-        // Встановлюємо підлеглих (multiple select)
-        setMultiSelect('subordinates', subordinates);
-    });
-});
+        const pageCount = Math.ceil(items.length / rowsPerPage);
+        for (let i = 1; i <= pageCount; i++) {
+            let btn = paginationButton(i, items);
+            wrapper.appendChild(btn);
+        }
+    }
+
+    function paginationButton(page, items) {
+        const button = document.createElement('li');
+        button.className = 'page-item' + (currentPage === page ? ' active' : '');
+        button.innerHTML = `<a class="page-link" href="#">${page}</a>`;
+
+        button.addEventListener('click', function (e) {
+            e.preventDefault();
+            currentPage = page;
+            displayList(items, userTableBody, rowsPerPage, currentPage);
+
+            let currentBtn = document.querySelector('.pagination li.active');
+            if (currentBtn) currentBtn.classList.remove('active');
+            button.classList.add('active');
+        });
+
+        return button;
+    }
+
+    function applySearch() {
+        const query = searchInput.value.toLowerCase();
+        const filtered = users.filter(user =>
+            user.name.toLowerCase().includes(query) ||
+            user.email.toLowerCase().includes(query) ||
+            user.position.toLowerCase().includes(query) ||
+            user.role.toLowerCase().includes(query) ||
+            user.enterprise.toLowerCase().includes(query) ||
+            user.department.toLowerCase().includes(query)
+        );
+
+        currentPage = 1;
+        console.log(filtered);
+        displayList(filtered, userTableBody, rowsPerPage, currentPage);
+        setupPagination(filtered, pagination, rowsPerPage);
+    }
+
+    // ініціалізація
+    displayList(users, userTableBody, rowsPerPage, currentPage);
+    setupPagination(users, pagination, rowsPerPage);
+
+    searchInput.addEventListener('input', applySearch);
 </script>
+
 @endsection

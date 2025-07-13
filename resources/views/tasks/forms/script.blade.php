@@ -167,6 +167,42 @@ function getCoordinatesString() {
         );
     });
 }
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('endWorkForm');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault(); // блокуємо стандартну поведінку
 
+        const url = "{{ route('tasks.complete', $task->id) }}";
+        const formData = new FormData(form);
+        formData.append('task_id', '{{ $task->id }}');
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log(data);
+                // Optional: Закрити модальне вікно та оновити сторінку
+                const modal = bootstrap.Modal.getInstance(document.getElementById('endWorkModal'));
+                modal.hide();
+                // остановити таймери, сховати кнопки перерва та завершення показати кнопку почати роботу
+                pauseTimer();
+                pauseTimerWork();
+                document.getElementById('pauseBtn').classList.add('d-none');
+                document.getElementById('endBtn').classList.add('d-none');
+                document.getElementById('startBtn').classList.remove('d-none');
+                location.reload();
+            } else {
+                console.error('Помилка відповіді:', data);
+            }
+        })
+        .catch(error => console.error('Fetch помилка:', error));
+    });
+});
 
 </script>

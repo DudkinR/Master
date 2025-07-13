@@ -15,22 +15,14 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        //
-        $engs = User::whereHas('roles', function ($query) {
-            $query->where('name', 'Engineer');
-        })->with(['roles' => function ($q) {
-            $q->where('name', 'Engineer');
-        }])->get();
          if(Auth::user()->roles->first()->name ==="Admin")
          {
              $engs = User::whereHas('roles', function ($query) {
                  $query->where('name', 'Engineer');
-             })->with(['roles' => function ($q) {
-                 $q->where('name', 'Engineer');
-             }])->get();
+             })->get();
                 $projects = Project::with(['enterprises', 'departments'])->get();
          }
-         if(Auth::user()->roles->first()->name ==="Boss")
+         elseif(Auth::user()->roles->first()->name ==="Boss")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
             $departmentId = Auth::user()->departments->pluck('id');
@@ -54,7 +46,7 @@ class ProjectController extends Controller
             })->with(['enterprises', 'departments'])->get();
 
         }
-        if(Auth::user()->roles->first()->name ==="Master")
+        elseif(Auth::user()->roles->first()->name ==="Master")
         {
             $enterpriseId = Auth::user()->enterprises->pluck('id');
             $departmentId = Auth::user()->departments->pluck('id');
@@ -149,7 +141,12 @@ class ProjectController extends Controller
     public function show(string $id)
     {
         //
-        $project = Project::with('tasks')->findOrFail($id);
+        $project = Project::with('tasks')
+        // tasks orderBy('status', 'asc') and ID
+        ->with(['tasks' => function ($query) {
+            $query->orderBy('status', 'asc')->orderBy('id', 'desc');
+        }])
+        ->findOrFail($id);
         $etalons = Etalon::All();
         return view('projects.show', compact('project', 'etalons'));
     }

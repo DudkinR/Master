@@ -59,27 +59,34 @@ class Task extends Model
     // users
     public function users()
     {
-        return $this->belongsToMany(User::class, 'users_tasks')
-            ->withPivot('role')
-            ->withTimestamps();
+         return $this->belongsToMany(User::class, 'users_tasks')
+        ->withPivot('role')
+        ->withTimestamps();
     }
 
     public function master()
     {
         // Один майстер
-        return $this->users()->wherePivot('role', 'master')->limit(1);
+        return $this->users()->wherePivot('role', 'master');
     }
 
     public function brigadir()
     {
         // Один бригадир
-        return $this->users()->wherePivot('role', 'brigadir')->limit(1);
+        return $this->users()->wherePivot('role', 'brigadir');
     }
 
     public function workers()
     {
         // Багато робітників
         return $this->users()->wherePivot('role', 'worker');
+    }
+
+    // author
+    public function author()
+    {
+        // Один автор
+        return $this->users()->wherePivot('role', 'author');
     }
 
     // All accept master

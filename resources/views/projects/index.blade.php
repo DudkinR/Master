@@ -104,12 +104,8 @@
                             
                             <div class="btn-group btn-group-sm d-flex flex-column gap-1" role="group">
                                 @if(Auth::user()->roles->first()->name ==="Boss" || Auth::user()->roles->first()->name ==="Engineer" || Auth::user()->roles->first()->name ==="Admin")
-                                    <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning w-100">✏️ Редагувати</a>
-                                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('Точно видалити?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="btn btn-danger w-100">🗑 Видалити</button>
-                                </form>
+                                    <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning w-100" title="Редагувати основні дані проекту" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Редагувати проект" data-bs-original-title="Редагувати проект" style="text-decoration: none;"
+                                    >✏️ Редагувати</a>
                                 @endif
                                 <a href="{{ route('projects.show', $project->id) }}" class="btn btn-info w-100">🔍 Переглянути</a>
                                 

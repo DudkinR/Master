@@ -130,7 +130,9 @@
         const workers = Array.isArray(task.workers) && task.workers.length > 0
             ? task.workers.map(worker => worker.name).join(', ')
             : 'Не призначено';
-
+        const masterClass = masterName === 'Не призначено' ? 'text-danger' : '';
+        const brigadirClass = brigadirName === 'Не призначено' ? 'text-danger' : '';
+        const workersClass = workers === 'Не призначено' ? 'text-danger' : '';
         const statusMap = {
             in_progress: ['Виконується', 'bg-warning'],
             completed: ['Завершено', 'bg-success'],
@@ -168,9 +170,9 @@
                     <span class="badge ${statusClass}">${statusLabel}</span>
                 </p>
                 <p class="mb-1"><strong>Виконання:</strong> ${progressHtml}</p>
-                <p class="mb-1"><strong>Майстер:</strong> ${masterName}</p>
-                <p class="mb-1"><strong>Бригадир:</strong> ${brigadirName}</p>
-                <p class="mb-1"><strong>Робітники:</strong> ${workers}</p>
+                <p class="mb-1 ${masterClass}"><strong>Майстер:</strong> ${masterName}</p>
+                <p class="mb-1 ${brigadirClass}"><strong>Бригадир:</strong> ${brigadirName}</p>
+                <p class="mb-1  ${workersClass}"><strong>Робітники:</strong> ${workers}</p>
                 <div class="mt-2 text-end">
                     <button class="btn btn-sm btn-outline-secondary assign-master-btn"
                             data-bs-toggle="modal" 

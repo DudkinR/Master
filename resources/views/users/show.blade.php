@@ -63,13 +63,14 @@
                                     default => false,
                                 };
                             @endphp
-
                             @if ($allowed && ($currentRole !== 'Admin' || $role->name !== 'Admin'))
-                                <option value="{{ $role->id }}">{{ __($role->name) }}</option>
+                                <option value="{{ $role->id }}" {{$user->roles->first()->id === $role->id ? 'selected' : ''}}>
+                                    {{ $icons[$role->name] ?? '' }}                                      
+                                    {{ __($role->name) }}
+                                </option>
                             @endif
                         @endforeach
-                    </select>
-
+                    </select>                            
                     <div class="mb-3">
                         <label for="position" class="form-label">Посада</label>
                         <input type="text" class="form-control" id="position" name="position" placeholder="Посада користувача" value="{{ $user->position }}" required>
@@ -88,11 +89,13 @@
                         <label for="boss" class="form-label">Начальник</label>
                         <select class="form-select" id="boss" name="boss">
                             <option value="">Не вказано</option>
-                            @foreach($users as $user)
-                                @if(Auth::user()->id == $user->id  || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Worker')
-                                    @continue
-                                @endif
-                                <option value="{{ $user->id }}">{{$user->roles->first()->name}} {{ $user->name }}</option>
+                            @foreach($users as $usr)                                
+                                <option value="{{ $usr->id }}"
+                                @if($user->supervisors->first()->id ==$usr->id)
+                                  selected 
+                                  @endif
+                                  >                                
+                                    {{ $icons[$usr->roles->first()->name] ?? '' }} {{ $usr->name }}</option>
                             @endforeach
                         </select>
                     </div> 
@@ -103,9 +106,7 @@
                         <option value="">Не вказано</option>
                             {{-- Виводимо всіх користувачів, окрім поточного та адміністраторів --}}    
                             @foreach($users as $сhild)
-                                @if(Auth::user()->id == $user->id || Auth::user()->roles->first()->name === 'Admin' && $user->roles->first()->name === 'Boss')
-                                    @continue
-                                @endif
+
                                 <option value="{{ $сhild->id }}" @if($children->contains($сhild->id)) selected @endif >{{ $icons[$сhild->roles->first()->name] ?? '' }}  {{ $сhild->name }}</option>
                                    
                             @endforeach

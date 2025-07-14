@@ -9,6 +9,7 @@ use App\Models\Etalon;
 use App\Models\User; // Assuming you have a User model for masters
 use Illuminate\Support\Facades\Auth; // For authentication
 use App\Models\TaskActionLog; // Assuming you have a TaskActionLog model for logging task actions
+use App\Models\TaskAction; // Assuming you have a TaskAction model for task actions
 use App\Models\Problem;
 use App\Models\Material;
 use App\Models\Equipment;
@@ -322,42 +323,7 @@ class TaskController extends Controller
     public function assignBrigadir(Request $request, )
     {       
     }
-    public function complete(Request $request, $id)
-    {
-        //return $request->all(); // For debugging purposes, remove this line in production
-        $task = Task::findOrFail($id);
-        // Перевірка, чи користувач є бригадиром цього завдання
-        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
-        if ($brigadir && $brigadir->id !== Auth::id()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Тільки бригадир може завершити завдання'
-            ], 403);    
-        }
-        // Перевірка, чи завдання вже завершено
-        $lastAction = TaskActionLog::where('task_id', $task->id)
-            ->orderBy('created_at', 'desc')
-            ->first();
-        if ($lastAction && $lastAction->action_type === 'complete') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Завдання вже завершено нещодавно. Будь ласка, зачекайте перед повторним завершенням.'
-            ], 429);
-        }
-        // Оновлення статусу завдання
-        if ($request->progress == 100) {
-            $task->status = 'completed';
-        } else {
-            $task->status = 'in_progress'; // Якщо прогрес не 100%, залишаємо статус "в процесі"
-        }
-        $task->save();
-        return response()->json([
-            'success' => true,
-            'message' => 'Завдання успішно завершено',
-            'task' => $task
-        ]);
-       
-    }
+   
     public function show(string $id)
     {
       
@@ -435,6 +401,12 @@ class TaskController extends Controller
                 ]);
             }
         }
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'start',
+            'comment' => 'Початок роботи',                                       
+        ]);
         $users = $task->users()->wherePivot('role', ['brigadir', 'worker'])->get();
         // якщо когось не має в запиті, то додати його $request->has('worker_ids') то TaskActionLog зафіксувати проблему 
         $missingUsers = $users->whereNotIn('id', $request->worker_ids ?? []);
@@ -516,8 +488,15 @@ class TaskController extends Controller
                     'comment' => 'Пауза роботи',
                     'location' => $request->input('location') ?? null, // можна передати координати
                 ]);
+                
             }
         }  
+        TaskAction::create([
+                    'task_id' => $task->id,
+                    'user_id' => $userId,
+                    'action_type' => 'pause',
+                    'comment' => 'Пауза роботи',                                       
+                ]);
         return response()->json([
             'success' => true,
             'message' => 'Завдання успішно призупинено',
@@ -561,8 +540,14 @@ class TaskController extends Controller
                     'location' => $request->input('location') ?? null, // можна передати
                     'coordinates' => $request->input('coordinates') ?? null, // можна передати координати
                 ]);
+               
 
-            }
+            } TaskAction::create([
+                    'task_id' => $task->id,
+                    'user_id' => $userId,
+                    'action_type' => 'end',
+                    'comment' => 'Завершення роботи',                                       
+                ]);
             return response()->json([
                 'success' => true,
                 'message' => 'Завдання успішно завершено',
@@ -570,25 +555,325 @@ class TaskController extends Controller
             ]);
         }
     }
-    // reportIssue
-    public function reportIssue(Request $request, $id)
+    public function startDay(Request $request, $id)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:1000',
-        ]);
-
         $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може розпочати робочий день'
+            ], 403);
+        }
+        // Перевірка, чи завдання вже розпочато
+        $lastAction = TaskActionLog::where('task_id', $task->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->action_type === 'start_day') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Робочий день вже розпочато нещодавно. Будь ласка, зачекайте перед повторним запуском.'
+            ], 429);
+        }
+        // Фіксація початку робочого дня
+        if ($request->has('worker_ids') && is_array($request->worker_ids)) {
+            foreach ($request->worker_ids as $userId) {
+                TaskActionLog::create([
+                    'task_id' => $task->id,
+                    'user_id' => $userId,
+                    'action_type' => 'start_day',
+                    'comment' => 'Початок робочого дня',
+                    'location' => $request->input('location') ?? null, // можна передати координати
+                ]);
+            }
+        }
+
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'start_day',
+            'comment' => 'Початок робочого дня',                                       
+        ]); 
+        return response()->json([
+            'success' => true,
+            'message' => 'Робочий день успішно розпочато',
+            'task' => $task
+        ]);
+    }
+    public function endDay(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може завершити робочий день'
+            ], 403);
+        }
+        // Перевірка, чи робочий день вже завершено
+        $lastAction = TaskActionLog::where('task_id', $task->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->action_type === 'end_day') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Робочий день вже завершено нещодавно. Будь ласка, зачекайте перед повторним завершенням.'
+            ], 429);
+        }
+        // Фіксація завершення робочого дня
+        if ($request->has('worker_ids') && is_array($request->worker_ids))
+        {
+            foreach ($request->worker_ids as $userId) {
+                TaskActionLog::create([
+                    'task_id' => $task->id,
+                    'user_id' => $userId,
+                    'action_type' => 'end_day',
+                    'comment' => 'Завершення робочого дня',
+                    'location' => $request->input('location') ?? null, // можна передати
+                ]);
+            }
+        }
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'end_day',
+            'comment' => 'Завершення робочого дня',
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Робочий день успішно завершено',
+            'task' => $task
+        ]);
+    }
+    public function complete(Request $request, $id)
+    {
+        //return $request->all(); // For debugging purposes, remove this line in production
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може завершити завдання'
+            ], 403);    
+        }
+        // Перевірка, чи завдання вже завершено
+        $lastAction = TaskActionLog::where('task_id', $task->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->action_type === 'complete') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Завдання вже завершено нещодавно. Будь ласка, зачекайте перед повторним завершенням.'
+            ], 429);
+        }
+        // Оновлення статусу завдання
+        if ($request->progress == 100) {
+            $task->status = 'completed';
+        } else {
+            $task->status = 'in_progress'; // Якщо прогрес не 100%, залишаємо статус "в процесі"
+        }
+        $task->save();
+        return response()->json([
+            'success' => true,
+            'message' => 'Завдання успішно завершено',
+            'task' => $task
+        ]);
+       
+    }
+    public function issue(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може повідомити про проблему'
+            ], 403);
+        }
+        // Перевірка, чи завдання вже має проблему
+        $existingIssue = Problem::where('task_id', $task->id)->first();
+        if ($existingIssue) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Завдання вже має проблему. Будь ласка, зачекайте перед повторним повідомленням.'
+            ], 429);
+        }   
+        // Створення нової проблеми
         $problem = new Problem();
         $problem->task_id = $task->id;
-        $problem->title = $request->input('title');
-        $problem->description = $request->input('description');
-        $problem->status = 'open'; // Default status
-        $problem->user_id = Auth::id(); // Assuming the user reporting the issue is the authenticated user
-        $problem->save();
+        $problem->user_id = Auth::id();
+        $problem->description = $request->input('description', 'Проблема не вказана');
+        $problem->status = 'open'; // Статус проблеми
+        $problem->save();   
+        // Фіксація проблеми в журналі дій
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'issue',
+            'comment' => 'Проблема з завданням: ' . $problem->description,                                       
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Проблема успішно повідомлена',
+            'task' => $task,
+            'problem' => $problem
+        ]);
+    }
+    public function missingResource(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може повідомити про відсутній ресурс'
+            ], 403);
+        }
+        // Перевірка, чи завдання вже має відсутній ресурс
+        $existingResource = TaskActionLog::where('task_id', $task->id)
+            ->where('action_type', 'missing_resource')
+            ->first();
+        if ($existingResource) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Завдання вже має відсутній ресурс. Будь ласка, зачекайте перед повторним повідомленням.'
+            ], 429);
+        }
+        // Фіксація відсутнього ресурсу в журналі дій
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'missing_resource',
+            'comment' => 'Відсутній ресурс: ' . $request->input('description', 'Ресурс не вказаний'),                                       
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Відсутній ресурс успішно повідомлено',
+            'task' => $task
+        ]);
+    }
+    public function machineStart(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може розпочати роботу машини'
+            ], 403);
+        }
+        // Перевірка, чи машина вже запущена
+        $lastAction = TaskAction::where('task_id', $task->id)
+            ->where('action_type', 'machine_start')
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->created_at->diffInMinutes(now()) < 5) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Машина вже запущена нещодавно. Будь ласка, зачекайте перед повторним запуском.'
+            ], 429);
+        }
+        // Фіксація початку роботи машини
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_start',
+            'comment' => 'Початок роботи машини: ' . $request->input('description', 'Опис не вказаний'),
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Робота машини успішно розпочата',
+            'task' => $task,
+            'action' => 'machine_start',
+            'description' => $request->input('description', 'Опис не вказаний')
+        ]);
+    }
+    public function machinePause(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може призупинити роботу машини'
+            ], 403);            
+        }
+        // Перевірка, чи машина вже призупинена
+        $lastAction = TaskAction::where('task_id', $task->id)
+            ->where('action_type', 'machine_pause')
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->created_at->diffInMinutes(now()) < 5) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Машина вже призупинена нещодавно. Будь ласка, зачекайте перед повторним призупиненням.'
+            ], 429);
+        }
+        // Фіксація призупинення роботи машини
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_pause',
+            'comment' => 'Призупинення роботи машини: ' . $request->input('description', 'Опис не вказаний'),
+            ]
+            );
+        return response()->json([
+            'success' => true,
+            'message' => 'Робота машини успішно призупинена',
+            'task' => $task,
+            'action' => 'machine_pause',
+            'description' => $request->input('description', 'Опис не вказаний')
+        ]);
+    }
+    public function machineEnd(Request $request, $id)
+    {
+        $task = Task::findOrFail($id);
+        // Перевірка, чи користувач є бригадиром цього завдання
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        if ($brigadir && $brigadir->id !== Auth::id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Тільки бригадир може завершити роботу машини'
+            ], 403);
+        }
+        // Перевірка, чи машина вже завершена
+        $lastAction = TaskAction::where('task_id', $task->id)
+            ->where('action_type', 'machine_end')
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->created_at->diffInMinutes(now()) < 5) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Машина вже завершена нещодавно. Будь ласка, зачекайте перед повторним завершенням.'
+            ], 429);
+        }
+        // Фіксація завершення роботи машини
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_end',
+            'comment' => 'Завершення роботи машини: ' . $request->input('description', 'Опис не вказаний'),
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Робота машини успішно завершена',
+            'task' => $task,
+            'action' => 'machine_end',
+            'description' => $request->input('description', 'Опис не вказаний ')
+        ]);
+    }
 
-        return redirect()->route('tasks.show', [$task->id])
-                         ->with('success', 'Проблема успішно зареєстрована!');
+                 // reportIssue
+    public function reportIssue(Request $request, $id)
+    {
+        
     }
 }
 

@@ -94,14 +94,7 @@ Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm
 // post loadcsv personals
 Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware('auth.role.redirect');
-// пост tasks.complete
-Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
-// пост tasks.start
-Route::post('/tasks/{id}/start', [TaskController::class, 'start'])->name('tasks.start');
-// tasks.pause
-Route::post('/tasks/{id}/pause', [TaskController::class, 'pause'])->name('tasks.pause');
-// tasks.end
-Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end');
+
 // machines.start
 Route::post('/machines/{id}/start', [MachineController::class, 'start'])->name('machines.start');
 // machines.stop
@@ -110,4 +103,28 @@ Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('ma
 Route::post('/machines/{id}/pause', [MachineController::class, 'pause'])->name('machines.pause');
 // tasks.report_issue
 Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])->name('tasks.report_issue');
+
+// пост tasks.complete
+Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+// пост tasks.start
+Route::post('/tasks/{id}/start', [TaskController::class, 'start'])->name('tasks.start');
+// tasks.startDay
+Route::post('/tasks/{id}/startDay', [TaskController::class, 'startDay'])->name('tasks.startDay');
+// tasks.endDay
+Route::post('/tasks/{id}/endDay', [TaskController::class, 'endDay'])->name('tasks.endDay');
+// tasks.issue
+Route::post('/tasks/{id}/issue', [TaskController::class, 'issue'])->name('tasks.issue');
+// tasks.missingResource
+Route::post('/tasks/{id}/missingResource', [TaskController::class, 'missingResource'])->name('tasks.missingResource');
+// tasks.machineStart
+Route::post('/tasks/{id}/machineStart', [TaskController::class, 'machineStart'])->name('tasks.machineStart');
+// tasks.machinePause
+Route::post('/tasks/{id}/machinePause', [TaskController::class, 'machinePause'])->name('tasks.machinePause');
+// tasks.machineEnd
+Route::post('/tasks/{id}/machineEnd', [TaskController::class, 'machineEnd'])->name('tasks.machineEnd');
+// tasks.pause
+Route::post('/tasks/{id}/pause', [TaskController::class, 'pause'])->name('tasks.pause');
+// tasks.end
+Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end');
+
 });

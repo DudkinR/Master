@@ -196,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('pauseBtn').classList.add('d-none');
                 document.getElementById('endBtn').classList.add('d-none');
                 document.getElementById('startBtn').classList.remove('d-none');
-                location.reload();
+               // location.reload();
             } else {
                 console.error('Помилка відповіді:', data);
             }

@@ -40,10 +40,10 @@ Route::middleware(['auth'])->group(function () {
 
 
 // resourse routes projects, equipment, tasks, roles , materials , machines, tasks
-Route::resource('projects', ProjectController::class)->middleware('auth.role.redirect');
-Route::resource('equipments', EquipmentController::class)->middleware('auth.role.redirect');
-Route::resource('tasks', TaskController::class) ->middleware('auth.role.redirect');
-Route::resource('roles', RoleController::class)->middleware('auth.role.redirect');
+Route::resource('projects', ProjectController::class);
+Route::resource('equipments', EquipmentController::class);
+Route::resource('tasks', TaskController::class);
+Route::resource('roles', RoleController::class);//->middleware('auth.role.redirect');
 Route::resource('materials', MaterialController::class);
 Route::resource('machines', MachineController::class);
 Route::resource('raports', App\Http\Controllers\RaportController::class);

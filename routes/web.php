@@ -124,7 +124,8 @@ Route::post('/tasks/{id}/machineEnd', [TaskController::class, 'machineEnd'])->na
 Route::post('/tasks/{id}/pause', [TaskController::class, 'pause'])->name('tasks.pause');
 // tasks.end
 Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end');
-
-});
 // пост tasks.start
 Route::post('/tasksstart',  [TaskController::class, 'start'])->name('tasks.start');
+});
+
+Route::any('/test',  [TaskController::class, 'test'])->name('test');

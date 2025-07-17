@@ -367,7 +367,13 @@ class TaskController extends Controller
     public function start(Request $request)
     {
        // $request->all(); // For debugging purposes, remove this line in production
-       $task = Task::findOrFail($request->task_id);
+       $task = Task::find($request->task_id);
+        if (!$task) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Завдання не знайдено'
+            ], 404);
+        }
 
         // Оновлення статусу завдання
         $task->status = 'in_progress';
@@ -390,28 +396,35 @@ class TaskController extends Controller
                 'success' => false,
                 'message' => 'Завдання вже розпочато нещодавно. Будь ласка, зачекайте перед повторним запуском.'
             ], 429);
-        }    
-        
+        }  
+         
+/*
         // Фіксація початку роботи кожного працівника, хто позначений у запиті
         if ($request->has('worker_ids') && is_array($request->worker_ids)) {
-            foreach ($request->worker_ids as $userId) { 
+            
+            foreach ($request->worker_ids as $user) { 
+            
+               $u= User::find($user); 
+               if (!$u) {
+                continue; // Пропустити, якщо користувач не знайдений
+               }
                 
                $Log = new TaskActionLog();
                $Log->task_id = $task->id;
-               $Log->user_id = Users::findOrFail($userId)->id; // Переконайтеся, що користувач існує
+               $Log->user_id = $u->id;
                //$userId;
                $Log->action_type = 'start';
                $Log->comment = 'Початок роботи';
                $Log->location = $request->input('location') ?? null; // можна передати координати
                $Log->save();
-                return response()->json([
-                'success' => true,
-                'message' => 'Завдання успішно розпочато',
-                'task' => $Log
-            ]);
+          return response()->json([
+                        'success' => true,
+                        'message' => 'тест ми тут 2',
+                        'user' =>  $Log
+                    ]);
             }
         }  
-         
+         */
         TaskAction::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
@@ -423,6 +436,10 @@ class TaskController extends Controller
         $missingUsers = $users->whereNotIn('id', $request->worker_ids ?? []);
         if ($missingUsers->isNotEmpty()) {
             foreach ($missingUsers as $user) {
+                $user = User::find($user->id);
+                if (!$user) {
+                    continue; // Пропустити, якщо користувач не знайдений
+                }
                 TaskActionLog::create([
                     'task_id' => $task->id,
                     'user_id' => $user->id,
@@ -886,5 +903,35 @@ class TaskController extends Controller
     {
         
     }
+    public function test()
+    {
+        $task_id = 9; // Приклад ID завдання, який ви можете змінити на потрібний
+        $task = Task::findOrFail($task_id);
+        $user_id =3; // Приклад ID користувача, який ви можете змінити на потрібний
+        $user = User::find($user_id);
+        if (!$user) {
+            return response()->json(['error' => ' User not found']);
+        }
+        // create action log
+        TaskActionLog::create([
+            'task_id' => $task->id,
+            'user_id' => $user->id,
+            'action_type' => 'test_action',
+            'comment' => 'This is a test action log entry',
+            'location' => 'Test Location', // Можна передати координати або іншу інформацію
+        ]);
+
+        // Тестовий метод для перевірки роботи
+        return response()->json([
+            'message' => 'Test successful!',
+            'task' => $task,
+            'user' => $user,
+            'action_log' => TaskActionLog::where('task_id', $task->id)
+                ->where('user_id', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->first()
+        ]);
+    }
+
 }
 

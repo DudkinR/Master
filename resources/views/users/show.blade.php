@@ -91,7 +91,7 @@
                             <option value="">Не вказано</option>
                             @foreach($users as $usr)                                
                                 <option value="{{ $usr->id }}"
-                                @if($user->supervisors->first()->id ==$usr->id)
+                                @if(isset($user->supervisors->first()->id) && $user->supervisors->first()->id ==$usr->id)
                                   selected 
                                   @endif
                                   >                                

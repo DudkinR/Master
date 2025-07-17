@@ -20,7 +20,7 @@
                             @csrf
                             <input type="hidden" name="views" value="showtask">
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <input type="hidden" name="project_id" value="{{ $task->projects->first()->id  }}">
+                            
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalLabel-{{ $task->id }}">
                                     {{ __('New material') }}</h5>

@@ -1,6 +1,31 @@
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <script>
-    
-function  startWork(taskId) {
+ const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+ console.log('CSRF Token:', csrfToken);
+function senddata(url, bodyData) {
+        // add CSRF token to the bodyData
+    bodyData._token = csrfToken;
+    fetch(url, {
+        method: 'POST',
+        headers: {
+           // відправляю форму
+            'Content-Type': 'application/json',           
+            'X-CSRF-TOKEN': csrfToken
+        },
+        body: JSON.stringify(bodyData)
+    })    
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log('Дані успішно надіслані:', data);
+        } else {
+            console.error('Помилка відповіді:', data);
+        }
+    })
+    .catch(error => console.error('Fetch помилка:', error));
+}     
+function  startWork(taskId) { 
     const startBtn = document.getElementById('startBtn');
     const pauseBtn = document.getElementById('pauseBtn');
     const endBtn = document.getElementById('endBtn');
@@ -12,6 +37,7 @@ function  startWork(taskId) {
     // Зібрати дані з форми
     const bodyData = {
             task_id: taskId,
+            _token: csrfToken,
           start_time: new Date().toISOString(),
           worker_ids: Array.from(document.querySelectorAll('input[name="worker[]"]:checked'))
                 .map(checkbox => checkbox.id.replace('worker_', '')),
@@ -23,7 +49,7 @@ function  startWork(taskId) {
           location: getCoordinatesString() // або додайте GPS через navigator.geolocation
      };
     // Відправити дані на сервер
-    senddata(`{{ route('tasks.start', $task->id) }}`, bodyData);
+    senddata(`{{ route('tasks.start') }}`, bodyData);
     // Запустити таймер
    startTimer();
    startTimerWork();
@@ -40,6 +66,7 @@ function pauseWork() {
     endBtn.classList.add('d-none');
     // Зібрати дані з форми
     const bodyData = {
+        _token: csrfToken,
         action_type: 'pause',
         start_time: new Date().toISOString(),
         worker_ids: Array.from(document.querySelectorAll('input[name="worker[]"]:checked'))

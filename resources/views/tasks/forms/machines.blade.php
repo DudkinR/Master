@@ -32,7 +32,7 @@
                 @csrf
                 <input type="hidden" name="views" value="showtask">
                 <input type="hidden" name="task_id" value="{{ $task->id }}">
-                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id  }}">
+               
                 <div class="modal-header">
                     <h5 class="modal-title" id="technicModalLabel-{{ $task->id }}">Нова техніка</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>

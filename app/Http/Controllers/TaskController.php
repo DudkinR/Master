@@ -364,15 +364,16 @@ class TaskController extends Controller
         $problems = Problem::where('task_id', $task->id)->get();    
         return view('tasks.show', compact('task', 'timeSpent', 'lastAction', 'allAction', 'problems'));
     }
-    public function start(Request $request, $id)
+    public function start(Request $request)
     {
-        $task = Task::findOrFail($id);
+       // $request->all(); // For debugging purposes, remove this line in production
+       $task = Task::findOrFail($request->task_id);
 
         // Оновлення статусу завдання
         $task->status = 'in_progress';
         $task->save();
         // перевірити чи є хтов ідсилає цій запит брігадиром цьго завдання
-        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+          $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
         if ($brigadir && $brigadir->id !== Auth::id()) {
             return response()->json([
                 'success' => false,
@@ -380,27 +381,37 @@ class TaskController extends Controller
             ], 403);
         }
         // перевірити що ця задача не вже розпочата отання  'action_type' !== 'start',
-        $lastAction = TaskActionLog::where('task_id', $task->id)        
+        $lastAction = TaskActionLog::where('task_id', $task->id)
             ->orderBy('created_at', 'desc')
             ->first();
-        if ($lastAction && $lastAction->action_type== 'start') {
+         
+        if ($lastAction && $lastAction->action_type!== 'start') {
             return response()->json([
                 'success' => false,
                 'message' => 'Завдання вже розпочато нещодавно. Будь ласка, зачекайте перед повторним запуском.'
             ], 429);
-        }        
+        }    
+        
         // Фіксація початку роботи кожного працівника, хто позначений у запиті
         if ($request->has('worker_ids') && is_array($request->worker_ids)) {
-            foreach ($request->worker_ids as $userId) {
-                TaskActionLog::create([
-                    'task_id' => $task->id,
-                    'user_id' => $userId,
-                    'action_type' => 'start',
-                    'comment' => 'Початок роботи',
-                    'location' => $request->input('location') ?? null, // можна передати координати
-                ]);
+            foreach ($request->worker_ids as $userId) { 
+                
+               $Log = new TaskActionLog();
+               $Log->task_id = $task->id;
+               $Log->user_id = Users::findOrFail($userId)->id; // Переконайтеся, що користувач існує
+               //$userId;
+               $Log->action_type = 'start';
+               $Log->comment = 'Початок роботи';
+               $Log->location = $request->input('location') ?? null; // можна передати координати
+               $Log->save();
+                return response()->json([
+                'success' => true,
+                'message' => 'Завдання успішно розпочато',
+                'task' => $Log
+            ]);
             }
-        }
+        }  
+         
         TaskAction::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),

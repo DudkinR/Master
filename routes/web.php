@@ -94,7 +94,6 @@ Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm
 // post loadcsv personals
 Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
 Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware('auth.role.redirect');
-
 // machines.start
 Route::post('/machines/{id}/start', [MachineController::class, 'start'])->name('machines.start');
 // machines.stop
@@ -106,8 +105,7 @@ Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])-
 
 // пост tasks.complete
 Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
-// пост tasks.start
-Route::post('/tasks/{id}/start', [TaskController::class, 'start'])->name('tasks.start');
+
 // tasks.startDay
 Route::post('/tasks/{id}/startDay', [TaskController::class, 'startDay'])->name('tasks.startDay');
 // tasks.endDay
@@ -128,3 +126,5 @@ Route::post('/tasks/{id}/pause', [TaskController::class, 'pause'])->name('tasks.
 Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end');
 
 });
+// пост tasks.start
+Route::post('/tasksstart',  [TaskController::class, 'start'])->name('tasks.start');

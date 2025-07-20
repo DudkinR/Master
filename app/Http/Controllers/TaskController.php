@@ -227,7 +227,7 @@ class TaskController extends Controller
     {
       
         $task = Task::findOrFail($id)
-        ->load('users', 'author', 'master', 'brigadir', 'workers', 'materials', 'machines', 'equipments'); 
+        ->load('users', 'author', 'master', 'brigadir', 'workers', 'materials', 'machines', 'equipments', 'openProblems');
         // Завантажуємо користувачів, матеріали, машини та обладнання
         $etalons = Etalon::all();
         $masters = User::whereHas('roles', function ($query) {

@@ -92,106 +92,128 @@
                         </a>
                     </div>
                     <div class="text-muted">На лікарняному</div>
-                    <div class="fw-bold fs-5 text-secondary">2</div>
+                    <div class="fw-bold fs-5 text-secondary"></div>
                     <div class="text-muted">Відпустка</div>
-                    <div class="fw-bold fs-5 text-secondary">6</div>
+                    <div class="fw-bold fs-5 text-secondary"></div>
                 </div>
                 <div class="col bg-warning text-dark">
                     <div class="text-muted">Усьго проблемних питань</div>
-                    <div class="fw-bold fs-5 text-dark">9</div>
+                    <div class="fw-bold fs-5 text-dark"></div>
                     <div class="text-muted">Проблемні завдання</div>
-                    <div class="fw-bold fs-5 text-danger">2 (4)</div>
+                    <div class="fw-bold fs-5 text-danger"></div>
                     <div class="text-muted">Проблеми з персоналом</div>
-                    <div class="fw-bold fs-5 text-danger">3 (51)</div>
+                    <div class="fw-bold fs-5 text-danger"></div>
                     <div class="text-muted">Проблеми з техникою / ТМЦ / обладненням</div>
-                    <div class="fw-bold fs-5 text-danger">0 / 2 / 1</div>
+                    <div class="fw-bold fs-5 text-danger"></div>
             </div>
         </div>
     </div>
 
-    @if(count($raports['active_tasks']))
+    @if(count($active_tasks))
     <div class="card mb-4 border-success">
         <div class="card-header bg-success text-white">
             <h6 class="mb-0"><i class="bi bi-person-check-fill me-2"></i>Активні завдання</h6>
         </div>
         <div class="card-body">
             <ul class="list-group list-group-flush">
-                @foreach($raports['active_tasks'] as $item)
+                @foreach($active_tasks as $item)
                     <li class="list-group-item">
-                        <a href="{{ route('tasks.show', $item['task']['id']) }}" class="text-decoration-none">
-                        <strong>{{ $item['task']['name'] }}</strong> —
-                        <span class="text-muted">працівників: {{ $item['workers_count'] }}</span><br>
-                        <small class="text-secondary">ID: {{ implode(', ', $item['workers']->toArray()) }}</small>
+                        <a href="{{ route('tasks.show', $item->id) }}" class="text-decoration-none">
+                        <strong>{{ $item->name }}</strong> —
+                        <span class="text-muted">працівників: {{ $item->users->count() }}</span><br>
+                        <small class="text-secondary"> Name
+                            : {{ implode(', ', $item->users->pluck('name')->toArray()) }}</small>
                         </a>
                     </li>
                 @endforeach
             </ul>
         </div>
     </div>
-    @else
-    {{-- Якщо немає активних завдань  показати як це буде виглядати--}}
-    <div class="card mb-4 border-success">
-        <div class="card-header bg-success text-white">
-            <h6 class="mb-0"><i class="bi bi-person-check-fill me-2"></i>Активні завдання</h6>
+    @endif
+    @if(count($paused_tasks))
+    <div class="card mb-4 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h6 class="mb-0"><i class="bi bi-pause-circle-fill me-2"></i>Призупинені завдання</h6>
         </div>
         <div class="card-body">
-             <ul class="list-group list-group-flush">
-                <li class="list-group-item">
-                    <strong> Ставим паркан : Проект "НТЦ" </strong> —
-                        <span class="text-muted"> Працівників: 3</span><br>
-                        <small class="text-dark"> Обладнення: 2, ТМЦ: 1 ; техника: 1</small><br>
-                        <small class="text-dark"> Проблем: 0</small><br>
-                        <small class="text-dark"> Час роботи на робочому місці: 12 год</small><br>
-                        <small class="text-dark"> Час чоловікогодин: 36 год</small><br>
-                        <small class="text-dark"> Час початку роботи согодні: <strong> 08:10</strong></small><br>
-                        <small class="text-dark"> Виконання: 75%</small>
-                </li>
-                <li class="list-group-item">
-                    <strong> Ремонт дороги : Проект "Автошлях" </strong> —
-                        <span class="text-muted"> Працівників: 5</span><br>
-                        <small class="text-dark"> Обладнання: 1, ТМЦ: 1 ; техника: 2</small><br>
-                        <small class="text-dark"> Проблем: 1</small><br>
-                        <small class="text-dark"> Час роботи на робочому місці: 10 год</small><br>
-                        <small class="text-dark"> Час чоловікогодин: 50 год</small><br>
-                        <small class="text-dark"> Час початку роботи согодні:<strong> 09:00</strong></small><br>
-                        <small class="text-dark"> Виконання: 60%</small>
-                </li>
-                <li class="list-group-item">
-                    <strong> Будівництво мосту : Проект "Міст" </strong> —
-                        <span class="text-muted"> Працівників: 4</span><br>
-                        <small class="text-dark"> Обладнання: 3, ТМЦ: 2 ; техника: 1</small><br>
-                        <small class="text-dark"> Проблем: 0</small><br>
-                        <small class="text-dark"> Час роботи на робочому місці: 12 год</small><br>
-                        <small class="text-dark"> Час чоловікогодин: 48 год</small><br>
-                        <small class="text-dark"> Час початку роботи согодні:<strong> 08:00</strong></small><br>
-                        <small class="text-dark"> Виконання: 85%</small>
-                </li>
+            <ul class="list-group list-group-flush">
+                @foreach($paused_tasks as $item)
+                    <li class="list-group-item">
+                        <a href="{{ route('tasks.show', $item->id) }}" class="text-decoration-none">
+                        <strong>{{ $item->name }}</strong> —
+                        <span class="text-muted">працівників: {{ $item->users->count() }}</span><br>
+                        <small class="text-secondary"> Name
+                            : {{ implode(', ', $item->users->pluck('name')->toArray()) }}</small>
+                        </a>
+                    </li>
+                @endforeach
+            </ul>
+        </div>
+        </div>
+    @endif
+    @if(count($completed_tasks))
+    <div class="card mb-4 border-secondary">
+        <div class="card-header bg-secondary text-white">
+            <h6 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>Завершені завдання</h6>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                @foreach($completed_tasks as $item)
+                    <li class="list-group-item">
+                        <a href="{{ route('tasks.show', $item->id) }}" class="text-decoration-none">
+                        <strong>{{ $item->name }}</strong> —
+                        <span class="text-muted">працівників: {{ $item->users->count() }}</span><br>
+                        <small class="text-secondary"> Name
+                            : {{ implode(', ', $item->users->pluck('name')->toArray()) }}</small>
+                        </a>
+                    </li>
+                @endforeach
             </ul>
         </div>
     </div>
     @endif
-    @if(count($raports['inactive_tasks']))
-    <div class="card mb-4 border-danger">
-        <div class="card-header bg-danger text-white">
-            <h6 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i>Неактивні (але заплановані на сьогодні)</h6>
+    @if(count($end_day_tasks))
+    <div class="card mb-4 border-info">
+        <div class="card-header bg-info text-white">
+            <h6 class="mb-0"><i class="bi bi-calendar-check-fill me-2"></i>Завдання на сьогодні</h6>
         </div>
         <div class="card-body">
             <ul class="list-group list-group-flush">
-                @foreach($raports['inactive_tasks'] as $task)
-                <a href="{{ route('tasks.show', $task['id']) }}" class="text-decoration-none">
+                @foreach($end_day_tasks as $item)
                     <li class="list-group-item">
-                        <strong>{{ $task['name'] }}</strong><br>
-                        <small class="text-muted">з {{ $task['start_date'] }} до {{ $task['end_date'] }}</small>
+                        <a href="{{ route('tasks.show', $item->id) }}" class="text-decoration-none">
+                        <strong>{{ $item->name }}</strong> —
+                        <span class="text-muted">працівників: {{ $item->users->count() }}</span><br>
+                        <small class="text-secondary"> Name
+                            : {{ implode(', ', $item->users->pluck('name')->toArray()) }}</small>
+                        </a>
                     </li>
-                </a>
+                @endforeach
+            </ul>
+        </div>
+    </div>
+    @endif
+    @if(count($start_day_tasks))
+    <div class="card mb-4 border-primary">
+        <div class="card-header bg-primary text-white">
+            <h6 class="mb-0"><i class="bi bi-calendar-plus-fill me-2"></i>Завдання на початок дня</h6>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                @foreach($start_day_tasks as $item)
+                    <li class="list-group-item">
+                        <a href="{{ route('tasks.show', $item->id) }}" class="text-decoration-none">
+                        <strong>{{ $item->name }}</strong> —
+                        <span class="text-muted">працівників: {{ $item->users->count() }}</span><br>
+                        <small class="text-secondary"> Name
+                            : {{ implode(', ', $item->users->pluck('name')->toArray()) }}</small>
+                        </a>
+                    </li>
                 @endforeach
             </ul>
         </div>
     </div>
     @endif
 </div>
-
-    </div>
-    
 </div>
 @endsection

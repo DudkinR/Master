@@ -19,7 +19,11 @@ class RaportController extends Controller
        if(Auth::user()->roles->first()->name ==="Admin")
         {
             $tasks = Task::with(['users', 'equipments', 'materials', 'machines'])->get();
-          
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
         }
         elseif(Auth::user()->roles->first()->name ==="Boss")
         {
@@ -36,8 +40,13 @@ class RaportController extends Controller
 
            // Витягуємо всі завдання, пов’язані з цими проєктами
            $tasks = Task::whereIn('project_id', $projects->pluck('id'))
-    ->with([ 'actionLogs']) // без пробілу!
-    ->get();  
+            ->with([ 'actionLogs']) // без пробілу!
+            ->get();  
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
         }
         elseif(Auth::user()->roles->first()->name ==="Engineer")
         {
@@ -61,6 +70,11 @@ class RaportController extends Controller
                 })
                 ->with(['users', 'equipments', 'materials', 'machines'])
                 ->get();
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
         }
         elseif(Auth::user()->roles->first()->name ==="Master")
         {
@@ -84,6 +98,11 @@ class RaportController extends Controller
                 })
                 ->with(['users', 'equipments', 'materials', 'machines', 'actionLogs'])
                 ->get();
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
 
         }
         elseif(Auth::user()->roles->first()->name ==="Brigadir")
@@ -108,7 +127,12 @@ class RaportController extends Controller
                 })
                 ->with(['users', 'equipments', 'materials', 'machines'])
                 ->get();
-            
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+
         }
         elseif(Auth::user()->roles->first()->name ==="Worker")
         {
@@ -117,6 +141,11 @@ class RaportController extends Controller
             })
             ->with(['users', 'equipments', 'materials', 'machines'])
             ->get();
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
         }
         else
         {
@@ -125,6 +154,11 @@ class RaportController extends Controller
             })
             ->with(['users', 'equipments', 'materials', 'machines'])
             ->get();
+            $active_tasks = Task::where('status', 'in_progress')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $paused_tasks = Task::where('status', 'paused')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();    
         }
 
 
@@ -133,6 +167,11 @@ class RaportController extends Controller
         return view('raports.index', [
             'raports' => $raports,
             'tasks' => $tasks,
+            'active_tasks' => $active_tasks,
+            'paused_tasks' => $paused_tasks,
+            'completed_tasks' => $completed_tasks,
+            'end_day_tasks' => $end_day_tasks,
+            'start_day_tasks' => $start_day_tasks,
         ]);
     }
     public function reportForMaster($tasks)

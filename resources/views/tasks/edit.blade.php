@@ -4,80 +4,7 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-12">
-            <h3 class="mb-4">🛠️ Редагування завдання</h3>
-
-            <form action="{{ route('tasks.update', $task->id) }}" method="POST" class="p-4 border rounded shadow-sm bg-light">
-                @csrf
-                @method('PUT')
-                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
-
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label">Порядок</label>
-                        <input type="number" class="form-control" name="order" min="1" value="{{ $task->order }}">
-                    </div>
-                    <div class="col-md-8">
-                        <label class="form-label">Назва</label>
-                        <input type="text" class="form-control" name="name" value="{{ $task->name }}">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Опис</label>
-                        <textarea class="form-control" name="description" rows="2">{{ $task->description }}</textarea>
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Дата початку</label>
-                        <input type="date" class="form-control" name="start_date" value="{{ $task->start_date}}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Дата завершення</label>
-                        <input type="date" class="form-control" name="end_date" value="{{ $task->end_date}}">
-                    </div>
-
-                    <div class="col-md-4">
-                        <label class="form-label">Оцінка годин</label>
-                        <input type="number" step="0.01" class="form-control" name="estimated_hours" value="{{ $task->estimated_hours }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Фактичні години</label>
-                        <input type="number" step="0.01" class="form-control" name="actual_hours" value="{{ $task->actual_hours }}">
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Прогрес (%)</label>
-                        <input type="number" class="form-control" name="progress" min="0" max="100" value="{{ $task->progress }}">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="form-label">Кількість</label>
-                        <input type="number" class="form-control" name="quantity" step="1" value="{{ $task->quantity }}">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label">Одиниця виміру</label>
-                        <select class="form-select" name="unit">
-                            <option value="" disabled>Оберіть одиницю</option>
-                            @foreach(['шт','м','м2','м3','год','т','л','кг','шт/год'] as $unit)
-                                <option value="{{ $unit }}" {{ $task->unit === $unit ? 'selected' : '' }}>{{ $unit }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-12 form-check mt-2">
-                        <input type="checkbox" class="form-check-input" name="etalon_task" id="etalon_task_{{ $task->id }}" {{ $task->etalon_task ? 'checked' : '' }}>
-                        <label class="form-check-label" for="etalon_task_{{ $task->id }}">Еталонне завдання</label>
-                    </div>
-                </div>
-
-                <div class="mt-4 text-end">
-                    <button type="submit" class="btn btn-success px-4">💾 Зберегти</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-12">
+        <div class="col-lg-8">
             <!-- Інфо о завданні хто створив, до якого проекту, хто призначен майстром , бригадиром -->
             <div class="card mb-4 shadow-sm">
                 <div class="card-body">
@@ -87,7 +14,7 @@
                         <strong>Створено:</strong> {{ $task->created_at->format('d.m.Y H:i') }}<br>
                         <strong>Останнє оновлення:</strong> {{ $task->updated_at->format('d.m.Y H:i') }}<br>
                         <strong>Створив:</strong> <strong>Створив:</strong> {{ $task->author->first()?->name ?? 'Невідомий' }}
-<br>
+                            <br>
                         <strong>Призначено майстру:</strong>  {{ $task->master->first()?->name ?? 'Не призначено' }}<br>
                         <strong>Призначено бригадиру:</strong> {{ $task->brigadir->first()?->name ?? 'Не призначено' }}<br>
                     </p>
@@ -97,6 +24,24 @@
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="col-lg-4">
+            <h3>{{__('Problems')}}</h3>
+            <ul class="list-group">
+                @foreach($task->openProblems as $problem)
+                    <li class="list-group-item">
+                        <strong>{{ $problem->title }}</strong><br>
+                        <span class="text-muted">{{ $problem->description }}</span>
+                         @if ($problem->photos->isNotEmpty())
+                            <div class="mb-2">
+                                @foreach ($problem->photos as $photo)
+                                    <img src="{{ $photo->url }}" alt="Problem Photo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                @endforeach
+                            </div>
+                        @endif
+                    </li>
+                @endforeach
+            </ul>
         </div>
     </div>
 </div>
@@ -300,6 +245,80 @@
                     <li class="list-group-item text-muted text-center fst-italic">Техніки ще не додано</li>
                 @endforelse
             </ul>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-12">
+            <h3 class="mb-4">🛠️ Редагування завдання</h3>
+
+            <form action="{{ route('tasks.update', $task->id) }}" method="POST" class="p-4 border rounded shadow-sm bg-light">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Порядок</label>
+                        <input type="number" class="form-control" name="order" min="1" value="{{ $task->order }}">
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Назва</label>
+                        <input type="text" class="form-control" name="name" value="{{ $task->name }}">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Опис</label>
+                        <textarea class="form-control" name="description" rows="2">{{ $task->description }}</textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Дата початку</label>
+                        <input type="date" class="form-control" name="start_date" value="{{ $task->start_date}}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Дата завершення</label>
+                        <input type="date" class="form-control" name="end_date" value="{{ $task->end_date}}">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Оцінка годин</label>
+                        <input type="number" step="0.01" class="form-control" name="estimated_hours" value="{{ $task->estimated_hours }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Фактичні години</label>
+                        <input type="number" step="0.01" class="form-control" name="actual_hours" value="{{ $task->actual_hours }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Прогрес (%)</label>
+                        <input type="number" class="form-control" name="progress" min="0" max="100" value="{{ $task->progress }}">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Кількість</label>
+                        <input type="number" class="form-control" name="quantity" step="1" value="{{ $task->quantity }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Одиниця виміру</label>
+                        <select class="form-select" name="unit">
+                            <option value="" disabled>Оберіть одиницю</option>
+                            @foreach(['шт','м','м2','м3','год','т','л','кг','шт/год'] as $unit)
+                                <option value="{{ $unit }}" {{ $task->unit === $unit ? 'selected' : '' }}>{{ $unit }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-12 form-check mt-2">
+                        <input type="checkbox" class="form-check-input" name="etalon_task" id="etalon_task_{{ $task->id }}" {{ $task->etalon_task ? 'checked' : '' }}>
+                        <label class="form-check-label" for="etalon_task_{{ $task->id }}">Еталонне завдання</label>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-end">
+                    <button type="submit" class="btn btn-success px-4">💾 Зберегти</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

@@ -50,4 +50,10 @@ class TaskAction extends Model
     {
         return $query->where('task_id', $taskId);
     }
+    // photos
+    public function photos()
+    {
+        return $this->belongsToMany(Photo::class, 'photo_action')
+                    ->withTimestamps();    
+    }        
 }

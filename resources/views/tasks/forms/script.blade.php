@@ -9,9 +9,14 @@ function senddata(url, bodyData) {
     fetch(url, {
         method: 'POST',
         headers: {
-           // відправляю форму
+           // відправляю форму enctype="multipart/form-data"
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache',
             'Content-Type': 'application/json',           
             'X-CSRF-TOKEN': csrfToken
+            
         },
         body: JSON.stringify(bodyData)
     })    
@@ -53,6 +58,8 @@ function  startWork(taskId) {
     // Запустити таймер
    startTimer();
    startTimerWork();
+    // Оновити статус завдання
+    updateTaskStatus('in_progress');
 }
 function pauseWork() {
     const pauseBtn = document.getElementById('pauseBtn');
@@ -82,93 +89,9 @@ function pauseWork() {
     // Зупинити таймер
     pauseTimer();
     pauseTimerWork();
-}
-function startTimer() {
-    const displayElement = document.getElementById('timerDisplay');
-
-    // Поточний час старту
-    const startTime = new Date();
-
-    // Зчитати скільки вже витрачено годин
-    const previouslySpentHours = parseFloat(displayElement.dataset.starttime || '0');
-    const previouslySpentMs = previouslySpentHours * 60 * 60 * 1000; // години → мілісекунди
-
-    // Оновлення кожну секунду
-    const timerInterval = setInterval(() => {
-        const currentTime = new Date();
-        const elapsedMs = currentTime - startTime + previouslySpentMs;
-
-        const elapsedTime = new Date(elapsedMs);
-
-        const hours = String(elapsedTime.getUTCHours()).padStart(2, '0');
-        const minutes = String(elapsedTime.getUTCMinutes()).padStart(2, '0');
-        const seconds = String(elapsedTime.getUTCSeconds()).padStart(2, '0');
-
-        displayElement.textContent = `${hours}:${minutes}:${seconds}`;
-    }, 1000);
-
-    window.timerInterval = timerInterval;
-}
-function pauseTimer() {
-    const displayElement = document.getElementById('timerDisplay');
-    const elapsedTime = displayElement.textContent.split(':').map(Number);
-    const elapsedMilliseconds = (elapsedTime[0] * 3600 + elapsedTime[1] * 60 + elapsedTime[2]) * 1000;
-    // Зберегти час у мілісекундах
-    displayElement.dataset.starttime = (elapsedMilliseconds / 1000 / 60 / 60).toFixed(2); // зберігаємо в годинах
-    // Очистити інтервал
-    clearInterval(window.timerInterval);
+    updateTaskStatus('paused');
 }
 
-function startTimerWork() {
-    const startTime = new Date();
-    const workersCount = countWorkers();
-    const estimatedElement = document.getElementById('estimated_hours');
-    const estimatedHours = parseFloat(estimatedElement.dataset.estimated || '0');
-    const totalWorkMilliseconds = estimatedHours * 60 * 60 * 1000;
-    const displayElement = document.getElementById('worktimerDisplay');
-    const workTimerInterval = setInterval(() => {
-        const currentTime = new Date();
-        const elapsedMilliseconds = (currentTime - startTime) * workersCount;
-        const remainingMilliseconds = totalWorkMilliseconds - elapsedMilliseconds;
-        if (remainingMilliseconds <= 0) {
-            // Зупинити інтервал
-            clearInterval(workTimerInterval);
-            // Показати 00:00:00 + червоний + миготіння
-            displayElement.textContent = "00:00:00";
-            displayElement.classList.remove('text-dark');
-            displayElement.classList.add('text-danger', 'blink');
-            return; // обов'язково — вихід з функції
-        }
-        const remainingTime = new Date(remainingMilliseconds);
-        const hours = String(remainingTime.getUTCHours()).padStart(2, '0');
-        const minutes = String(remainingTime.getUTCMinutes()).padStart(2, '0');
-        const seconds = String(remainingTime.getUTCSeconds()).padStart(2, '0');
-        displayElement.textContent = `${hours}:${minutes}:${seconds}`;
-        displayElement.classList.remove('text-danger', 'blink');
-    }, 1000);
-    // зберігаємо інтервал у глобальній змінній
-    window.workTimerInterval = workTimerInterval;
-}
-
-function pauseTimerWork() {
-    const displayElement = document.getElementById('worktimerDisplay');
-    const elapsedTime = displayElement.textContent.split(':').map(Number);
-    const elapsedMilliseconds = (elapsedTime[0] * 3600 + elapsedTime[1] * 60 + elapsedTime[2]) * 1000;
-
-    // Зберегти час у мілісекундах
-    displayElement.dataset.starttime = (elapsedMilliseconds / 1000 / 60 / 60).toFixed(2); // зберігаємо в годинах
-
-    // Очистити інтервал
-    clearInterval(window.workTimerInterval);
-}
-
-
-function countWorkers() {
-    const checked = document.querySelectorAll('input[name="worker[]"]:checked');
-    return checked.length;
-}
-{{ ($lastAction && in_array($lastAction->action_type, ['start', 'resume'])) ? 'startTimer(); startTimerWork();' : '' }}
- 
 function getCoordinatesString() {
     return new Promise((resolve) => {
         if (!navigator.geolocation) {
@@ -194,6 +117,7 @@ function getCoordinatesString() {
         );
     });
 }
+const modal = new bootstrap.Modal(document.getElementById('endWorkModal'));
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('endWorkForm');
     form.addEventListener('submit', function(event) {
@@ -202,6 +126,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const url = "{{ route('tasks.complete', $task->id) }}";
         const formData = new FormData(form);
         formData.append('task_id', '{{ $task->id }}');
+        // Додаємо CSRF токен
+        formData.append('_token', '{{ csrf_token() }}');
 
         fetch(url, {
             method: 'POST',
@@ -215,7 +141,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (data.success) {
                 console.log(data);
                 // Optional: Закрити модальне вікно та оновити сторінку
-                const modal = bootstrap.Modal.getInstance(document.getElementById('endWorkModal'));
                 modal.hide();
                 // остановити таймери, сховати кнопки перерва та завершення показати кнопку почати роботу
                 pauseTimer();
@@ -223,7 +148,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.getElementById('pauseBtn').classList.add('d-none');
                 document.getElementById('endBtn').classList.add('d-none');
                 document.getElementById('startBtn').classList.remove('d-none');
-               // location.reload();
+                // relocated route tasks.index
+                alert('Робочий день завершено!');
+                window.location.href = "{{ route('tasks.index') }}";
             } else {
                 console.error('Помилка відповіді:', data);
             }
@@ -231,5 +158,44 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Fetch помилка:', error));
     });
 });
+function updateTaskStatus(status) {
+   const taskData = document.getElementById('taskData');
+    const taskStatus = document.getElementById('taskStatus');
+    const lastActionStatus = document.getElementById('lastActionStatus');
+    taskData.dataset.status = status || taskData.dataset.status;
+    const lastAction = taskData.dataset.lastAction;
+    const statusMap = {
+        completed: { text: '✅ Завершено', class: 'bg-success' },
+        in_progress: { text: '🛠 У процесі', class: 'bg-warning text-dark' },
+        paused: { text: '⏸ На паузі', class: 'bg-info text-dark' },
+        start_day: { text: '▶ Розпочато день', class: 'bg-primary' },
+        end_day: { text: '⏹ Завершено день', class: 'bg-secondary' },
+        default: { text: '🕒 Очікує', class: 'bg-secondary' }
+    };
+    const actionMap = {
+        start: 'Початок',
+        pause: 'Перерва',
+        resume: 'Продовження',
+        end_day: 'Завершення дня',
+        start_day: 'Початок дня',
+        complete: 'Завершено',
+        issue: 'Проблема'
+    };
+    // Виведення статусу завдання
+    const currentStatus = statusMap[status] || statusMap['default'];
+    taskStatus.textContent = currentStatus.text;
+    taskStatus.className = `badge w-100 ${currentStatus.class}`;
+    // Виведення останньої дії
+    if (lastAction) {
+        lastActionStatus.textContent = actionMap[lastAction] ?? 'Невідома дія';
+        lastActionStatus.className = 'badge bg-dark w-100';
+    } else {
+        lastActionStatus.textContent = '❌ Ще не розпочато';
+        lastActionStatus.className = 'badge bg-secondary w-100';
+    }
+}
 
+document.addEventListener('DOMContentLoaded', function() {
+    updateTaskStatus({{ $task->status }});
+});
 </script>

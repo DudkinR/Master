@@ -11,7 +11,7 @@ class TaskActionLog extends Model
     protected $fillable = [
         'task_id',
         'user_id',
-        'action_type',     // enum або string: start, pause, end_day, complete, issue, missing_resource, machine_start, machine_end
+        'action_type',     // enum або string: start, paused, end_day, complete, issue, missing_resource, machine_start, machine_end
         'comment',         // примітки або аналіз
         'location',        // GPS або описове місце
     ];

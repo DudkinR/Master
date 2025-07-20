@@ -27,19 +27,23 @@
                     <div class="text-muted">Усього Проектів</div>
                     <div class="fw-bold fs-5 text-dark">
                         <a href="{{ route('projects.index') }}" class="text-dark text-decoration-none">                            
-                        16
+                        {{ $raports['summary']['projects_total'] }}
                         </a>
                     </div>
                     <div class="text-muted">Активні Проекти</div>
                     <div class="fw-bold fs-5 text-success">
                         <a href="{{ route('projects.index') }}" class="text-dark text-decoration-none">                            
-                        16
+                        {{ $raports['summary']['projects_active'] }}
                         </a>
                      </div>
                     <div class="text-muted">Неактивні Проекти</div>
-                    <div class="fw-bold fs-5 text-danger">0</div>
+                    <div class="fw-bold fs-5 text-danger">
+                        {{ $raports['summary']['projects_inactive'] }}
+                    </div>
                     <div class="text-muted">Завершені Проекти</div>
-                    <div class="fw-bold fs-5 text-secondary">24</div>
+                    <div class="fw-bold fs-5 text-secondary">
+                        {{ $raports['summary']['projects_completed'] }}
+                    </div>
                 </div>
                 <div class="col bg-light">
                     <div class="text-muted">Усього завдань</div>
@@ -54,7 +58,7 @@
                     <div class="text-muted">На сьогодні</div>
                     <div class="fw-bold fs-5 text-info">
                         <a href="{{ route('tasks.index') }}" class="text-dark text-decoration-none">
-                        {{ $raports['summary']['planned_today'] }}
+                        {{ $raports['summary']['planned_today_tasks'] }}
                         </a>
                     </div>
              
@@ -76,14 +80,15 @@
                     <div class="text-muted">Всього працівників</div>
                     <div class="fw-bold fs-5 text-dark">
                         <a href="{{ route('users.index') }}" class="text-dark text-decoration-none">
-                        
-                        51
+                        {{ $raports['summary']['total_workers_today'] }}
                         </a>
                     </div>
                     <div class="text-muted">Задіяно людей</div>
                     <div class="fw-bold fs-5 text-warning">
                         <a href="{{ route('users.index') }}" class="text-dark text-decoration-none">
-                        {{ $raports['summary']['total_workers'] }} (42)
+                        {{ $raports['summary']['total_workers'] }} (
+                            {{ $raports['summary']['total_workers_today'] }} сьогодні
+                        )
                         </a>
                     </div>
                     <div class="text-muted">На лікарняному</div>

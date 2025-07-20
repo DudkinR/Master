@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\Material;
 use App\Models\Machine;
 use App\Models\Equipment;   
+use App\Models\TaskActionLog;
 
 class Task extends Model
 {
@@ -16,17 +17,23 @@ class Task extends Model
         'order',
         'name',
         'description',
-        //>enum('status', ['pending', 'in_progress', 'completed', 'paused'])
+        //>enum('status', ['pending', 'in_progress', 'completed', 'paused','end_day', 'start_day', ]),
         'status', // New status column
         'start_date',
         'end_date',
         'estimated_hours',
         'actual_hours',
+        'actual_human_hours', // New column for human hours
         'progress',
         'quantity',
         'unit',
         'project_id',
     ];
+    // TaskActionLogs
+    public function taskActionLogs()
+    {
+        return $this->hasMany(TaskActionLog::class, 'task_id');
+    }
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'projects_tasks')
@@ -119,6 +126,29 @@ class Task extends Model
     {
         return $this->hasMany(TaskMachineUsage::class);
     }
+    // Photos
+    public function photos()
+    {
+        return $this->belongsToMany(Photo::class, 'photo_task')
+                    ->withTimestamps();
+    }  
+    public function allProblems()
+    {
+        return $this->hasMany(Problem::class);
+    }
 
+   public function openProblems()
+    {
+        return $this->hasMany(Problem::class)->open();
+    }
+    public function closedProblems()
+    {
+        return $this->hasMany(Problem::class)->closed();
+    }
+    // У моделі Task
+    public function problems()
+    {
+        return $this->hasMany(Problem::class);
+    }
 
 }

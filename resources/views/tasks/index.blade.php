@@ -94,7 +94,7 @@
 
                     @elseif(Auth::user()->isBrigadir())
                         <input type="hidden" name="role" value="worker">
-                        <div class="mb-3">
+                        <div class="mb-3"> 
                             <label for="master_id" class="form-label">Оберіть робітників</label>
                             <select name="master_id[]" id="master_id" class="form-select" multiple required>
                                 @foreach ($workers as $worker)
@@ -134,9 +134,13 @@
         const brigadirClass = brigadirName === 'Не призначено' ? 'text-danger' : '';
         const workersClass = workers === 'Не призначено' ? 'text-danger' : '';
         const statusMap = {
+            pending: ['Очікує', 'bg-secondary'],
             in_progress: ['Виконується', 'bg-warning'],
             completed: ['Завершено', 'bg-success'],
-            pending: ['Очікує', 'bg-secondary']
+            paused: ['Призупинено', 'bg-info'],
+            end_day: ['Кінець дня', 'bg-primary'],
+            start_day: ['Початок дня', 'bg-success'],
+            test: ['Тестування', 'bg-info'],
         };
         const [statusLabel, statusClass] = statusMap[task.status] ?? ['Невідомо', 'bg-dark'];
 
@@ -185,7 +189,6 @@
                 </div>
             </div>
         `;
-
         tasksContainer.appendChild(card);
     });
 });  

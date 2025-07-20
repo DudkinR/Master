@@ -131,7 +131,7 @@
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                        <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                        <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
                                             {{ __('Reports') }}
                                         </a>
                                         <a class="dropdown-item" href="{{ route('users.index') }}">
@@ -158,7 +158,7 @@
                                          <a class="dropdown-item" href="{{ route('users.index') }}">
                                             {{ __('Users') }}
                                         </a>
-                                        <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                        <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
                                             {{ __('Reports') }}
                                         </a>
                                         <!-- Формируем команди -->
@@ -179,7 +179,7 @@
                                         <a class="dropdown-item" href="{{ route('tasks.index') }}">
                                             {{ __('Tasks') }}
                                         </a>
-                                       <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                       <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
                                             {{ __('Reports') }}
                                         </a>
                                          <a class="dropdown-item" href="{{ route('users.index') }}">
@@ -204,7 +204,7 @@
                                             {{ __('Tasks') }}
                                         </a>
                                        
-                                       <a class="dropdown-item" href="{{ route('raports.index') }}">
+                                       <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
                                             {{ __('Reports') }}
                                         </a>
                                          <!-- Формируем команди -->

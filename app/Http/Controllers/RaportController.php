@@ -129,12 +129,104 @@ class RaportController extends Controller
 
 
 
-        $raports = $this->reportForMaster($tasks);
+     $raports = $this->reportForMaster($tasks);
         return view('raports.index', [
             'raports' => $raports,
             'tasks' => $tasks,
         ]);
     }
+    public function reportForMaster($tasks)
+    {
+        $today = now()->format('Y-m-d');
+        $activeTasks = [];
+        $inactiveTasks = [];
+        $plannedTodayTasks = [];
+        $totalWorkers = collect();
+        $projectIds = collect();     
+        $problemsIds = collect(); 
+        foreach ($tasks as $task) {
+            $isPlannedToday = $task['start_date'] <= $today && $task['end_date'] >= $today;
+
+            if ($isPlannedToday) {
+                $plannedTodayTasks[] = $task;
+            }
+
+            $todayLogs = collect($task['action_logs'])->filter(function ($log) use ($today) {
+                return \Illuminate\Support\Str::startsWith($log['created_at'], $today);
+            });
+
+            if ($todayLogs->isNotEmpty()) {
+                $userIds = $todayLogs->pluck('user_id')->unique();
+                $totalWorkers = $totalWorkers->merge($userIds);
+
+                $activeTasks[] = [
+                    'task' => $task,
+                    'workers' => $userIds,
+                    'workers_count' => $userIds->count(),
+                ];
+            } elseif ($isPlannedToday) {
+                $inactiveTasks[] = $task;
+            }
+           $projectIds = $projectIds->merge($task->projects->pluck('id'));
+           $problemsIds = $problemsIds->merge($task->problems->pluck('id'));
+           //openProblems
+           $openProblems = $task->openProblems->pluck('id');
+        }       
+        $problemsIds = $problemsIds->merge($openProblems); // об'є
+        $projectIds = $projectIds->unique(); // унікальні ID
+        $projectStats = [
+            'total' => $projectIds->count(),
+            'active' => 0,
+            'inactive' => 0,
+            'completed' => 0,
+        ];
+
+        foreach ($projectIds as $project) {
+            $pr = Project::find($project);  
+            switch ($pr->status) {
+                case 'active':
+                    $projectStats['active']++;
+                    break;
+                case 'inactive':
+                    $projectStats['inactive']++;
+                    break;
+                  case 'planned':
+                    $projectStats['planned']++;
+                    break;
+                case 'completed':
+                    $projectStats['completed']++;
+                    break;
+            }
+        }
+
+
+        return [
+            'summary' => [
+                // Проєкти
+                
+                'projects_total' => $projectStats['total'],
+                'projects_active' => $projectStats['active'],
+                'projects_inactive' => $projectStats['inactive'],
+                'projects_completed' => $projectStats['completed'],
+                // Завдання
+                'total_tasks' => count($tasks),
+                'planned_today_tasks' => count($plannedTodayTasks),
+                'active_tasks_count' => count($activeTasks),
+                'inactive_tasks_count' => count($inactiveTasks),
+
+                // Працівники
+                'total_workers_today' => $totalWorkers->unique()->count(),
+                'total_workers'=> $totalWorkers->unique()->count(),
+            ],
+            'projects' => $projectIds,
+            'problems' => $problemsIds->unique(),
+            'active_tasks' => $activeTasks,
+            'inactive_tasks' => $inactiveTasks,
+            'planned_today' => $plannedTodayTasks,
+            '$openProblems' => $openProblems->unique(),
+        ];
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -188,50 +280,7 @@ class RaportController extends Controller
     {
         //
     }
-   public function reportForMaster($tasks)
-{
-    $today = now()->format('Y-m-d');
-
-    $activeTasks = [];
-    $inactiveTasks = [];
-    $totalWorkers = collect();
-
-    foreach ($tasks as $task) {
-        // Перевірка, чи заплановане на сьогодні
-        $isPlannedToday = $task['start_date'] <= $today && $task['end_date'] >= $today;
-
-        // Фільтруємо логи лише за сьогодні
-        $todayLogs = collect($task['action_logs'])->filter(function ($log) use ($today) {
-            return \Illuminate\Support\Str::startsWith($log['created_at'], $today);
-        });
-
-        if ($todayLogs->isNotEmpty()) {
-            $userIds = $todayLogs->pluck('user_id')->unique();
-            $totalWorkers = $totalWorkers->merge($userIds);
-
-            $activeTasks[] = [
-                'task' => $task,
-                'workers' => $userIds,
-                'workers_count' => $userIds->count(),
-            ];
-        } elseif ($isPlannedToday) {
-            $inactiveTasks[] = $task;
-        }
-    }
-
-    return [
-        'summary' => [
-            'total_tasks' => count($tasks),
-            'planned_today' => count($tasks), // можна уточнити окремо, якщо потрібно
-            'active_tasks_count' => count($activeTasks),
-            'inactive_tasks_count' => count($inactiveTasks),
-            'total_workers' => $totalWorkers->unique()->count(),
-        ],
-        'active_tasks' => $activeTasks,
-        'inactive_tasks' => $inactiveTasks,
-        'planned_today' => $tasks, // або фільтрувати окремо
-    ];
-}
+   
 
 
 }

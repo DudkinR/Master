@@ -119,5 +119,18 @@ class User extends Authenticatable
         }
         return false;
     }
-   
+   public function allChildrenRecursive($depth = 1)
+    {
+        $children = collect();
+
+        $directChildren = $this->children()->with('roles')->get();
+        $children = $children->merge($directChildren);
+
+        if ($depth > 1) {
+            foreach ($directChildren as $child) {
+                $children = $children->merge($child->allChildrenRecursive($depth - 1));
+            }
+        }
+        return $children->unique('id');
+    }
 }

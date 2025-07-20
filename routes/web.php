@@ -7,6 +7,9 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MachineController;
+// TaskActionLogController
+use App\Http\Controllers\TaskActionLogController;
+
 
 Route::get('/',  [App\Http\Controllers\HomeController::class, 'index']);
 
@@ -102,11 +105,12 @@ Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('ma
 Route::post('/machines/{id}/pause', [MachineController::class, 'pause'])->name('machines.pause');
 // tasks.report_issue
 Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])->name('tasks.report_issue');
-
+// close_problem
+Route::post('/close_issue', [TaskController::class, 'closeIssue'])->name('close_problem');
 // пост tasks.complete
-Route::post('/tasks/{id}/complete', [TaskController::class, 'complete'])->name('tasks.complete');
+Route::post('/tasksComplete', [TaskController::class, 'complete'])->name('tasks.complete');
 
-// tasks.startDay
+// tasks.startDay *********************************
 Route::post('/tasks/{id}/startDay', [TaskController::class, 'startDay'])->name('tasks.startDay');
 // tasks.endDay
 Route::post('/tasks/{id}/endDay', [TaskController::class, 'endDay'])->name('tasks.endDay');
@@ -126,6 +130,8 @@ Route::post('/tasks/{id}/pause', [TaskController::class, 'pause'])->name('tasks.
 Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end');
 // пост tasks.start
 Route::post('/tasksstart',  [TaskController::class, 'start'])->name('tasks.start');
+Route::get('/task-action-logs', [TaskActionLogController::class,  'magazine'])->name('task-action-logs.store');
+
 });
 
 Route::any('/test',  [TaskController::class, 'test'])->name('test');

@@ -15,6 +15,14 @@
         @php
             $statusMap = [
                 'completed' => ['Виконано', 'success'],
+                'paused' => ['Призупинено', 'warning text-dark'],
+                'day_work' => ['Робочий день', 'primary'],
+                'day_off' => ['Вихідний день', 'secondary'],    
+                'end_day' => ['Кінець робочого дня', 'danger'],
+                'end_task' => ['Завершено', 'success'],
+                'issue' => ['Проблема', 'danger'],
+                'missing_resource' => ['Відсутній ресурс', 'danger'],
+                'in_work' => ['В роботі', 'info'],
                 'in_progress' => ['В процесі', 'warning text-dark'],
                 'pending' => ['Не розпочато', 'secondary'],
             ];
@@ -25,8 +33,19 @@
             <div class="card-body" data-bs-toggle="modal" data-bs-target="#taskDetailsModal{{ $task->id }}" style="cursor: pointer;">
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="card-title mb-0">{{ $task->name }}</h5>
+                    <div class="row">
+                        <div class="col-md-12">
+                            @if ($task->photos->isNotEmpty())
+                                <div class="mb-2">
+                                    @foreach ($task->photos as $photo)
+                                        <img src="{{ $photo->url }}" alt="Task Photo" class="img-thumbnail" style="max-width: 100px; max-height: 100px;">
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </div>
                     <span class="badge bg-{{ $badge }}">{{ $label }}</span>
-                </div>
+                </div> 
                 <p class="mb-1"><strong>Майстер:</strong> {{ optional($task->master->first())->name ?? '—' }}</p>
                 <p class="mb-1"><strong>Бригадир:</strong> {{ optional($task->brigadir->first())->name ?? '—' }}</p>
                 <p class="mb-1"><strong>Робітники:</strong>
@@ -56,6 +75,7 @@
                         <p><strong>Орієнтовні години:</strong> {{ $task->estimated_hours }} год</p>
                         <p><strong>Кількість / одиниця:</strong> {{ $task->quantity }} {{ $task->unit }}</p>
                         <p><strong>Статус:</strong> <span class="badge bg-{{ $badge }}">{{ $label }}</span></p>
+                       
                     </div>
                     <div class="modal-footer">
                         <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-outline-primary">Перейти до карточки</a>

@@ -23,4 +23,17 @@ class Problem extends Model
     {
         return $this->belongsTo(User::class);
     }
+    public function photos()
+    {
+        return $this->belongsToMany(Photo::class, 'photo_problem')
+                    ->withTimestamps();
+    }
+    public function scopeOpen($query)
+    {
+        return $query->where('status', '!=', 'closed');
+    }
+    public function scopeClosed($query)
+    {
+        return $query->where('status', 'closed');
+    }
 }

@@ -9,6 +9,8 @@ use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MachineController;
 // TaskActionLogController
 use App\Http\Controllers\TaskActionLogController;
+//RaportController
+use App\Http\Controllers\RaportController;
 
 
 Route::get('/',  [App\Http\Controllers\HomeController::class, 'index']);
@@ -96,7 +98,7 @@ Route::any('/connectusers', [App\Http\Controllers\UserController::class, 'connec
 Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm'])->name('loadcsv.form');
 // post loadcsv personals
 Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
-Route::get('/reports', [App\Http\Controllers\ReportController::class, 'index'])->name('reports.index')->middleware('auth.role.redirect');
+Route::get('/reports', [App\Http\Controllers\RaportController::class, 'index'])->name('reports.index')->middleware('auth.role.redirect');
 // machines.start
 Route::post('/machines/{id}/start', [MachineController::class, 'start'])->name('machines.start');
 // machines.stop
@@ -135,3 +137,5 @@ Route::get('/task-action-logs', [TaskActionLogController::class,  'magazine'])->
 });
 
 Route::any('/test',  [TaskController::class, 'test'])->name('test');
+/// moment_raports()
+Route::any('/moment_raports', [RaportController::class, 'moment_raports'])->name('moment_raports');

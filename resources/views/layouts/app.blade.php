@@ -263,6 +263,65 @@
         <main class="py-4">
             @yield('content')
         </main>
+        <audio id="alertSound" src="/sounds/alert.mp3" preload="auto"
+            style="display: none;" loop="false" volume="0.5" autoplay="false" muted="false" controls="true" 
+            onerror="console.error('Audio file not found or cannot be played.');" 
+            oncanplaythrough="this.play();" 
+            onended="this.currentTime = 0; this.pause();"
+        ></audio>
+        <script>
+           const url = '{{ route('moment_raports') }}'; // замініть на свій URL
+            const notifications = []; // масив для зберігання сповіщень
+
+            function fetchNotifications() {                
+                fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    },
+                    body: JSON.stringify({ requestTime: new Date().toISOString() }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data !== null && Array.isArray(data)) {
+                        data.forEach(item => {
+                            const existing = notifications.find(n => n.code === item.code);
+                            if (!existing) {
+                                // нове сповіщення
+                                notifications.push({ ...item, viewed: false });
+                                showNotification(item);
+                            }
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Помилка при отриманні сповіщення:', error);
+                });
+            }
+
+            function showNotification(item) {
+                // Відтворити звук
+                const sound = document.getElementById('alertSound');
+                sound.play();
+
+                // Показати повідомлення (можна налаштувати за потреби)
+                alert(`Нове сповіщення: ${item.message}`);
+
+                // Позначити як переглянуте
+                const index = notifications.findIndex(n => n.code === item.code);
+                if (index !== -1) {
+                    notifications[index].viewed = true;
+                }
+            }
+
+            // Запуск кожну хвилину
+            setInterval(fetchNotifications, 60000); // 60000 мс = 1 хвилина
+
+            // Також можна викликати відразу при завантаженні сторінки
+            fetchNotifications();
+ 
+        </script>
     </div>
 </body>
 </html>

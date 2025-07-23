@@ -319,6 +319,20 @@ class RaportController extends Controller
     {
         //
     }
+
+    public function moment_raports()
+    {
+        // select 
+
+        /* return json 
+        return response()->json([
+            ['code' => 'ALERT001', 'message' => 'Перевищення температури!'],
+            ['code' => 'ALERT002', 'message' => 'Втрата зв\'язку з сервером!'],
+            ['code' => 'ALERT003', 'message' => 'Несправність обладнання!'],
+            ['code' => 'ALERT004', 'message' => 'Проблема з матеріалами!'],
+        ]);*/
+        return null;
+    }
    
 
 

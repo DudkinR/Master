@@ -133,7 +133,8 @@ Route::post('/tasks/{id}/end', [TaskController::class, 'end'])->name('tasks.end'
 // пост tasks.start
 Route::post('/tasksstart',  [TaskController::class, 'start'])->name('tasks.start');
 Route::get('/task-action-logs', [TaskActionLogController::class,  'magazine'])->name('task-action-logs.store');
-
+// task_repeat/7
+Route::get('/task_repeat/{id}', [TaskController::class, 'repeat'])->name('task_repeat');
 });
 
 Route::any('/test',  [TaskController::class, 'test'])->name('test');

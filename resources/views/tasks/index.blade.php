@@ -43,7 +43,10 @@
                     <span class="badge" id="taskStatusLabel"></span>
                     </p>
                 </div>
-                <div class="modal-footer">
+                <div class="modal-footer d-flex justify-content-between mt-4">
+                   <a href="" id="repeatTaskLink" class="btn btn-success">
+                    {{__('Repeat')}}
+                   </a>
                    <a href="" id="showTaskLink" class="btn btn-primary">
                    {{__('Show')}}
                      </a>
@@ -266,7 +269,12 @@ function set_task_id(task_id) {
             modal.querySelector('input[name="task_id"]').value = taskId;
         });
     });
-
+    //route repeat_task method get
+    document.getElementById('repeatTaskLink').addEventListener('click', function(event) {
+        event.preventDefault();
+        const taskId = document.querySelector('.task-item').dataset.id;
+        window.location.href = `/task_repeat/${taskId}`;
+    });
 </script>
 
 @endsection

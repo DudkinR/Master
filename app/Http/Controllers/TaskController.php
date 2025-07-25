@@ -260,11 +260,37 @@ class TaskController extends Controller
         } else {
             return redirect()->back()->withErrors(['error' => 'Завдання не знайдено']);
         }
-
-
+    }
+    public function repeat(string $id)
+    {
+        $task = Task::findOrFail($id);
+        $newTask = new Task();
+        $newTask->name = $task->name;
+        $newTask->description = $task->description;
+        $newTask->start_date = now();
+        $newTask->end_date = now()->addDays(7);
+        $newTask->status = 'pending';
+        $newTask->estimated_hours = $task->estimated_hours;
+        $newTask->actual_hours = 0; // Reset actual hours for the new task
+        $newTask->progress = 0; // Reset progress for the new task
+        $newTask->quantity = $task->quantity;
+        $newTask->unit = $task->unit;
+        $newTask->project_id = $task->project_id; // Assuming you want to keep the same project
+         $newTask->save();
+        // Copy materials, equipments, and machines
+        $newTask->materials()->sync($task->materials->pluck('id')->toArray());
+        $newTask->equipments()->sync($task->equipments->pluck('id')->toArray());
+        $newTask->machines()->sync($task->machines->pluck('id')->toArray());
+        // Copy users (if needed, adjust roles as necessary)
+        $newTask->users()->sync($task->users->pluck('id')->toArray());
+        // Redirect to the edit page for the new task
+        return redirect()->route('tasks.edit', $newTask->id);
     }
     public function destroy(string $id)
     {
+        $task = Task::findOrFail($id);
+        $task->delete();
+        return redirect()->route('tasks.index')->with('success', 'Завдання успішно видалено!');
     }
     public function assignMaster(Request $request)
     {//return

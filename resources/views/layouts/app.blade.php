@@ -16,249 +16,79 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
+ @php
+    $icons = [
+                'Admin' => '👑👑👑',
+                'Boss' => '👑',
+                'Engineer' => '👨‍🔧',
+                'Master' => '👷',
+                'Brigadir' => '🛠️',
+                'Worker' => '🔧',
+                'Unassigned' => '🔍',
+            ];
+    @endphp
     
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Мастер') }}
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
 
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
+        <div class="container py-3">
+            <div class="d-flex flex-column flex-md-row flex-wrap gap-2">
+                
+                <div class="btn-group">
+                @guest
+                    @if (Route::has('login'))
+                        <a class="btn btn-primary" href="{{ route('login') }}">{{ __('Login') }}</a>
+                    @endif
 
-                    </ul>
+                    @if (Route::has('register'))
+                        <a class="btn btn-secondary" href="{{ route('register') }}">{{ __('Register') }}</a>
+                    @endif
+                @else
+                    <form action="{{ route('logout') }}" method="POST" id="logout-form">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-box-arrow-right"></i> {{ __('Logout') }}
+                        </button>
+                    </form>
 
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
+                   
 
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
+                    @php $role = Auth::user()->roles->first()->name; @endphp
+                    @if (in_array($role, ['Admin', 'Boss', 'Engineer', 'Master']))
+                
+                        <a class="btn btn-info" href="{{ route('raports.index') }}">{{ __('Reports') }}</a>
+                        <a class="btn btn-secondary" href="{{ route('projects.index') }}">{{ __('Projects') }}</a>
+                        <a class="btn btn-success" href="{{ route('users.index') }}">{{ __('Users') }}</a>
+                        <a class="btn btn-info" href="{{ route('teams.index') }}">{{ __('Teams') }}</a>
+                        <a class="btn btn-warning" href="{{ route('tasks.index') }}">{{ __('Tasks') }}</a>
+                    @elseif (in_array($role, ['Brigadir', 'Worker']))
+                        <a class="btn btn-warning" href="{{ route('tasks.index') }}">{{ __('Tasks') }}</a>
+                        <a class="btn btn-info" href="{{ route('task-action-logs.store') }}">{{ __('Task Action Logs') }}</a>
+                    @elseif (in_array($role, ['Admin']))
+                        <a class="btn btn-secondary" href="{{ route('loadcsv.form') }}">{{ __('Load CSV') }}</a>
+
+                    @endif
+
+                @endguest
+                </div>
+                <div class="ms-auto">
+                    <span class="text-muted">
+                        @if (Auth::check())
+                            {{ Auth::user()->name }} 
+                            @if (isset($icons[Auth::user()->roles->first()->name]))
+                                {{ $icons[Auth::user()->roles->first()->name] }}
                             @endif
                         @else
-                        @php 
-                        /*
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                               
-                                @if (Auth::user()->roles->first())
-                                    {{ Auth::user()->roles->first()->name }}
-                                @else
-                                    {{ __('No Role Assigned') }}
-                                @endif
-                                </a>
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('home') }}">
-                                        {{ __('Home') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('profile.show') }}">
-                                        {{ __('Profile') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('settings.index') }}">
-                                        {{ __('Settings') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('help') }}">
-                                        {{ __('Help') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('about') }}">
-                                        {{ __('About') }}
-                                    </a>
-                                </div>
-                            </li>
-                        */
-                        @endphp
-                              @if (!Auth::user()->roles->first())
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                        {{ __('No Role Assigned') }}
-                                    </a>
-
-                                </li>                            
-                            @elseif(Auth::user()->roles->first()->name == 'Admin')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Admin Panel') }}</a>
-                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                     
-                                        <a class="dropdown-item" href="">
-                                            {{ __('Objects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('raports.index') }}">
-                                            {{ __('Reports') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('users.index') }}">
-                                            {{ __('Users') }}
-                                        </a>
-                                         <!-- Формируем команди -->
-                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
-                                            {{ __('Teams') }}
-                                        </a>  
-                                        {{--loadcsv.form --}}                                    
-                                        <a class="dropdown-item" href="{{ route('loadcsv.form') }}">
-                                            {{ __('Load CSV') }}
-                                        </a>
-
-                                    </div>
-                                </li>
-                            @elseif(Auth::user()->roles->first()->name == 'Boss')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
-                                            {{ __('Reports') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('users.index') }}">
-                                            {{ __('Users') }}
-                                        </a>
-                                         <!-- Формируем команди -->
-                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
-                                            {{ __('Teams') }}
-                                        </a>
-              
-                                    </div>
-                                </li>
-                            @elseif(Auth::user()->roles->first()->name == 'Engineer')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Engineer Panel') }}</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                        
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                         <a class="dropdown-item" href="{{ route('users.index') }}">
-                                            {{ __('Users') }}
-                                        </a>
-                                        <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
-                                            {{ __('Reports') }}
-                                        </a>
-                                        <!-- Формируем команди -->
-                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
-                                            {{ __('Teams') }}
-                                        </a>
-                                       
-                                    </div>
-                                </li>
-                            @elseif(Auth::user()->roles->first()->name == 'Master')
-                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Master Panel') }}</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                        
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                       <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
-                                            {{ __('Reports') }}
-                                        </a>
-                                         <a class="dropdown-item" href="{{ route('users.index') }}">
-                                            {{ __('Users') }}
-                                        </a>
-                                         <!-- Формируем команди -->
-                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
-                                            {{ __('Teams') }}
-                                        </a>
-                                      
-                                    </div>
-                                </li>
-                            @elseif(Auth::user()->roles->first()->name == 'Brigadir')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Brigadir Panel') }}</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        <a class="dropdown-item" href="{{ route('projects.index') }}">
-                                            {{ __('Projects') }}
-                                        </a>
-                                       
-                                        <a class="dropdown-item" href="{{ route('tasks.index') }}">
-                                            {{ __('Tasks') }}
-                                        </a>
-                                       
-                                       <a class="dropdown-item" href="{{ route('task-action-logs.store') }}">
-                                            {{ __('Reports') }}
-                                        </a>
-                                         <!-- Формируем команди -->
-                                         <a class="dropdown-item" href="{{ route('teams.index') }}">
-                                            {{ __('Teams') }}
-                                        </a>
-                                         <a class="dropdown-item" href="{{ route('users.index') }}">
-                                            {{ __('Users') }}
-                                        </a>
-                                       
-                                    </div>
-                                </li>
-                            @elseif(Auth::user()->roles->first()->name == 'Worker')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Worker Panel') }}</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                        
-                                    </div>
-                                </li>
-                            @elseif(Auth::user()->roles->first()->name == 'Guest')
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>{{ __('Boss Panel') }}</a>
-                                    <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                      
-                                            
-                                    </div>
-                                </li>
-                            @endif
-
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-                                    <a class="dropdown-item" href="{{ route('home') }}">
-                                        {{ __('Home') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
+                            {{ __('Guest') }}
+                        @endif
+                    </span>
                 </div>
             </div>
-        </nav>
+        </div>
+
+
+            
 
         <main class="py-4">
             @yield('content')

@@ -315,11 +315,29 @@
                     </div>
                 </div>
 
-                <div class="mt-4 text-end">
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-danger" onclick="removeItem()">🗑 Прибрати</button>
                     <button type="submit" class="btn btn-success px-4">💾 Зберегти</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+    // route tasks.destroy send form method = "POST" with _method = "DELETE"
+    function removeItem() {
+        if (confirm('Ви впевнені, що хочете видалити це завдання?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route('tasks.destroy', $task->id) }}';
+            form.innerHTML = `
+                @csrf
+                @method('DELETE')
+            `;
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+    }
+</script>
 @endsection

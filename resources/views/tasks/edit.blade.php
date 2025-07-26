@@ -10,7 +10,12 @@
                 <div class="card-body">
                     <h5 class="card-title">Інформація про завдання</h5>
                     <p class="card-text">
-                        <strong>Проект:</strong> {{ $task->projects->first()->name }}<br>
+                        @if($task->projects->isNotEmpty())
+                            <strong>Проект:</strong> {{ $task->projects->first()->name }}<br>
+                        @else
+                            <strong>Проект:</strong> Не призначено<br>
+                        @endif
+                       
                         <strong>Створено:</strong> {{ $task->created_at->format('d.m.Y H:i') }}<br>
                         <strong>Останнє оновлення:</strong> {{ $task->updated_at->format('d.m.Y H:i') }}<br>
                         <strong>Створив:</strong> <strong>Створив:</strong> {{ $task->author->first()?->name ?? 'Невідомий' }}
@@ -19,7 +24,13 @@
                         <strong>Призначено бригадиру:</strong> {{ $task->brigadir->first()?->name ?? 'Не призначено' }}<br>
                     </p>
                     <div class="d-flex justify-content-end">
-                        <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-primary btn-sm me-2">👁️ Переглянути</a>
+             
+                    <button class="btn btn-sm btn-outline-secondary assign-master-btn"
+                            data-bs-toggle="modal" 
+                            data-bs-target="#assignMasterModal">
+                       👁️  Змінити
+                    </button>
+
                         <a href="{{ route('tasks.index') }}" class="btn btn-secondary btn-sm">🔙 Повернутися до списку</a>
                     </div>
                 </div>
@@ -59,7 +70,11 @@
                         <form action="{{ route('materials.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <input type="hidden" name="project_id" value="{{ $task->projects->first()->id  }}">
+                            @if($task->projects->isNotEmpty())
+                                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
+                            @else
+                                <input type="hidden" name="project_id" value="">
+                            @endif
                             <div class="modal-header">
                                 <h5 class="modal-title" id="modalLabel-{{ $task->id }}">Новий матеріал</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
@@ -125,7 +140,11 @@
                         <form action="{{ route('equipments.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <input type="hidden" name="project_id" value="{{ $task->projects->first()->id  }}">
+                            @if($task->projects->isNotEmpty())
+                                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
+                            @else
+                                <input type="hidden" name="project_id" value="">
+                            @endif
                             <div class="modal-header">
                                 <h5 class="modal-title" id="equipmentModalLabel-{{ $task->id }}">Нове обладнання</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
@@ -189,7 +208,11 @@
                         <form action="{{ route('machines.store') }}" method="POST">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
-                            <input type="hidden" name="project_id" value="{{ $task->projects->first()->id  }}">
+                            @if($task->projects->isNotEmpty())
+                                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
+                            @else
+                                <input type="hidden" name="project_id" value="">
+                            @endif
                             <div class="modal-header">
                                 <h5 class="modal-title" id="technicModalLabel-{{ $task->id }}">Нова техніка</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
@@ -257,7 +280,11 @@
             <form action="{{ route('tasks.update', $task->id) }}" method="POST" class="p-4 border rounded shadow-sm bg-light">
                 @csrf
                 @method('PUT')
-                <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
+                @if($task->projects->isNotEmpty())
+                    <input type="hidden" name="project_id" value="{{ $task->projects->first()->id }}">
+                @else
+                    <input type="hidden" name="project_id" value="">
+                @endif
 
                 <div class="row g-3">
                     <div class="col-md-4">
@@ -267,6 +294,15 @@
                     <div class="col-md-8">
                         <label class="form-label">Назва</label>
                         <input type="text" class="form-control" name="name" value="{{ $task->name }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Проект</label>
+                        <select class="form-select" name="project_id">
+                            <option value="" disabled>Оберіть проект</option>
+                            @foreach($projects as $project)
+                                <option value="{{ $project->id }}" {{ $task->projects->contains($project) ? 'selected' : '' }}>{{ $project->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Опис</label>
@@ -318,6 +354,71 @@
                 <div class="d-flex justify-content-between mt-4">
                     <button type="button" class="btn btn-danger" onclick="removeItem()">🗑 Прибрати</button>
                     <button type="submit" class="btn btn-success px-4">💾 Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Призначення виконавця -->
+<div class="modal fade" id="assignMasterModal" tabindex="-1" aria-labelledby="assignMasterModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        
+            <div class="modal-header">
+                <h5 class="modal-title" id="assignMasterModalLabel">Призначення виконавця</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+            </div>
+
+            <form method="POST" action="{{ route('tasks.assignMaster') }}" id="assignMasterForm">
+                {{-- CSRF токен --}}
+                @csrf
+                <input type="hidden" name="task_id" id="modal_task_id" value="{{ $task->id }}">
+                {{-- route current --}}
+                <input type="hidden" name="back_route" value="{{ route('tasks.edit', $task->id) }}">
+
+
+                <div class="modal-body">
+                    @if(Auth::user()->isBoss())
+                        <input type="hidden" name="role" value="master">
+                        <div class="mb-3">
+                            <label for="master_id" class="form-label">Оберіть майстра</label>
+                            <select name="master_id" id="master_id" class="form-select" required>
+                                <option value="">-- Виберіть --</option>
+                                @foreach ($masters as $master)
+                                    <option value="{{ $master->id }}">{{ $master->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                    @elseif(Auth::user()->isMaster())
+                        <input type="hidden" name="role" value="brigadir">
+                        <div class="mb-3">
+                            <label for="master_id" class="form-label">Оберіть бригадира</label>
+                            <select name="master_id" id="master_id" class="form-select" required>
+                                <option value="">-- Виберіть --</option>
+                                @foreach ($brigadirs as $brigadir)
+                                    <option value="{{ $brigadir->id }}">{{ $brigadir->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                    @elseif(Auth::user()->isBrigadir())
+                        <input type="hidden" name="role" value="worker">
+                        <div class="mb-3"> 
+                            <label for="master_id" class="form-label">Оберіть робітників</label>
+                            <select name="master_id[]" id="master_id" class="form-select" multiple required>
+                                @foreach ($workers as $worker)
+                                    <option value="{{ $worker->id }}">{{ $worker->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Призначити</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
                 </div>
             </form>
         </div>

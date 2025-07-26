@@ -161,12 +161,11 @@ class RaportController extends Controller
             $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();    
         }
 
-
-
      $raports = $this->reportForMaster($tasks);
         return view('raports.index', [
             'raports' => $raports,
             'tasks' => $tasks,
+            'projects' => $projects,
             'active_tasks' => $active_tasks,
             'paused_tasks' => $paused_tasks,
             'completed_tasks' => $completed_tasks,
@@ -183,6 +182,8 @@ class RaportController extends Controller
         $totalWorkers = collect();
         $projectIds = collect();     
         $problemsIds = collect(); 
+        $openProblems = collect();
+        $personalIds = collect();
         foreach ($tasks as $task) {
             $isPlannedToday = $task['start_date'] <= $today && $task['end_date'] >= $today;
 
@@ -210,6 +211,7 @@ class RaportController extends Controller
            $problemsIds = $problemsIds->merge($task->problems->pluck('id'));
            //openProblems
            $openProblems = $task->openProblems->pluck('id');
+           $personalIds = $personalIds->merge($task->users->pluck('id'));
         }       
         $problemsIds = $problemsIds->merge($openProblems); // об'є
         $projectIds = $projectIds->unique(); // унікальні ID
@@ -257,12 +259,16 @@ class RaportController extends Controller
                 'total_workers_today' => $totalWorkers->unique()->count(),
                 'total_workers'=> $totalWorkers->unique()->count(),
             ],
+            'tasks' => $tasks,
+            'active_tasks' => $activeTasks,
+            'inactive_tasks' => $inactiveTasks,
             'projects' => $projectIds,
             'problems' => $problemsIds->unique(),
             'active_tasks' => $activeTasks,
             'inactive_tasks' => $inactiveTasks,
             'planned_today' => $plannedTodayTasks,
             '$openProblems' => $openProblems->unique(),
+            'personals' => $personalIds->unique(),
         ];
     }
 

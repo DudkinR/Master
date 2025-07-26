@@ -24,9 +24,13 @@
         <div class="card-body">
             <div class="row text-center">
                 <div class="col">
-                    <div class="text-muted">Усього Проектів</div>
+                    <div class="text-muted">
+                        Усього Проектів / З завданнями
+
+                    </div>
                     <div class="fw-bold fs-5 text-dark">
                         <a href="{{ route('projects.index') }}" class="text-dark text-decoration-none">                            
+                        {{$projects->count()}} / 
                         {{ $raports['summary']['projects_total'] }}
                         </a>
                     </div>
@@ -80,7 +84,7 @@
                     <div class="text-muted">Всього працівників</div>
                     <div class="fw-bold fs-5 text-dark">
                         <a href="{{ route('users.index') }}" class="text-dark text-decoration-none">
-                        {{ $raports['summary']['total_workers_today'] }}
+                        {{ count($raports['personals']) }}
                         </a>
                     </div>
                     <div class="text-muted">Задіяно людей</div>
@@ -98,7 +102,9 @@
                 </div>
                 <div class="col bg-warning text-dark">
                     <div class="text-muted">Усьго проблемних питань</div>
-                    <div class="fw-bold fs-5 text-dark"></div>
+                    <div class="fw-bold fs-5 text-dark">
+                        {{ count($raports['problems']) }}
+                    </div>
                     <div class="text-muted">Проблемні завдання</div>
                     <div class="fw-bold fs-5 text-danger"></div>
                     <div class="text-muted">Проблеми з персоналом</div>

@@ -138,7 +138,7 @@ class TaskController extends Controller
              $log.= "Завдання збережено як еталон: {$task->name} ({$task->description})";
         }
 
-        $etalons = Etalon::all();
+      //  $etalons = Etalon::all();
         $project = Project::findOrFail($task->project_id);
         $project->tasks()->attach($task->id, ['status' => 'active']); // Attach task to project with default status
         $enterpriseId = Auth::user()->enterprises->pluck('id');
@@ -167,6 +167,10 @@ class TaskController extends Controller
         // Збереження матеріалів
         if (!empty($materials)) {
             foreach ($materials as $materialData) {
+                  // Пропускаємо порожні рядки
+                if (empty($materialData['name'])) {
+                    continue;
+                }
                 $material = Material::firstOrCreate(
                     ['name' => $materialData['name'], 'description' => $materialData['description'] ?? ''],
                     ['unit' => $materialData['unit'] ?? 'шт']
@@ -182,6 +186,10 @@ class TaskController extends Controller
         // Збереження обладнання
         if (!empty($equipments)) {
             foreach ($equipments as $equipmentData) {
+                // Пропускаємо порожні рядки
+                if (empty($equipmentData['name'])) {
+                    continue;
+                }
                 $equipment = Equipment::firstOrCreate(
                     ['name' => $equipmentData['name'], 'description' => $equipmentData['description'] ?? ''],
                     ['unit' => $equipmentData['unit'] ?? 'шт']
@@ -197,6 +205,10 @@ class TaskController extends Controller
         // Збереження техніки
         if (!empty($machines)) {
             foreach ($machines as $machineData) {
+                // Пропускаємо порожні рядки
+                if (empty($machineData['name'])) {
+                    continue;
+                }
                 $machine = Machine::firstOrCreate(
                     ['name' => $machineData['name'], 'description' => $machineData['description'] ?? ''],
                     ['unit' => $machineData['unit'] ?? 'шт']
@@ -211,13 +223,12 @@ class TaskController extends Controller
         // if back_route in request, redirect to that route
         if ($request->has('back_route')) {
             return redirect($request->input('back_route'))
-                            ->with('success', 'Завдання успішно створено!'. $log)
-                            ->with('etalons', $etalons);
+                            ->with('success', 'Завдання успішно створено!'. $log);
+                          ;
         }
 
         return redirect()->route('projects.show', [$project->id]) 
-                        ->with('success', 'Завдання успішно створено!'. $log)
-                        ->with('etalons', $etalons);
+                        ->with('success', 'Завдання успішно створено!'. $log);
 
 
     }
@@ -233,7 +244,16 @@ class TaskController extends Controller
         $masters = User::whereHas('roles', function ($query) {
             $query->where('name', 'Master');
         })->with('roles')->get();
-        return view('tasks.edit', compact('task', 'etalons', 'masters'));
+        //all projects department and entreprise
+        $projects = Project::with(['enterprises', 'departments'])
+           /* ->whereHas('enterprises', function ($query) {
+                $query->whereIn('id', Auth::user()->enterprises->pluck('id'));
+            })
+            ->orWhereHas('departments', function ($query) {
+                $query->whereIn('id', Auth::user()->departments->pluck('id'));
+            })*/
+            ->get();
+        return view('tasks.edit', compact('task', 'etalons', 'masters', 'projects'));
     }
     public function update(Request $request, string $id)
     {
@@ -249,8 +269,11 @@ class TaskController extends Controller
         $task->progress = $request->input('progress', 0)? $request->input('progress') : 0; // Default to 0 if not provided
         $task->quantity = $request->input('quantity', 0)? $request->input('quantity') : 0; // Default to 0 if not provided
         $task->unit = $request->input('unit')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
-        //$task->project_id = $request->input('project_id'); // Project ID is not updated here, assuming it remains the same
-        //$task->save();
+        if ($request->has('project_id')) {
+            $task->project_id = $request->input('project_id'); // Update project ID if provided
+        }
+        
+        $task->save();
 
         // Update the task in the database
         if ($task) {
@@ -326,6 +349,10 @@ class TaskController extends Controller
             foreach ($request->input('master_id') as $id) {
                 $task->users()->attach($id, ['role' => 'worker']);
             }
+        }
+        if ($request->has('back_route')) {
+            return redirect($request->input('back_route'))
+                            ->with('success', 'Успішно призначено!');
         }
 
         return redirect()->route('tasks.index')->with('success', 'Успішно призначено!');

@@ -10,7 +10,6 @@
             {{ session('status') }}
         </div>
     @endif
-
     {{-- Форма створення нового завдання --}}
     <div class="card shadow-sm mb-4">
         <div class="card-body">
@@ -33,6 +32,7 @@
                         </select>
                     </div>
 
+                    
                     {{-- Порядок і Назва --}}
                     <div class="col-md-6">
                         <label for="order" class="form-label">Порядок</label>
@@ -119,7 +119,7 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Кількість</label>
-                            <input type="number" name="materials[0][quantity]" class="form-control" value="0" min="0">
+                            <input type="number" name="materials[0][quantity]" class="form-control" value="1" min="0">
                         </div>
                         <div class="col-md-1">
                             <label class="form-label">Одиниця</label>
@@ -143,7 +143,7 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Кількість</label>
-                            <input type="number" name="equipments[0][quantity]" class="form-control" value="0" min="0">
+                            <input type="number" name="equipments[0][quantity]" class="form-control" value="1" min="0">
                         </div>
                         <div class="col-md-1">
                             <label class="form-label">Одиниця</label>
@@ -167,7 +167,7 @@
                         </div>
                         <div class="col-md-2">
                             <label class="form-label">Кількість</label>
-                            <input type="number" name="machines[0][quantity]" class="form-control" value="0" min="0">
+                            <input type="number" name="machines[0][quantity]" class="form-control" value="1" min="0">
                         </div>
                         <div class="col-md-1">
                             <label class="form-label">Одиниця</label>
@@ -194,8 +194,8 @@
             const name = input.getAttribute('name');
             const newName = name.replace(/\d+/, materialIndex);
             input.setAttribute('name', newName);
-            input.value = '';
-            if(input.type === 'number') input.value = 0;
+            input.value = 'шт';
+            if(input.type === 'number') input.value = 1;
         });
         wrapper.appendChild(newRow);
         materialIndex++;
@@ -209,8 +209,8 @@
             const name = input.getAttribute('name');
             const newName = name.replace(/\d+/, equipmentIndex);
             input.setAttribute('name', newName);
-            input.value = '';
-            if(input.type === 'number') input.value = 0;
+            input.value = 'шт';
+            if(input.type === 'number') input.value = 1;
         });
         wrapper.appendChild(newRow);
         equipmentIndex++;
@@ -224,8 +224,8 @@
             const name = input.getAttribute('name');
             const newName = name.replace(/\d+/, machineIndex);
             input.setAttribute('name', newName);
-            input.value = '';
-            if(input.type === 'number') input.value = 0;
+            input.value = 'шт';
+            if(input.type === 'number') input.value = 1;
         });
         wrapper.appendChild(newRow);
         machineIndex++;

@@ -462,11 +462,16 @@ class TaskController extends Controller
             'action_type' => 'start',
             'comment' => 'Початок роботи',                                       
         ]);
-        $users = $task->users()->wherePivot('role', ['brigadir', 'worker'])->get();
+        $users = $task->users()->with('roles')->get()->filter(function ($user) {
+            return $user->roles->contains(function ($role) {
+                return in_array($role->name, ['Brigadir', 'Worker']);
+            });
+        })->values(); // Фільтруємо користувачів, які мають роль Бригадир або Робітник
         // якщо когось не має в запиті, то додати його $request->has('worker_ids') то TaskActionLog зафіксувати проблему 
         $missingUsers = $users->whereNotIn('id', $request->worker_ids ?? []);
-        if ($missingUsers->isNotEmpty()) {
-            foreach ($missingUsers as $user) {
+        $presentUsers = $users->whereIn('id', $request->worker_ids ?? []);
+        if ($presentUsers->isNotEmpty()) {
+            foreach ($presentUsers as $user) {
                 $user = User::find($user->id);
                 if (!$user) {
                     continue; // Пропустити, якщо користувач не знайдений
@@ -480,9 +485,21 @@ class TaskController extends Controller
                 ]);
             }
         }
-        $materials = $task->materials()->get();
+        else{
+            return response()->json([
+                'success' => false,
+                'message' => 'Не вказані працівники для початку роботи'
+            ], 400);
+        }
+
+        $missingMaterials = $task->materials()->get()->filter(function ($material) use ($request) {
+            return !in_array($material->id, $request->material_ids ?? []);
+        });
+        $presentMaterials = $task->materials()->get()->filter(function ($material) use ($request) {
+            return in_array($material->id, $request->material_ids ?? []);
+        });
         // якщо не має в запиті, то додати його $request->has('material_ids') то TaskActionLog зафіксувати проблему 
-        if ($request->has('material_ids') && is_array($request->material_ids)) {
+        if ($presentMaterials->isNotEmpty()) {
             foreach ($request->material_ids as $materialId) {
                 if (!$task->materials()->where('id', $materialId)->exists()) {
                     TaskActionLog::create([
@@ -490,14 +507,24 @@ class TaskController extends Controller
                         'user_id' => Auth::id(),
                         'action_type' => 'missing_material',
                         'comment' => "Матеріал з ID $materialId не знайдено у завданні",
-                        'location' => $location, // можна передати координати
+                        'location' => is_array($request->input('location'))
+                            ? json_encode($request->input('location'))
+                            : $request->input('location'), // можна передати координати
+                        'coordinates' => is_array($request->input('coordinates'))
+                            ? json_encode($request->input('coordinates'))
+                            : $request->input('coordinates'),
                     ]);
                 }
             }
         }
-        $equipments = $task->equipments()->get();
+        $missingEquipments = $task->equipments()->get()->filter(function ($equipment) use ($request) {
+            return !in_array($equipment->id, $request->equipment_ids ?? []);
+        });
+        $presentEquipments = $task->equipments()->get()->filter(function ($equipment) use ($request) {
+            return in_array($equipment->id, $request->equipment_ids ?? []);
+        });
         // equipment_ids
-        if ($request->has('equipment_ids') && is_array($request->equipment_ids)) {
+        if ($presentEquipments->isNotEmpty()) {
             foreach ($request->equipment_ids as $equipmentId) {
                 if (!$task->equipments()->where('id', $equipmentId)->exists()) {
                     TaskActionLog::create([
@@ -505,12 +532,52 @@ class TaskController extends Controller
                         'user_id' => Auth::id(),
                         'action_type' => 'missing_equipment',
                         'comment' => "Обладнання з ID $equipmentId не знайдено у завданні",
-                        'location' => $location
+                        'location' => is_array($request->input('location'))
+                            ? json_encode($request->input('location'))
+                            : $request->input('location'), // можна передати координати
+                        'coordinates' => is_array($request->input('coordinates'))
+                            ? json_encode($request->input('coordinates'))
+                            : $request->input('coordinates'),
                     ]);
                 }
             }
         }
-            
+        // формуемо проблему (відсутність матеріалів, обладнання, людей)
+        $textProblem = '';
+        if ($missingUsers->isNotEmpty()) {
+            $textProblem .= 'Відсутні працівники: ';
+            foreach ($missingUsers as $user) {
+                $textProblem .= $user->name . ', ';
+            }
+            $textProblem = rtrim($textProblem, ', ');
+        }
+        if ($missingMaterials->isNotEmpty()) {
+                $textProblem .= 'Відсутні матеріали: ';
+                foreach ($missingMaterials as $material) {
+                    $textProblem .= $material->name . ', ';
+                }
+                $textProblem = rtrim($textProblem, ', ');
+            }
+        
+       if ($missingEquipments->isNotEmpty()) {
+            $textProblem .= 'Відсутнє обладнання: ';
+            foreach ($missingEquipments as $equipment) {
+                $textProblem .= $equipment->name . ', ';
+            }
+            $textProblem = rtrim($textProblem, ', ');
+        }
+
+        // якщо є проблеми, то створюємо проблему
+        if (!empty($textProblem)) {
+            Problem::create([
+                'task_id' => $task->id,
+                'user_id' => Auth::id(),
+                'title' => 'Виявлена проблема при початку роботи', 
+                'description' => $textProblem,
+                'status' => 'open',
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Завдання успішно розпочато',
@@ -536,6 +603,33 @@ class TaskController extends Controller
             ], 403);
         }
        $userId = Auth::id(); 
+        // перевірити що ця задача не вже розпочата отання  'action_type' !== 'paused'
+      $lastAction = TaskActionLog::where('task_id', $task->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->action_type === 'paused') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Завдання вже призупинено нещодавно. Будь ласка, зачекайте перед повторним призупиненням.'
+            ], 429);
+        }
+        // Фіксація призупинення роботи кожного працівника, хто позначений у запиті
+        if ($request->has('worker_ids') && is_array($request->worker_ids)) {
+            foreach ($request->worker_ids as $userId) {
+                TaskActionLog::create([
+                    'task_id' => $task->id,
+                    'user_id' => $userId,
+                    'action_type' => 'paused',
+                    'comment' => 'Пауза роботи',
+                    'location' => is_array($request->input('location')) 
+                        ? json_encode($request->input('location')) 
+                        : $request->input('location'), // можна передати координати 
+                    'coordinates' => is_array($request->input('coordinates')) 
+                        ? json_encode($request->input('coordinates')) 
+                        : $request->input('coordinates'),
+                ]);
+            }
+        }
       TaskAction::create([
                     'task_id' => $task->id,
                     'user_id' => $userId,
@@ -551,7 +645,7 @@ class TaskController extends Controller
     }
     public function end(Request $request, $id) ////////////////////////////////////////////
     {
-        return 1;
+      //  return 1;
         $task = Task::findOrFail($id);
         // Перевірка, чи користувач є бригадиром цього завдання
         $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
@@ -583,24 +677,37 @@ class TaskController extends Controller
                     'user_id' => $userId,
                     'action_type' => 'end',
                     'comment' => 'Завершення роботи',
-                    'location' => $request->input('location') ?? null, // можна передати
-                    'coordinates' => $request->input('coordinates') ?? null, // можна передати координати
+                    'location' => is_array($request->input('location')) 
+                        ? json_encode($request->input('location')) 
+                        : $request->input('location'), // можна передати координати 
+                    'coordinates' => is_array($request->input('coordinates')) 
+                        ? json_encode($request->input('coordinates')) 
+                        : $request->input('coordinates'),
                 ]);
-               
+            }
 
-            } TaskAction::create([
-                    'task_id' => $task->id,
-                    'user_id' => $userId,
-                    'action_type' => 'end',
-                    'comment' => 'Завершення роботи',                                       
-                ]);
+            }; 
+        TaskAction::create([
+            'task_id' => $task->id,
+            'user_id' => $userId,
+            'action_type' => 'end',
+            'comment' => 'Завершення роботи',
+            'location' => is_array($request->input('location'))
+                ? json_encode($request->input('location'))
+                : $request->input('location'), // можна передати координати
+            'coordinates' => is_array($request->input('coordinates'))
+                ? json_encode($request->input('coordinates'))
+                : $request->input('coordinates'),
+        ]);
+                
             return response()->json([
                 'success' => true,
                 'message' => 'Завдання успішно завершено',
                 'task' => $task
             ]);
-        }
+
     }
+
     public function startDay(Request $request, $id)
     {
         $task = Task::findOrFail($id);
@@ -635,7 +742,13 @@ class TaskController extends Controller
                     'user_id' => $userId,
                     'action_type' => 'start_day',
                     'comment' => 'Початок робочого дня',
-                    'location' => $request->input('location') ?? null, // можна передати координати
+                    'location' => is_array($request->input('location')) 
+                        ? json_encode($request->input('location')) 
+                        : $request->input('location'), // можна передати координати 
+                    'coordinates' => is_array($request->input('coordinates')) 
+                        ? json_encode($request->input('coordinates')) 
+                        : $request->input('coordinates'),
+                 
                 ]);
             }
         }
@@ -686,7 +799,12 @@ class TaskController extends Controller
                     'user_id' => $userId,
                     'action_type' => 'end_day',
                     'comment' => 'Завершення робочого дня',
-                    'location' => $request->input('location') ?? null, // можна передати
+                    'location' => is_array($request->input('location')) 
+                        ? json_encode($request->input('location')) 
+                        : $request->input('location'), // можна передати координати 
+                    'coordinates' => is_array($request->input('coordinates')) 
+                        ? json_encode($request->input('coordinates')) 
+                        : $request->input('coordinates'),
                 ]);
             }
         }
@@ -726,6 +844,15 @@ class TaskController extends Controller
         $task->actual_human_hours = $task->actual_human_hours + $time_human_hours; // Додаємо до фактичних людських годин
 
         $task->save();
+        $lastAction = TaskActionLog::where('task_id', $task->id)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        if ($lastAction && $lastAction->action_type === 'end') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Завдання вже завершено нещодавно. Будь ласка, зачекайте перед повторним завершенням.'
+            ], 429);
+        }
         $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
         if ($brigadir && $brigadir->id !== Auth::id()) {
             return response()->json([
@@ -733,6 +860,21 @@ class TaskController extends Controller
                 'message' => 'Тільки бригадир може завершити завдання'
             ], 403);    
         }
+        foreach($task->users as $user) {
+            TaskActionLog::create([
+                'task_id' => $task->id,
+                'user_id' => $user->id,
+                'action_type' => 'end',
+                'comment' => 'Завершення роботи',
+                'location' => is_array($request->input('location')) 
+                    ? json_encode($request->input('location')) 
+                    : $request->input('location'), // можна передати координати 
+                'coordinates' => is_array($request->input('coordinates')) 
+                    ? json_encode($request->input('coordinates')) 
+                    : $request->input('coordinates'),
+            ]);
+        }
+
         // photo_report[]
         $enterprise_id = $task->enterprises()->first()->id ?? 0;
         $department_id = $task->departments()->first()->id ?? 0;
@@ -811,6 +953,18 @@ class TaskController extends Controller
             'action_type' => 'issue',
             'comment' => 'Проблема з завданням: ' . $problem->description,                                       
         ]);
+        TaskActionLog::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'issue',
+            'comment' => 'Проблема з завданням: ' . $problem->description,
+            'location' => is_array($request->input('location')) 
+                ? json_encode($request->input('location')) 
+                : $request->input('location'), // можна передати координати 
+            'coordinates' => is_array($request->input('coordinates')) 
+                ? json_encode($request->input('coordinates')) 
+                : $request->input('coordinates'),
+        ]);
        return redirect()->route('tasks.show', $task->id)
             ->with('success', 'Проблема успішно повідомлена')
             ->with('problem', $problem);
@@ -837,6 +991,18 @@ class TaskController extends Controller
             'user_id' => Auth::id(),
             'action_type' => 'close_issue',
             'comment' => 'Проблема закрита: ' . $problem->title,                                       
+        ]);
+        TaskActionLog::create([
+            'task_id' => $task->id,
+            'user_id' => Auth::id(),
+            'action_type' => 'close_issue',
+            'comment' => 'Проблема закрита: ' . $problem->title,
+            'location' => is_array($request->input('location')) 
+                ? json_encode($request->input('location')) 
+                : $request->input('location'), // можна передати координати 
+            'coordinates' => is_array($request->input('coordinates')) 
+                ? json_encode($request->input('coordinates')) 
+                : $request->input('coordinates'),
         ]);
         return response()->json([
             'success' => true,

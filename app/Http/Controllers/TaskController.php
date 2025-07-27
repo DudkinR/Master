@@ -513,7 +513,7 @@ class TaskController extends Controller
                         'coordinates' => is_array($request->input('coordinates'))
                             ? json_encode($request->input('coordinates'))
                             : $request->input('coordinates'),
-                    ]);
+                    ]); 
                 }
             }
         }

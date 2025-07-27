@@ -117,16 +117,16 @@ function startMachine(machineId,taskId) {
         task_id: taskId,
         start_time: new Date().toISOString(),
         machine_id: machineId,
-        action_type: 'start',           
+        action_type: 'machine_start',
         location: getCoordinatesString() // або додайте GPS через navigator.geolocation
     };
     // Відправити дані на сервер
-    senddata(`{{ route('machines.start', $task->id) }}`, bodyData);
+    senddata(`{{ route('machines.start') }}`, bodyData);
     // Запустити таймер для техніки
     startMachineTimer(machineId);
 }
 
-function pauseMachine(machineId) {
+function pauseMachine(machineId, taskId) {
     const displayElement = document.getElementById(`machineTimerDisplay-${machineId}`);
     const pauseButton = document.getElementById(`pause_machine_${machineId}`);
     const startButton = document.getElementById(`start_machine_${machineId}`);
@@ -136,13 +136,14 @@ function pauseMachine(machineId) {
     endButton.classList.add('d-none');
     // Зібрати дані з форми
     const bodyData = {
-        action_type: 'pause',
+        task_id: taskId,
+        action_type: 'machine_pause',
         start_time: new Date().toISOString(),
         machine_id: machineId,
         location: getCoordinatesString() // або додайте GPS через navigator.geolocation
     };
     // Відправити дані на сервер
-    senddata(`{{ route('machines.pause', $task->id) }}`, bodyData);
+    senddata(`{{ route('machines.pause') }}`, bodyData);
     // Зупинити таймер для техніки
     pauseMachineTimer(machineId);
 }
@@ -171,7 +172,7 @@ function endMachine(machineId, taskId) {
         location: getCoordinatesString() // або додайте GPS через navigator.geolocation
     };
     // Відправити дані на сервер
-    senddata(`{{ route('machines.end', $task->id) }}`, bodyData);
+    senddata(`{{ route('machines.end') }}`, bodyData);
     // Зупинити таймер для техніки  
     pauseMachineTimer(machineId);
 }

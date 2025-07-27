@@ -100,11 +100,11 @@ Route::get('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsvForm
 Route::post('/loadcsv', [App\Http\Controllers\UserController::class, 'loadCsv'])->name('loadcsv');
 Route::get('/reports', [App\Http\Controllers\RaportController::class, 'index'])->name('reports.index')->middleware('auth.role.redirect');
 // machines.start
-Route::post('/machines/{id}/start', [MachineController::class, 'start'])->name('machines.start');
+Route::post('/machines_start', [MachineController::class, 'start'])->name('machines.start');
 // machines.stop
-Route::post('/machines/{id}/stop', [MachineController::class, 'stop'])->name('machines.end');
+Route::post('/machines_stop', [MachineController::class, 'stop'])->name('machines.end');
 // 'machines.pause
-Route::post('/machines/{id}/pause', [MachineController::class, 'pause'])->name('machines.pause');
+Route::post('/machines_pause', [MachineController::class, 'pause'])->name('machines.pause');
 // tasks.report_issue
 Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])->name('tasks.report_issue');
 // close_problem

@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use App\Models\Task;
 use App\Models\Machine;
+use App\Models\TaskActionLog;
+use App\Models\TaskAction;
+use Illuminate\Support\Facades\Auth;
 
 class MachineController extends Controller
 {
@@ -97,16 +100,87 @@ class MachineController extends Controller
         return redirect()->route('tasks.edit', $task->id)
             ->with('success', 'Machine deleted successfully!');
     }
-    public function start(Request $request, $id)
+
+    public function start(Request $request)
     {
-     return $request->all();
+         $task = Task::findOrFail($request->input('task_id'));
+        $machine = Machine::findOrFail($request->input('machine_id'));        
+        TaskActionLog::create([
+            'task_id' => $request->input('task_id'),
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_start',
+            'comment' => "Машина з ID {$machine->name} запущена",
+            'location' => null,
+            'coordinates' => null, // можна передати координати
+                ]);
+        TaskAction::create([
+            'task_id' => $request->input('task_id'),
+            'user_id' => Auth::id(),
+            'action_type' => 'start',
+            'comment' => 'Початок роботи машини ' . $machine->name,                                      
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Machine started successfully',
+            'task_id' => $request->input('task_id'),
+            'machine_id' => $machine->id,
+            'action_type' => 'start',
+            'location' => null,
+             'coordinates' => null, // можна передати координати
+        ]);
+     
     }
-    public function pause(Request $request, $id)
+    public function pause(Request $request)
     {
-        return $request->all();
+      //   return $request->all();
+        $task = Task::findOrFail($request->input('task_id'));
+        $machine = Machine::findOrFail($request->input('machine_id'));
+        TaskActionLog::create([
+            'task_id' => $request->input('task_id'),
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_pause',
+            'comment' => "Машина з ID {$machine->name} призупинена",
+           'location' => null,
+                    'coordinates' => null, // можна передати координати
+        ]);
+        TaskAction::create([
+            'task_id' => $request->input('task_id'),
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_pause',
+            'comment' => 'Призупинення роботи машини ' . $machine->name,                                      
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Machine paused successfully',
+            'task_id' => $request->input('task_id'),
+            'machine_id' => $machine->id,
+        ]);
+
     }
-    public function stop(Request $request, $id)
+    public function stop(Request $request)
     {
-        return $request->all();     
+       //  return $request->all();
+        $task = Task::findOrFail($request->input('task_id'));
+        $machine = Machine::findOrFail($request->input('machine_id'));
+        TaskActionLog::create([
+            'task_id' => $request->input('task_id'),
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_end',
+            'comment' => "Машина з ID {$machine->name} зупинена",
+            'location' => null,
+                    'coordinates' => null, // можна передати координати
+        ]);
+        TaskAction::create([
+            'task_id' => $request->input('task_id'),
+            'user_id' => Auth::id(),
+            'action_type' => 'machine_end',
+            'comment' => 'Зупинка роботи машини ' . $machine->name,                                      
+        ]);
+        return response()->json([
+            'success' => true,
+            'message' => 'Machine stopped successfully',
+            'task_id' => $request->input('task_id'),
+            'machine_id' => $machine->id,
+        ]);
     }
 }

@@ -32,7 +32,11 @@
                         multiple 
                         accept="image/*" 
                         capture="environment"
+                        id="photoInput"
                     >
+                    <!-- Замінюємо старий input на прихований, який відправиться на сервер -->
+                    <input type="hidden" name="resized_photos[]" id="resizedPhotosPlaceholder">
+
                     <small class="form-text text-muted">
                         Ви можете додати декілька фото-звітів. Максимальний розмір файлу 5 МБ.
                     </small>
@@ -72,6 +76,23 @@
 <script>
   document.getElementById('photoProblem').addEventListener('change', function() {
     document.getElementById('photoProblemSection').style.display = this.checked ? 'block' : 'none'; 
+});
+document.getElementById('photoInput').addEventListener('change', async function (event) {
+    const files = Array.from(event.target.files);
+    const resizedFiles = [];
+
+    for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+
+        const resized = await resizeImage(file, 1024, 768); // Максимальні розміри
+        resizedFiles.push(resized);
+    }
+
+    // Створюємо новий input type="file" через DataTransfer (для надсилання форми)
+    const dt = new DataTransfer();
+    resizedFiles.forEach(file => dt.items.add(file));
+
+    event.target.files = dt.files; // замінюємо original input.files
 });
 
 </script>

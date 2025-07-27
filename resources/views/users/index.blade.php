@@ -183,7 +183,8 @@
             <ul class="pagination" id="pagination"></ul>
         </nav>  
         <div class="mt-3">
-        <a href="{{ route('users.create') }}" class="btn btn-primary">Додати нового користувача</a>
+        <a href="{{ route('users.create') }}" class="btn btn-primary">Додати нового користувача</a> 
+         <a class="btn btn-info" href="{{ route('teams.index') }}">{{ __('Teams') }}</a>
         </div>
     </div>
 </div>  

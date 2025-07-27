@@ -198,4 +198,45 @@ function updateTaskStatus(status) {
 document.addEventListener('DOMContentLoaded', function() {
     updateTaskStatus({{ $task->status }});
 });
+
+// Функція ресайзу зображення
+function resizeImage(file, maxWidth, maxHeight) {
+    return new Promise(resolve => {
+        const img = new Image();
+        const reader = new FileReader();
+
+        reader.onload = function (e) {
+            img.src = e.target.result;
+        };
+
+        img.onload = function () {
+            let width = img.width;
+            let height = img.height;
+
+            // Масштабування зображення
+            if (width > maxWidth || height > maxHeight) {
+                const scale = Math.min(maxWidth / width, maxHeight / height);
+                width = width * scale;
+                height = height * scale;
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            canvas.toBlob(blob => {
+                const resizedFile = new File([blob], file.name, {
+                    type: file.type,
+                    lastModified: Date.now()
+                });
+                resolve(resizedFile);
+            }, file.type, 0.8); // 0.8 - якість JPEG (для стиснення)
+        };
+
+        reader.readAsDataURL(file);
+    });
+}
 </script>

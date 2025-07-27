@@ -39,23 +39,18 @@
         <div class="d-flex align-items-center gap-2 ms-md-auto">
             <span class="text-muted">
             @auth
-                <form action="{{ route('logout') }}" method="POST" id="logout-form" class="m-0">
-                    @csrf
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="bi bi-box-arrow-right"></i> 
-                          @if (Auth::check())
-                                {{ Auth::user()->name }}
-                                @if (isset($icons[Auth::user()->roles->first()->name]))
-                                    {{ $icons[Auth::user()->roles->first()->name] }}
-                                @endif
-                            @else
-                                {{ __('Guest') }}
-                                @if (isset($icons['Guest']))
-                                    {{ $icons['Guest'] }}
-                                @endif
-                            @endif
-                    </button>
-                </form>
+                @if (Auth::check())
+                    {{ Auth::user()->name }}
+                    @if (isset($icons[Auth::user()->roles->first()->name]))
+                        {{ $icons[Auth::user()->roles->first()->name] }}
+                    @endif
+                @else
+                    {{ __('Guest') }}
+                    @if (isset($icons['Guest']))
+                        {{ $icons['Guest'] }}
+                    @endif
+                @endif
+               
             @endauth 
          </span>
         </div>
@@ -73,11 +68,13 @@
                 @php $role = Auth::user()->roles->first()->name; @endphp
 
                 @if (in_array($role, ['Admin', 'Boss', 'Engineer', 'Master']))
-                    <a class="btn btn-info" href="{{ route('raports.index') }}">{{ __('Reports') }}</a>
+                    <a class="btn btn-info" href="{{ route('raports.index') }}">{{ __('Reports') }}</a>                    
+                    <a class="btn btn-danger" href="">{{ __('Problems') }}</a>                    
+                    <a class="btn btn-warning" href="{{ route('tasks.index') }}">{{ __('Tasks') }}</a>
                     <a class="btn btn-secondary" href="{{ route('projects.index') }}">{{ __('Projects') }}</a>
                     <a class="btn btn-success" href="{{ route('users.index') }}">{{ __('Users') }}</a>
-                    <a class="btn btn-info" href="{{ route('teams.index') }}">{{ __('Teams') }}</a>
-                    <a class="btn btn-warning" href="{{ route('tasks.index') }}">{{ __('Tasks') }}</a>
+                   
+                    
                 @elseif (in_array($role, ['Brigadir', 'Worker']))
                     <a class="btn btn-warning" href="{{ route('tasks.index') }}">{{ __('Tasks') }}</a>
                     <a class="btn btn-info" href="{{ route('task-action-logs.store') }}">{{ __('Task Action Logs') }}</a>
@@ -100,12 +97,34 @@
         <main class="py-4">
             @yield('content')
         </main>
+        </div>
+            <div class="modal-footer flex-column">
+             @auth   
+            <form action="{{ route('logout') }}" method="POST" id="logout-form" class="m-0">
+                    @csrf
+                    <button type="submit" class="btn btn-danger btn-sm">
+                        <i class="bi bi-box-arrow-right"></i> 
+                          @if (Auth::check())
+                                {{ Auth::user()->name }}
+                                @if (isset($icons[Auth::user()->roles->first()->name]))
+                                    {{ $icons[Auth::user()->roles->first()->name] }}
+                                @endif
+                            @else
+                                {{ __('Guest') }}
+                                @if (isset($icons['Guest']))
+                                    {{ $icons['Guest'] }}
+                                @endif
+                            @endif
+                    </button>
+                </form>
+            @endauth
         <audio id="alertSound" src="/sounds/alert.mp3" preload="auto"
             style="display: none;" loop="false" volume="0.5" autoplay="false" muted="false" controls="true" 
             onerror="console.error('Audio file not found or cannot be played.');" 
             oncanplaythrough="this.play();" 
             onended="this.currentTime = 0; this.pause();"
         ></audio>
+            </div>
         <script>
        /*    const url = '{{ route('moment_raports') }}'; // замініть на свій URL
             const notifications = []; // масив для зберігання сповіщень

@@ -26,6 +26,7 @@
                     multiple 
                     accept="image/*" 
                     capture="environment"
+                    id="photoInput_end_work"
                 >
                 <small class="form-text text-muted">
                     Ви можете додати декілька фото-звітів. Максимальний розмір файлу 5 МБ.
@@ -64,5 +65,22 @@
         alert('Робочий день завершено!');
        bootstrap.Modal.getInstance(document.getElementById('endWorkModal')).hide();
 
+    });
+    document.getElementById('photoInput_end_work').addEventListener('change', async function (event) {
+        const files = Array.from(event.target.files);
+        const resizedFiles = [];
+
+        for (const file of files) {
+            if (!file.type.startsWith('image/')) continue;
+
+            const resized = await resizeImage(file, 1024, 768); // Максимальні розміри
+            resizedFiles.push(resized);
+        }
+
+        // Створюємо новий input type="file" через DataTransfer (для надсилання форми)
+        const dt = new DataTransfer();
+        resizedFiles.forEach(file => dt.items.add(file));
+
+        event.target.files = dt.files; // замінюємо original input.files
     });
 </script>

@@ -112,20 +112,30 @@
                             </div>
                         </td>
                         <td>
-                            @if($project->location !== null) 
-                            @php 
-                                [$latitude, $longitude] = array_map('trim', explode(',', $project->location));
-                            @endphp
-                            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#map-{{ $project->id }}">
-                                🗺 Показати карту
-                            </button>
-                            <div id="map-{{ $project->id }}" class="collapse mt-2">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2157.4766747305384!2d{{ $longitude }}!3d{{ $latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1suk!2sua!4v1750329277888"
-                                    width="100%" height="250" style="border:0;" loading="lazy" allowfullscreen
-                                    referrerpolicy="no-referrer-when-downgrade"></iframe>
-                            </div>
+                           @php
+                                $isCoordinates = preg_match('/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/', $project->location);
+
+                           @endphp
+
+                            @if($project->location !== null && $isCoordinates)
+                                @php 
+                                    [$latitude, $longitude] = array_map('trim', explode(',', $project->location));
+                                @endphp
+                                <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#map-{{ $project->id }}">
+                                    🗺 Показати карту
+                                </button>
+                                <div id="map-{{ $project->id }}" class="collapse mt-2">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d2157.4766747305384!2d{{ $longitude }}!3d{{ $latitude }}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e1!3m2!1suk!2sua!4v1750329277888"
+                                        width="100%" height="250" style="border:0;" loading="lazy" allowfullscreen
+                                        referrerpolicy="no-referrer-when-downgrade">
+                                    </iframe>
+                                </div>
+                            @else
+                                <p class="text-muted">📍 Локація: {{ $project->location }}</p>
                             @endif
+
+
                         </td>
                     </tr>
                     @endforeach

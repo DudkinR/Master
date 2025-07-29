@@ -11,6 +11,7 @@ class Enterprise extends Model
     protected $fillable = [
         'name',
         'description',
+        'location',
     ];
     public function users()
     {

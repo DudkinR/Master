@@ -121,8 +121,12 @@ class ProjectController extends Controller
         // остолне перевіряем що їснує якщо ні то нулл
     
         $project->name = $request->input('projectName')? $request->input('projectName') : "Без назви"; // Default value if not provided
-        
-        $project->location = $request->input('location')? $request->input('location') : NULL; // Default value if not provided
+       $locationInput = $request->input('location');
+        if ($locationInput && !preg_match('/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/', $locationInput)) {
+            $project->location = $locationInput; // збережи як є
+        } else {
+            $project->location = $locationInput ?? null;
+        }
         $project->manager = $request->input('manager') ? $request->input('manager') : NULL; // Default value if not provided
         $project->start_date = $request->input('startDate') ? $request->input('startDate') : date('Y-m-d'); // Default to today if not provided
         $project->end_date = $request->input('endDate')? $request->input('endDate') : date('Y-m-d', strtotime('+1 month')); // Default to one month later if not provided
@@ -158,7 +162,8 @@ class ProjectController extends Controller
     {
         //
         $project = Project::findOrFail($id);
-        return view('projects.edit', compact('project'));
+       $enterprise_location = Auth::user()->enterprises->first()->location;
+        return view('projects.edit', compact('project', 'enterprise_location'));
     }
 
     /**

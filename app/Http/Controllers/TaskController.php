@@ -253,7 +253,10 @@ class TaskController extends Controller
                 $query->whereIn('id', Auth::user()->departments->pluck('id'));
             })*/
             ->get();
-        return view('tasks.edit', compact('task', 'etalons', 'masters', 'projects'));
+        $brigadirs = User::whereHas('roles', function ($query) {
+            $query->where('name', 'brigadir');
+        })->with('roles')->get();
+        return view('tasks.edit', compact('task', 'etalons', 'masters', 'projects', 'brigadirs'));
     }
     public function update(Request $request, string $id)
     {
@@ -989,7 +992,7 @@ class TaskController extends Controller
         TaskAction::create([
             'task_id' => $task->id,
             'user_id' => Auth::id(),
-            'action_type' => 'close_issue',
+            'action_type' => 'close_issue', //ALTER TABLE `task_actions` CHANGE `action_type` `action_type` ENUM('start','start_day','paused','start_work','end_day','complete','issue','missing_resource','machine_start','machine_pause','machine_end','close_issue') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'start';
             'comment' => 'Проблема закрита: ' . $problem->title,                                       
         ]);
         TaskActionLog::create([

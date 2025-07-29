@@ -397,9 +397,14 @@
                             <label for="master_id" class="form-label">Оберіть бригадира</label>
                             <select name="master_id" id="master_id" class="form-select" required>
                                 <option value="">-- Виберіть --</option>
-                                @foreach ($brigadirs as $brigadir)
-                                    <option value="{{ $brigadir->id }}">{{ $brigadir->name }}</option>
-                                @endforeach
+                                @if($brigadirs->isNotEmpty())
+                                    <option value="{{ $task->brigadir->first()->id }}" selected>{{ $task->brigadir->first()->name }}</option>
+                                    @foreach ($brigadirs as $brigadir)
+                                        <option value="{{ $brigadir->id }}">{{ $brigadir->name }}</option>
+                                    @endforeach
+                                @else
+                                    <option value="" disabled>Немає доступних бригадирів</option>
+                                @endif
                             </select>
                         </div>
 

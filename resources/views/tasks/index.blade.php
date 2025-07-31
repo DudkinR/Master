@@ -161,12 +161,7 @@
             : '<span class="text-muted">Не визначено</span>';
 
         card.innerHTML = `
-            <div class="card-body task-item
-
-            ${masterClassBg}
-            ${brigadirClassBg}
-            ${workersClassBg}
-            "
+            <div class="card-body task-item"
                 data-id="${task.id}"
                 data-name="${task.name}"
                 data-description="${task.description}"
@@ -185,10 +180,14 @@
                 <p class="mb-1"><strong>Статус:</strong>
                     <span class="badge ${statusClass}">${statusLabel}</span>
                 </p>
-                <p class="mb-1"><strong>Виконання:</strong> ${progressHtml}</p>
+                <div class="
+                            ${masterClassBg}
+                            ${brigadirClassBg}
+                            ${workersClassBg} p-2 rounded mb-2">
                 <p class="mb-1 ${masterClass}"><strong>Майстер:</strong> ${masterName}</p>
                 <p class="mb-1 ${brigadirClass}"><strong>Бригадир:</strong> ${brigadirName}</p>
                 <p class="mb-1  ${workersClass}"><strong>Робітники:</strong> ${workers}</p>
+                </div>
                 <div class="mt-2 text-end">
                     <button class="btn btn-sm btn-outline-secondary assign-master-btn"
                             data-bs-toggle="modal" 

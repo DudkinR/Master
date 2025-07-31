@@ -133,9 +133,12 @@
         const workers = Array.isArray(task.workers) && task.workers.length > 0
             ? task.workers.map(worker => worker.name).join(', ')
             : 'Не призначено';
-        const masterClass = masterName === 'Не призначено' ? 'text-danger' : '';
-        const brigadirClass = brigadirName === 'Не призначено' ? 'text-danger' : '';
-        const workersClass = workers === 'Не призначено' ? 'text-danger' : '';
+        const masterClass = masterName === 'Не призначено' ? 'text-light' : '';
+        const masterClassBg = masterName === 'Не призначено' ? 'bg-danger' : '';
+        const brigadirClass = brigadirName === 'Не призначено' ? 'text-light' : '';
+        const brigadirClassBg = brigadirName === 'Не призначено' ? 'bg-danger' : '';
+        const workersClass = workers === 'Не призначено' ? 'text-light' : '';
+        const workersClassBg = workers === 'Не призначено' ? 'bg-danger' : '';
         const statusMap = {
             pending: ['Очікує', 'bg-secondary'],
             in_progress: ['Виконується', 'bg-warning'],
@@ -143,6 +146,7 @@
             paused: ['Призупинено', 'bg-info'],
             end_day: ['Кінець дня', 'bg-primary'],
             start_day: ['Початок дня', 'bg-success'],
+            not_completed: ['Не укомплектовано', 'bg-danger'],
             test: ['Тестування', 'bg-info'],
         };
         const [statusLabel, statusClass] = statusMap[task.status] ?? ['Невідомо', 'bg-dark'];
@@ -157,7 +161,12 @@
             : '<span class="text-muted">Не визначено</span>';
 
         card.innerHTML = `
-            <div class="card-body task-item"
+            <div class="card-body task-item
+
+            ${masterClassBg}
+            ${brigadirClassBg}
+            ${workersClassBg}
+            "
                 data-id="${task.id}"
                 data-name="${task.name}"
                 data-description="${task.description}"

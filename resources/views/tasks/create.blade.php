@@ -96,13 +96,7 @@
                         </select>
                     </div>
 
-                    {{-- Еталонне --}}
-                    <div class="col-md-6">
-                        <div class="form-check mt-4">
-                            <input type="checkbox" class="form-check-input" id="etalon_task" name="etalon_task">
-                            <label class="form-check-label" for="etalon_task">Еталонне завдання</label>
-                        </div>
-                    </div>
+              
                 </div>
 
                 {{-- === Матеріали === --}}
@@ -194,8 +188,11 @@
             const name = input.getAttribute('name');
             const newName = name.replace(/\d+/, materialIndex);
             input.setAttribute('name', newName);
-            input.value = 'шт';
-            if(input.type === 'number') input.value = 1;
+            input.value = '';
+            if(input.type === 'text') input.value = '';
+            else if(input.type === 'number') input.value = 1;
+            else if(input.type === 'date') input.value = '';
+            else if(input.type === 'select-one') input.value = 'шт';        
         });
         wrapper.appendChild(newRow);
         materialIndex++;
@@ -209,8 +206,11 @@
             const name = input.getAttribute('name');
             const newName = name.replace(/\d+/, equipmentIndex);
             input.setAttribute('name', newName);
-            input.value = 'шт';
-            if(input.type === 'number') input.value = 1;
+            input.value = '';
+            if(input.type === 'text') input.value = '';
+            else if(input.type === 'number') input.value = 1;
+            else if(input.type === 'date') input.value = '';
+            else if(input.type === 'select-one') input.value = 'шт';
         });
         wrapper.appendChild(newRow);
         equipmentIndex++;
@@ -224,8 +224,11 @@
             const name = input.getAttribute('name');
             const newName = name.replace(/\d+/, machineIndex);
             input.setAttribute('name', newName);
-            input.value = 'шт';
-            if(input.type === 'number') input.value = 1;
+            input.value = '';
+            if(input.type === 'text') input.value = '';
+            else if(input.type === 'number') input.value = 1;
+            else if(input.type === 'date') input.value = '';
+            else if(input.type === 'select-one') input.value = 'шт';
         });
         wrapper.appendChild(newRow);
         machineIndex++;

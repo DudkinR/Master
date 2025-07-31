@@ -117,13 +117,11 @@ class TaskController extends Controller
         $task->end_date = $request->input('end_date')? $request->input('end_date') : now()->addDays(7); // Default to 7 days from now if not provided
         $task->estimated_hours = $request->input('estimated_hours')? $request->input('estimated_hours') : 0; // Default to 0 if not provided
         $task->actual_hours = $request->input('actual_hours')? $request->input('actual_hours') : 0; // Default to 0 if not provided
-
         $task->progress = $request->input('progress', 0)? $request->input('progress') : 0; // Default to 0 if not provided
         $task->quantity = $request->input('quantity', 0)? $request->input('quantity') : 0; // Default to 0 if not provided
         $task->unit = $request->input('unit')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
         $task->project_id = $request->input('project_id')? $request->input('project_id') : null; // Default to null if not provided
         $task->save();
-
         if(isset($request->etalon_task)){
             if(!Etalon::where('name', $task->name)->where('description', $task->description)->exists()) {
                 $etalon = new Etalon();
@@ -137,34 +135,31 @@ class TaskController extends Controller
             }
              $log.= "Завдання збережено як еталон: {$task->name} ({$task->description})";
         }
-
-      //  $etalons = Etalon::all();
+        //  $etalons = Etalon::all();
         $project = Project::findOrFail($task->project_id);
         $project->tasks()->attach($task->id, ['status' => 'active']); // Attach task to project with default status
         $enterpriseId = Auth::user()->enterprises->pluck('id');
         $departmentId = Auth::user()->departments->pluck('id');
         $task->enterprises()->sync($enterpriseId);
         $task->departments()->sync($departmentId);
-
         // Прив’язка користувачів до завдання auth()->id is author 
         $task->users()->attach(Auth::id(), ['role' => 'author']); // Assuming the creator is a master
-
         // Прив’язка завдання до проекту з додатковими даними
         $project = Project::findOrFail($task->project_id);
         $project->tasks()->attach($task->id, ['status' => 'active']);
-
         // Прив’язка підрозділів і підприємств (як у вашому коді)
         $enterpriseIds = Auth::user()->enterprises->pluck('id');
         $departmentIds = Auth::user()->departments->pluck('id');
         $task->enterprises()->sync($enterpriseIds);
         $task->departments()->sync($departmentIds);
-
+        // якщо автор мастер то назначаємо йому це завдання
+        if (Auth::user()->hasRole('Master')) {
+            $task->users()->attach(Auth::id(), ['role' => 'master']);
+        }
         $materials = $request->input('materials', []);
         $equipments = $request->input('equipments', []);
         $machines = $request->input('machines', []);
-
-
-        // Збереження матеріалів
+        // Збереження матеріалів, обладнання та техніки        
         if (!empty($materials)) {
             foreach ($materials as $materialData) {
                   // Пропускаємо порожні рядки

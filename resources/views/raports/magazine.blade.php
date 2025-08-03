@@ -15,9 +15,17 @@
         <div class="col-md-3">
             <input type="date" id="searchDate" class="form-control" placeholder="Дата">
         </div>
-        <div class="col-md-3 text-end">
+        <div class="col-md-1 text-end">
+            
             <button class="btn btn-primary" onclick="resetFilters()">Скинути фільтри</button>
         </div>
+        <div class="col-md-1 text-end">
+            <button class="btn btn-secondary" onclick="exportToExcel()">Excel</button>
+        </div>
+        <div class="col-md-1 text-end">
+            <button class="btn btn-secondary" onclick="exportToPDF()">PDF</button>
+        </div>
+        
     </div>
 
     <table class="table table-sm table-bordered table-hover" id="magazine-table">
@@ -38,9 +46,7 @@
 
 <script>
 const logs = @json($recentLogs);
-</script>
 
-<script>
 // Обробка даних
 let data = logs.map(log => {
     return {
@@ -119,6 +125,59 @@ document.getElementById('searchDate').addEventListener('change', filterTable);
 
 // Початковий рендер
 renderTable(data);
+
+function exportToExcel() {
+    exportData('{{ route('export.excel') }}');
+}
+
+function exportToPDF() {
+    exportData('{{ route('export.pdf') }}');
+}
+function exportData(url) {
+    const searchAction = document.getElementById('searchAction').value.toLowerCase();
+    const searchName = document.getElementById('searchName').value.toLowerCase();
+    const searchDate = document.getElementById('searchDate').value;
+
+    const filtered = data.filter(row => {
+        return (
+            row.comment.toLowerCase().includes(searchAction) &&
+            row.user.toLowerCase().includes(searchName) &&
+            (searchDate === '' || row.date === new Date(searchDate).toLocaleDateString('uk-UA'))
+        );
+    });
+
+    // Підготовка formData
+    const formData = new FormData();
+    formData.append('_token', '{{ csrf_token() }}');
+    formData.append('data', JSON.stringify(filtered));
+    console.log('Exporting data:', filtered);
+
+    fetch(url, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Помилка при експорті');
+        return response.blob();
+    })
+    .then(blob => {
+        // Завантаження файлу
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = url.includes('excel') ? 'журнал.xlsx' : 'журнал.pdf';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+    })
+    .catch(error => {
+        console.error('Помилка експорту:', error);
+        alert('Не вдалося експортувати файл.');
+    });
+}
+
 </script>
 
 @endsection

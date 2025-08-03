@@ -77,6 +77,20 @@ class TaskController extends Controller
         }
         elseif(Auth::user()->roles->first()->name ==="Brigadir")
         {
+
+            $active_tasks = Task::whereHas('users', function ($query) {
+                $query->where('role', 'brigadir')
+                      ->where('user_id', Auth::id());
+            })->where('status', '=', 'in_progress')->get();
+            if(!$active_tasks->isEmpty()) {
+                $task = $active_tasks->first();                 
+                $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($task->id);
+                // Розрахунок витраченого часу
+                $timeSpent = $task->actual_hours;
+                $problems = Problem::where('task_id', $task->id)->get();
+                return view('tasks.show', compact('task', 'timeSpent', 'problems'));
+            }
+            
             $tasks = Task::whereHas('users', function ($query) {
                 $query->where('role', 'brigadir')
                       ->where('user_id', Auth::id());
@@ -373,7 +387,7 @@ class TaskController extends Controller
         $task = Task::findOrFail($id)
             ->load('users'); // Завантажити користувачів та проект
         // повернути view з завданням
-        return $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
+        $brigadir = $task->users()->wherePivot('role', 'brigadir')->first();
         $workers = User::whereHas('roles', function ($query) {
             $query->where('name', 'worker');
         })->with('roles')->get();

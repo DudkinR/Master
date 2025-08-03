@@ -39,7 +39,7 @@
                                 </div>
                                 <div class="row g-2 mb-2">
                                     <div class="col-6">
-                                        <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="0" required>
+                                        <input type="number" class="form-control" name="quantity" placeholder="Кількість" value="1" required>
                                     </div>
                                     <div class="col-6">
                                         <input type="text" class="form-control" name="unit" placeholder="Одиниця" required  value="шт">

@@ -5,6 +5,15 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Task;
+use App\Models\User;
+use App\Models\Problem;
+use App\Models\Enterprise;
+use App\Models\Department;
+use App\Models\Equipment;
+use App\Models\Material;
+use App\Models\Machine;
+use App\Models\Project;
+use App\Models\Role;
 use App\Models\TaskActionLog;
 use Carbon\Carbon;
 
@@ -39,6 +48,18 @@ class TaskActionLogController extends Controller
         }
         elseif(Auth::user()->roles->first()->name ==="Brigadir")
         {
+            $active_tasks = Task::whereHas('users', function ($query) {
+                $query->where('role', 'brigadir')
+                      ->where('user_id', Auth::id());
+            })->where('status', '=', 'in_progress')->get();
+            if(!$active_tasks->isEmpty()) {
+                $task = $active_tasks->first();                 
+                $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($task->id);
+                // Розрахунок витраченого часу
+                $timeSpent = $task->actual_hours;
+                $problems = Problem::where('task_id', $task->id)->get();
+                return view('tasks.show', compact('task', 'timeSpent', 'problems'));
+            }
            $personal= Auth::user()->children()->with('roles')->get();
 
         }

@@ -38,6 +38,14 @@ class MachineController extends Controller
             'description' => 'nullable|string',
             'unit' => 'required|string|max:255',
         ]);
+        $find_old_copy = Machine::where('name', $validated['name'])->whereHas('tasks', function ($query) use ($request) {
+            $query->where('tasks.id', $request->input('task_id'));
+        })->first();
+        if ($find_old_copy) {
+            return redirect()->back()
+                ->with('error', 'Machine with this name already exists!')
+                ->withInput(['task_id' => $request->input('task_id')]);
+        }
         $machine = new Machine();
         $machine->name = $validated['name'];
         $machine->description = $validated['description'];
@@ -47,7 +55,7 @@ class MachineController extends Controller
             'quantity' => $request->input('quantity', 0), // Default to 0
             'unit' => $request->input('unit', 'шт'), // Default to 'шт'
         ]);
-        $project = Project::findOrFail($request->input('project_id'));
+        //$project = Project::findOrFail($request->input('project_id'));
         if ($request->input('views') && $request->input('views') === 'showtask') {
             
             return redirect()->route('tasks.show', $task->id)

@@ -6,6 +6,11 @@ use Illuminate\Http\Request;
 use App\Models\Task;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\Problem;
+use App\Exports\MagazineExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -132,7 +137,19 @@ class RaportController extends Controller
             $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
             $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
             $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
-
+            $active_tasks = Task::whereHas('users', function ($query) {
+                $query->where('role', 'brigadir')
+                      ->where('user_id', Auth::id());
+            })->where('status', '=', 'in_progress')->get();
+            if(!$active_tasks->isEmpty()) {
+                $task = $active_tasks->first();                 
+                $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($task->id);
+                // Розрахунок витраченого часу
+                $timeSpent = $task->actual_hours;
+                $problems = Problem::where('task_id', $task->id)->get();
+                return view('tasks.show', compact('task', 'timeSpent', 'problems'));
+            }
+             
         }
         elseif(Auth::user()->roles->first()->name ==="Worker")
         {
@@ -340,6 +357,24 @@ class RaportController extends Controller
         return null;
     }
    
-
-
+    public function exportExcel(Request $request)
+    {
+        // decode to massive
+       $data = json_decode($request->input('data'), true);
+        if (empty($data)) {
+            return response()->json(['message' => 'No data provided for export'], 400);
+        }
+        return Excel::download(new MagazineExport(collect($data)), 'журнал.xlsx');
+    }
+    public function exportPDF(Request $request)
+    {
+         $data = json_decode($request->input('data'), true);
+        if (empty($data)) {
+            return response()->json(['message' => 'No data provided for export'], 400);
+        }
+        $pdf = Pdf::loadView('exports.magazine_pdf', ['data' => $data])
+          ->setPaper('A4', 'portrait')
+          ->setOptions(['defaultFont' => 'DejaVu Sans']);
+        return $pdf->download('журнал.pdf');
+    }
 }

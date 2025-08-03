@@ -36,7 +36,16 @@ class MaterialController extends Controller
             'description' => 'nullable|string',
             'unit' => 'required|string|max:255',
         ]);
-
+        $find_old_copy = Material::where('name', $validated['name'])
+        ->whereHas('tasks', function ($query) use ($request) {
+            $query->where('tasks.id', $request->input('task_id'));
+        })
+        ->first();
+        if ($find_old_copy) {
+            return redirect()->back()
+                ->with('error', 'Material with this name already exists!')
+                ->withInput(['task_id' => $request->input('task_id')]);
+        }
         $Material = new \App\Models\Material();
         $Material->name = $validated['name'];
         $Material->description = $validated['description'];
@@ -47,7 +56,7 @@ class MaterialController extends Controller
             'quantity' => $request->input('quantity', 0), // Default to 0
             'unit' => $request->input('unit', 'шт'), // Default to 'шт'
         ]);
-        $project = Project::findOrFail($request->input('project_id'));
+     //   $project = Project::findOrFail($request->input('project_id'));
           if ($request->input('views') && $request->input('views') === 'showtask') {
             
             return redirect()->route('tasks.show', $task->id)

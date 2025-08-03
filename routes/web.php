@@ -37,13 +37,8 @@ Auth::routes();
 Route::get('/test-error', function () {
     abort(400); // Або 500, 400, 403
 });
-
-
-
 Route::middleware(['auth'])->group(function () {
-    // Додайте тут маршрути, які потребують автентифікації
-
-
+// Додайте тут маршрути, які потребують автентифікації
 // resourse routes projects, equipment, tasks, roles , materials , machines, tasks
 Route::resource('projects', ProjectController::class);
 Route::resource('equipments', EquipmentController::class);
@@ -111,7 +106,6 @@ Route::post('/tasks/{id}/report_issue', [TaskController::class, 'reportIssue'])-
 Route::post('/close_issue', [TaskController::class, 'closeIssue'])->name('close_problem');
 // пост tasks.complete
 Route::post('/tasksComplete', [TaskController::class, 'complete'])->name('tasks.complete');
-
 // tasks.startDay *********************************
 Route::post('/tasks/{id}/startDay', [TaskController::class, 'startDay'])->name('tasks.startDay');
 // tasks.endDay
@@ -135,8 +129,21 @@ Route::post('/tasksstart',  [TaskController::class, 'start'])->name('tasks.start
 Route::get('/task-action-logs', [TaskActionLogController::class,  'magazine'])->name('task-action-logs.store');
 // task_repeat/7
 Route::get('/task_repeat/{id}', [TaskController::class, 'repeat'])->name('task_repeat');
-});
+///export/excel
+Route::post('/export/excel', [RaportController::class, 'exportExcel'])->name('export.excel');
+//export/pdf
+Route::post('/export/pdf', [RaportController::class, 'exportPdf'])->name('export.pdf');
+//export/csv
+Route::post('/export/csv', [RaportController::class, 'exportCsv'])->name('export.csv');
 
-Route::any('/test',  [TaskController::class, 'test'])->name('test');
+});
+Route::any('/test', 
+function () {
+    $user = "DudkinRomanE";
+    $telegram ="8386059263:AAE205g6EdOfI7CvuGithXF9R1afmjJR8i0";
+  $message = "Test message from Laravel";
+    
+}
+)->name('test');
 /// moment_raports()
 Route::any('/moment_raports', [RaportController::class, 'moment_raports'])->name('moment_raports');

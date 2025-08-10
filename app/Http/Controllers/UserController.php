@@ -176,7 +176,6 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-
         $user = User::findOrFail($id);
         $user->name = $request->input('name');
         $user->email = $request->input('email');
@@ -225,6 +224,15 @@ class UserController extends Controller
                 $user->children()->attach($subordinate);
             }
         } 
+        if(Auth::user()->hasRole('Admin'))
+            $user->departments()->sync($request->input('department'));
+            $user->enterprises()->sync($request->input('enterprise'));
+            if($request->has('password') && $request->input('password') !== '') {
+                $user->password = bcrypt($request->input('password'));
+            } else {
+                $user->password = $user->getAuthPassword(); // Залишаємо поточний пароль, якщо не вказано нового
+            }
+
         return redirect()->route('users.index')->with('success', 'User updated successfully.');
     }
 

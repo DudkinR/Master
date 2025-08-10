@@ -7,6 +7,8 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\MachineController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EnterpriseController;
 // TaskActionLogController
 use App\Http\Controllers\TaskActionLogController;
 //RaportController
@@ -135,14 +137,40 @@ Route::post('/export/excel', [RaportController::class, 'exportExcel'])->name('ex
 Route::post('/export/pdf', [RaportController::class, 'exportPdf'])->name('export.pdf');
 //export/csv
 Route::post('/export/csv', [RaportController::class, 'exportCsv'])->name('export.csv');
-
+/// enterprises.create
+Route::get('/enterprises/create', [EnterpriseController::class, 'create'])->name('enterprises.create');
+Route::post('/enterprises', [EnterpriseController::class, 'store'])->name('enterprises.store');
+Route::get('/enterprises', [EnterpriseController::class, 'index'])->name('enterprises.index');
+Route::get('/enterprises/{id}', [EnterpriseController::class, 'show'])->name('enterprises.show');
+Route::get('/enterprises/{id}/edit', [EnterpriseController::class, 'edit'])->name('enterprises.edit');
+Route::put('/enterprises/{id}', [EnterpriseController::class, 'update'])->name('enterprises.update');
+Route::delete('/enterprises/{id}', [EnterpriseController::class, 'destroy'])->name('enterprises.destroy');
+// departments
+Route::get('/departments', [DepartmentController::class, 'index'])->name('departments.index');
+Route::get('/departments/create', [DepartmentController::class, 'create'])->name('departments.create');
+Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
+Route::get('/departments/{id}', [DepartmentController::class, 'show'])->name('departments.show');
+Route::get('/departments/{id}/edit', [DepartmentController::class, 'edit'])->name('departments.edit');
+Route::put('/departments/{id}', [DepartmentController::class, 'update'])->name('departments.update');
+Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+// connect.departments
 });
 Route::any('/test', 
 function () {
     $user = "DudkinRomanE";
+    $chatId = "";
     $telegram ="8386059263:AAE205g6EdOfI7CvuGithXF9R1afmjJR8i0";
   $message = "Test message from Laravel";
-    
+    $response = Http::post("https://api.telegram.org/bot{$botToken}/sendMessage", [
+        'chat_id' => $chatId,
+        'text' => $message,
+    ]);
+
+    if ($response->successful()) {
+        return "Повідомлення успішно відправлено!";
+    } else {
+        return "Помилка відправки: " . $response->body();
+    } 
 }
 )->name('test');
 /// moment_raports()

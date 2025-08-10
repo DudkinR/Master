@@ -29,6 +29,7 @@ class RaportController extends Controller
             $completed_tasks = Task::where('status', 'completed')->with(['users', 'equipments', 'materials', 'machines'])->get();
             $end_day_tasks = Task::where('end_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
             $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();
+            $projects = Project::with(['enterprises', 'departments'])->get();
         }
         elseif(Auth::user()->roles->first()->name ==="Boss")
         {

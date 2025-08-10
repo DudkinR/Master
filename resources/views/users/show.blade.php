@@ -113,6 +113,37 @@
                         </select>
                         <small class="form-text text-muted">Виберіть підлеглих користувача. Ви можете вибрати декілька користувачів.</small>
                     </div>
+                    @if(Auth::user()->hasRole('Admin'))
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Новий пароль (залиште порожнім, якщо не хочете змінювати)">
+                    </div>
+                    {{-- Enterprise select --}}
+                        @php 
+                            $enterprises = \App\Models\Enterprise::all();
+                        @endphp
+                    <div class="mb-3">
+                        <label for="enterprise" class="form-label">Підприємство</label>
+                        <select class="form-select" id="enterprise" name="enterprise">
+                            <option value="">Не вказано</option>
+                            @foreach($enterprises as $enterprise)
+                                <option value="{{ $enterprise->id }}" @if($user->enterprises[0]->id === $enterprise->id) selected @endif>{{ $enterprise->name }}</option>
+                            @endforeach
+                        </select>
+                        <a href="{{ route('enterprises.create') }}" class="btn btn-success">Додати нове підприємство</a>
+                    </div>
+                    {{-- Department  select --}}
+                    <div class="mb-3">
+                        <label for="department" class="form-label">Відділ</label>
+                        <select class="form-select" id="department" name="department">
+                            <option value="">Не вказано</option>
+                            @foreach($departments as $department)
+                                <option value="{{ $department->id }}" @if($user->departments[0]->id === $department->id) selected @endif>{{ $department->name }}</option>
+                            @endforeach
+                        </select>
+                        <a href="{{ route('departments.create') }}" class="btn btn-success">Додати новий відділ</a>
+                    </div>
+                    @endif
 
                     <button type="submit" class="btn btn-primary">Зберегти зміни</button>
                 </form>

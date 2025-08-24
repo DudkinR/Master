@@ -30,7 +30,8 @@
                     </div>
                     <div class="fw-bold fs-5 text-dark">
                         <a href="{{ route('projects.index') }}" class="text-dark text-decoration-none">                            
-                        {{$projects->count()}} / 
+                        {{isset($projects) ? $projects->count() : 0 }}
+                         / 
                         {{ $raports['summary']['projects_total'] }}
                         </a>
                     </div>

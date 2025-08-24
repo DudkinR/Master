@@ -40,9 +40,16 @@
                         <div class="row mb-3">
                             <label for="enterprise" class="col-md-4 col-form-label text-md-end">{{ __('Enterprise') }}</label>
                             <div class="col-md-6">
-                                <input id="enterprise" type="text" class="form-control @error('enterprise') is-invalid @enderror" name="enterprise_text" value="ХАЕС" required autocomplete="enterprise">
-                                <input id="enterprises" type="hidden" name="enterprise" value="1">
-                                <small class="form-text text-muted">Enter the name of your enterprise.</small>
+                                <select name="enterprise" id="enterprise">
+                                    <option value="" disabled {{ old('enterprise') ? '' : 'selected' }}></option>
+                                    @foreach($enterprises as $enterprise)
+                                        <option value="{{ $enterprise->id }}"
+                                            @if(old('enterprise') == $enterprise->id) selected @endif>
+                                            {{ $enterprise->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">{{ __('Enter the name of your enterprise.') }}</small>
                                 @error('enterprise')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -53,9 +60,16 @@
                          <div class="row mb-3">
                             <label for="department" class="col-md-4 col-form-label text-md-end">{{ __('Department') }}</label>
                             <div class="col-md-6">
-                                <input id="department" type="text" class="form-control @error('department') is-invalid @enderror" name="department" value="РБУ ЕРП" required autocomplete="department">
-                                <input id="departments" type="hidden" name="department" value="1">
-                                <small class="form-text text-muted">Enter the name of your department.</small>
+                                <select name="department" id="department">
+                                    <option value="" disabled {{ old('department') ? '' : 'selected' }}></option>
+                                    @foreach($departments as $department)
+                                        <option value="{{ $department->id }}"
+                                            @if(old('department') == $department->id) selected @endif>
+                                            {{ $department->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="form-text text-muted">{{ __('Enter the name of your department.') }}</small>
                                 @error('department')
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $message }}</strong>
@@ -93,7 +107,7 @@
                         <div class="row mb-3">
                             <label for="position" class="col-md-4 col-form-label text-md-end">{{ __('Position') }}</label>  
                             <div class="col-md-6">
-                                <input id="position" type="text" class="form-control @error('position') is-invalid @enderror" name="position" value="{{ old('position') }}" required autocomplete="position">
+                                <input id="position" type="text" class="form-control @error('position') is-invalid @enderror" name="position" value="{{ old('position') }}"  autocomplete="position">
                                 <small class="form-text text-muted">Enter your position.</small>
                                 @error('position')
                                     <span class="invalid-feedback" role="alert">
@@ -106,9 +120,9 @@
                             <label for="status" class="col-md-4 col-form-label text-md-end">{{ __('Status') }}</label>
                             <div class="col-md-6">
                                 <select id="status" class="form-select @error('status') is-invalid @enderror" name="status">
-                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
-                                  <option value="sick" {{ old('status') == 'sick' ? 'selected' : '' }}>Sick</option>
-                                    <option value="vacation" {{ old('status') == 'vacation' ? 'selected' : '' }}>Vacation</option>
+                                    <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>{{ __('Active') }}</option>
+                                    <option value="sick" {{ old('status') == 'sick' ? 'selected' : '' }}>{{ __('Sick') }}</option>
+                                    <option value="vacation" {{ old('status') == 'vacation' ? 'selected' : '' }}>{{ __('Vacation') }}</option>
                                 </select>
                                     @error('status')
                                     <span class="invalid-feedback" role="alert">
@@ -121,7 +135,7 @@
                          <div class="row mb-3">
                             <label for="phone" class="col-md-4 col-form-label text-md-end">{{ __('Phone') }}</label>
                             <div class="col-md-6">
-                                <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" required autocomplete="phone">
+                                <input id="phone" type="text" class="form-control @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}"  autocomplete="phone">
                                 <small class="form-text text-muted">Enter your phone number.</small>
                                 @error('phone')
                                     <span class="invalid-feedback" role="alert">

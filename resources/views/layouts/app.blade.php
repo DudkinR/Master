@@ -82,6 +82,10 @@
 
                 @if ($role === 'Admin')
                     <a class="btn btn-secondary" href="{{ route('loadcsv.form') }}">{{ __('Load CSV') }}</a>
+                    {{--enterprises.index--}}
+                    <a class="btn btn-secondary" href="{{ route('enterprises.index') }}">{{ __('Enterprises') }}</a>
+                    {{--departments.index--}}
+                    <a class="btn btn-secondary" href="{{ route('departments.index') }}">{{ __('Departments') }}</a>
                 @endif
             @endguest
         </div>
@@ -125,6 +129,12 @@
             onended="this.currentTime = 0; this.pause();"
         ></audio>
             </div>
+            @impersonating
+            <a href="{{ route('impersonate.leave') }}" class="btn btn-warning">
+                Повернутись у свій профіль
+            </a>
+            @endImpersonating
+
         <script>
        /*    const url = '{{ route('moment_raports') }}'; // замініть на свій URL
             const notifications = []; // масив для зберігання сповіщень

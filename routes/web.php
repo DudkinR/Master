@@ -13,6 +13,7 @@ use App\Http\Controllers\EnterpriseController;
 use App\Http\Controllers\TaskActionLogController;
 //RaportController
 use App\Http\Controllers\RaportController;
+use Lab404\Impersonate\Models\Impersonate;
 
 
 Route::get('/',  [App\Http\Controllers\HomeController::class, 'index']);
@@ -40,6 +41,9 @@ Route::get('/test-error', function () {
     abort(400); // Або 500, 400, 403
 });
 Route::middleware(['auth'])->group(function () {
+
+Route::impersonate();
+
 // Додайте тут маршрути, які потребують автентифікації
 // resourse routes projects, equipment, tasks, roles , materials , machines, tasks
 Route::resource('projects', ProjectController::class);
@@ -73,6 +77,7 @@ Route::get('/brigadir', [App\Http\Controllers\BrigadirController::class, 'index'
 Route::get('/master', [App\Http\Controllers\MasterController::class, 'index'])->name('master.index');
 // worker.index
 Route::get('/worker', [App\Http\Controllers\WorkerController::class, 'index'])->name('worker.index');
+
 // users
 Route::any('/users', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
 // user.show
@@ -87,6 +92,7 @@ Route::delete('/users/{id}', [App\Http\Controllers\UserController::class, 'destr
 Route::get('/usersnew', [App\Http\Controllers\UserController::class, 'create'])->name('users.create');
 // user.store
 Route::post('/usersnew', [App\Http\Controllers\UserController::class, 'store'])->name('usersstore');
+
 // teams.index
 Route::get('/Formteams', [App\Http\Controllers\UserController::class, 'Form_teams'])->name('teams.index');
 // // connect.users post
@@ -137,6 +143,8 @@ Route::post('/export/excel', [RaportController::class, 'exportExcel'])->name('ex
 Route::post('/export/pdf', [RaportController::class, 'exportPdf'])->name('export.pdf');
 //export/csv
 Route::post('/export/csv', [RaportController::class, 'exportCsv'])->name('export.csv');
+
+
 /// enterprises.create
 Route::get('/enterprises/create', [EnterpriseController::class, 'create'])->name('enterprises.create');
 Route::post('/enterprises', [EnterpriseController::class, 'store'])->name('enterprises.store');

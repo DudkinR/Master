@@ -49,7 +49,7 @@ class UserController extends Controller
             $users = User::with(['roles', 'departments', 'enterprises', 'children'])
                 ->whereIn('id', $allSubordinates->pluck('id'))
                 ->orWhere('id', $user->id) // Додаємо самого користувача
-                ;
+                ->orderBy('name', 'asc')->get();
             break;
         case 'Master':
              $children = $user->children; // 1 рівень підлеглих
@@ -58,7 +58,7 @@ class UserController extends Controller
             $users = User::with(['roles', 'departments', 'enterprises', 'children'])
                 ->whereIn('id', $allSubordinates->pluck('id'))
                 ->orWhere('id', $user->id) // Додаємо самого користувача
-                ;
+               ->orderBy('name', 'asc')->get();
 
         case 'Brigadir':
              $children = $user->children; // 1 рівень підлеглих
@@ -67,7 +67,7 @@ class UserController extends Controller
             $users = User::with(['roles', 'departments', 'enterprises', 'children'])
                 ->whereIn('id', $allSubordinates->pluck('id'))
                 ->orWhere('id', $user->id) // Додаємо самого користувача
-                ;
+                ->orderBy('name', 'asc')->get();
             break;
 
         case 'Engineer':
@@ -77,11 +77,11 @@ class UserController extends Controller
             $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users);
             $users = $users->whereHas('roles', function ($query) {
                 $query->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker']);
-            });
+            })->orderBy('name', 'asc')->get();
             break;
-        case 'Admin':    
-        
-            $users = User::with(['roles', 'departments', 'enterprises', 'children']);
+        case 'Admin':
+
+            $users = User::orderBy('name', 'asc')->get();
             break;
         default:
             // Якщо роль не визначена, то просто пустий результат
@@ -89,12 +89,12 @@ class UserController extends Controller
             -> whereDoesntHave('supervisors') // Отримуємо користувачів без супервізорів
             ->whereHas('roles', function ($query) {
                 $query->whereIn('roles.name', ['Boss', 'Master', 'Brigidir', 'Worker']);
-            });
+            })->orderBy('name', 'asc')->get();
             break;
     }
 
     // Завантаження
-     $users = $users->get(); 
+    // $users = $users->get(); 
 
     return view('users.index', compact('users', 'enterprises', 'departments', 'roles'));
 }
@@ -106,9 +106,21 @@ class UserController extends Controller
     public function create()
     {
         //
-        $enterprises = Enterprise::all();
-        $departments = Department::all();
-        $roles = Role::all();
+        $role = Auth::user()->roles->first()->name; 
+        if($role === 'Admin')
+        {
+            $enterprises = Enterprise::all();
+            $departments = Department::all();
+            $roles = Role::all();
+        }
+        else{
+            $enterprises = Auth::user()->enterprises;
+            $departments = Auth::user()->departments;
+            // without Admin
+            $roles = Role::where('name', '!=', 'Admin')->get();
+
+        }
+        
         return view('users.create', compact('enterprises', 'departments', 'roles'));    
     }
 
@@ -278,7 +290,7 @@ class UserController extends Controller
             ->orderBy('roles.id')
             ->get();
 
-    }
+     }
 
         if(Auth::user()->roles->first()->name ==="Boss" ||Auth::user()->roles->first()->name ==="Engineer") 
         {

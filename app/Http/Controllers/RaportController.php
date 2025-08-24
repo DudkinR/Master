@@ -179,6 +179,10 @@ class RaportController extends Controller
             $start_day_tasks = Task::where('start_date', Carbon::today())->with(['users', 'equipments', 'materials', 'machines'])->get();    
         }
 
+        if(!isset($projects)) {
+            $projects = collect();
+        }
+
      $raports = $this->reportForMaster($tasks);
         return view('raports.index', [
             'raports' => $raports,

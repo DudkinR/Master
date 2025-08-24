@@ -31,6 +31,11 @@
         <div class="row mb-3">
             <div class="col-md-12">
                 <a href="{{ route('users.index') }}" class="btn btn-secondary">Повернутися до списку користувачів</a>
+               
+                    <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm btn-primary">
+                        Увійти як {{ $user->name }}
+                    </a>
+             
             </div>
         </div>
         <!-- Форма редагування користувача -->

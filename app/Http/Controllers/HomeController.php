@@ -45,7 +45,7 @@ class HomeController extends Controller
             return redirect()->route('raports.index');
         }
         if(Auth::user()->roles->first()->name== 'Worker'){
-            return view('reports.index_guest');
+            return view('raports.index_worker');
         }
         if(Auth::user()->roles->first()->name== 'Admin'){
             // Redirect to the route raports.index 

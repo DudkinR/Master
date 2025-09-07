@@ -49,7 +49,7 @@
                     </div>                    
                     <div class="mb-3">
                         <label for="phone" class="form-label">Телефон</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ $user->phone }}" placeholder="Телефон користувача" required>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ $user->phone }}" placeholder="Телефон користувача" >
                     </div>
                     <div class="mb-3">
                         <label for="email" class="form-label">Електронна пошта</label>
@@ -78,7 +78,7 @@
                     </select>                            
                     <div class="mb-3">
                         <label for="position" class="form-label">Посада</label>
-                        <input type="text" class="form-control" id="position" name="position" placeholder="Посада користувача" value="{{ $user->position }}" required>
+                        <input type="text" class="form-control" id="position" name="position" placeholder="Посада користувача" value="{{ $user->position }}" >
                     </div>
                     <div class="mb-3">
                         <label for="status" class="form-label">Статус</label>
@@ -105,19 +105,49 @@
                         </select>
                     </div> 
                     {{-- Хто підлеглий [] --}}
-                    <div class="mb-3">
-                        <label for="subordinates" class="form-label">Підлеглі</label>
-                        <select class="form-select" id="subordinates" row=10 name="subordinates[]" multiple>
-                        <option value="">Не вказано</option>
-                            {{-- Виводимо всіх користувачів, окрім поточного та адміністраторів --}}    
-                            @foreach($users as $сhild)
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-header bg-primary text-white">
+                            Вже вибрані
+                        </div>
+                        <div class="card-body">
+                            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
+                                @foreach($users as $сhild)
+                                    @if($children->contains($сhild->id))
+                                        <div class="col">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox"
+                                                    name="subordinates[]"
+                                                    value="{{ $сhild->id }}"
+                                                    id="subordinate_{{ $сhild->id }}"
+                                                    checked>
+                                                <label class="form-check-label" for="subordinate_{{ $сhild->id }}">
+                                                    {{ $icons[$сhild->roles->first()->name] ?? '' }} {{ $сhild->name }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
 
-                                <option value="{{ $сhild->id }}" @if($children->contains($сhild->id)) selected @endif >{{ $icons[$сhild->roles->first()->name] ?? '' }}  {{ $сhild->name }}</option>
-                                   
+                    {{-- Мультиселект для нових підлеглих --}}
+                    <div class="mb-2">
+                        <strong>Додати нових:</strong>
+                        <select class="form-select" id="subordinates" name="subordinates[]" multiple size="8">
+                            @foreach($users as $сhild)
+                                @if(!$children->contains($сhild->id))
+                                    <option value="{{ $сhild->id }}">
+                                        {{ $icons[$сhild->roles->first()->name] ?? '' }} {{ $сhild->name }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
-                        <small class="form-text text-muted">Виберіть підлеглих користувача. Ви можете вибрати декілька користувачів.</small>
                     </div>
+
+                    <small class="form-text text-muted">Виберіть підлеглих користувача. Ви можете вибрати декілька користувачів.</small>
+                </div>
+
                     @if(Auth::user()->hasRole('Admin'))
                     <div class="mb-3">
                         <label for="password" class="form-label">Пароль</label>

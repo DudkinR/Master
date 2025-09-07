@@ -37,7 +37,7 @@
                 <div class="row mb-3">
                     <div class="col-md-6">
                     <label for="location" class="form-label">Локація</label>
-                    <input type="text" class="form-control" id="location" name="location" value="{{ $project->location }}" required>
+                    <input type="text" class="form-control" id="location" name="location" value="{{ $project->location }}" >
                     </div>@php 
                         $isCoordinates = preg_match('/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/', $project->location);
                         @endphp

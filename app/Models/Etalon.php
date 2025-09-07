@@ -9,6 +9,7 @@ class Etalon extends Model
     //
     protected $table = 'etalons';
     protected $fillable = [
+        'id_user',
         'name',
         'description',
         'estimated_hours',

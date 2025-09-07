@@ -3,7 +3,7 @@
             
         @foreach ($task->materials as $material)
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="material_{{$material->id}}" checked>
+                <input class="form-check-input" name="material_ids[]" value ="{{ $material->id }}" type="checkbox" id="material_{{$material->id}}" checked>
                 <label class="form-check-label" for="material_{{$material->id}}">{{ $material->name }}</label>
             </div>
         @endforeach

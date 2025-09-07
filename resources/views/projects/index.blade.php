@@ -98,17 +98,18 @@
                     @foreach ($projects as $project)
                     <tr>
                         <td>{{ $project->id }}</td>
-                        <td>{{ $project->name }}</td>
+                        <td><a href="{{ route('projects.show', $project->id) }}"
+                                 class="btn btn-info w-100">
+                            🔍 {{ $project->name }}</a>
+                        </td>
                         <td>{{ $project->description }}</td>
                         <td>
                             
                             <div class="btn-group btn-group-sm d-flex flex-column gap-1" role="group">
                                 @if(Auth::user()->roles->first()->name ==="Boss" || Auth::user()->roles->first()->name ==="Engineer" || Auth::user()->roles->first()->name ==="Admin")
                                     <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning w-100" title="Редагувати основні дані проекту" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Редагувати проект" data-bs-original-title="Редагувати проект" style="text-decoration: none;"
-                                    >✏️ Редагувати</a>
+                                    >✏️</a>
                                 @endif
-                                <a href="{{ route('projects.show', $project->id) }}" class="btn btn-info w-100">🔍 Переглянути</a>
-                                
                             </div>
                         </td>
                         <td>
@@ -122,7 +123,7 @@
                                     [$latitude, $longitude] = array_map('trim', explode(',', $project->location));
                                 @endphp
                                 <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#map-{{ $project->id }}">
-                                    🗺 Показати карту
+                                    🗺 
                                 </button>
                                 <div id="map-{{ $project->id }}" class="collapse mt-2">
                                     <iframe
@@ -132,7 +133,7 @@
                                     </iframe>
                                 </div>
                             @else
-                                <p class="text-muted">📍 Локація: {{ $project->location }}</p>
+                                <p class="text-muted">📍 {{ $project->location }}</p>
                             @endif
 
 

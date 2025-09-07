@@ -37,9 +37,13 @@
         @endif
     <div class="mt-5">
         <h3>Завдання в рамках цього проекту</h3>
-                    <!-- Кнопка відкриття модального вікна -->
+            <!-- Кнопка відкриття модального вікна -->
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
                 Швидко Створити нове завдання
+            </button>
+            <!-- Кнопка відкриття модального  вибора еталонного завдання -->
+            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#selectEtalonModal">
+                Вибір еталонного завдання
             </button>
 
             <!-- Модальне вікно -->
@@ -48,6 +52,9 @@
                     <form action="{{ route('tasks.store') }}" method="POST">
                         @csrf
                         <input type="hidden" name="project_id" value="{{ $project->id }}">
+                        
+                       back_route
+                        <input type="hidden" name="back_route" value="{{ url()->current() }}">
                      <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="createTaskModalLabel">Швидко Створити нове завдання</h5>
@@ -55,11 +62,11 @@
                         </div>
                         <div class="modal-body">
                                 <div class="row g-3">
-                        <div class="col-md-6">
+                        <div class="col-md-1">
                             <label for="order" class="form-label">Порядок</label>
                             <input type="number" class="form-control" id="order" name="order" value="{{ $project->tasks->count() + 1 }}" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-11">
                             <label for="name" class="form-label">Назва</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
@@ -107,10 +114,13 @@
                                 <option value="л">Літри</option>
                                 <option value="кг">Кілограми</option>
                                 <option value="шт/год">Шт/год</option>
+                                <option value="м/год">м/год</option>
+                                <option value="комплект">Комплект</option>
+                                
                             </select>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6" id="etalon_task_div">
                             <label for="etalon_task" class="form-label">Еталонне</label>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="etalon_task" name="etalon_task">
@@ -133,45 +143,108 @@
 
     </div>
 </div>
+
+<!-- Модальне вікно -->
+<div class="modal fade" id="selectEtalonModal" tabindex="-1" aria-labelledby="selectEtalonModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectEtalonModalLabel">Вибір еталонного завдання</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label for="etalonSelect" class="form-label">Оберіть еталонне завдання</label>
+                    <ul>
+                        @foreach($etalons as $etalon)
+                            <li onclick="fillingtask('{{ $etalon->id }}')" style="cursor: pointer;">
+                                {{ $etalon->name }}
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const etalons = @json($etalons);
+
+    function fillingtask(id) {
+        const etalon = etalons.find(e => e.id == id);
+        if (!etalon) return;
+
+        // Заповнюємо форму
+        document.getElementById('name').value = etalon.name;
+        document.getElementById('description').value = etalon.description;
+        document.getElementById('estimated_hours').value = etalon.estimated_hours;
+        // `quantity`, `unit`
+        document.getElementById('quantity').value = etalon.quantity;
+        document.getElementById('unit').value = etalon.unit;
+        // etalon_task_div
+        document.getElementById('etalon_task_div').style.display = etalon.etalon_task ? 'block' : 'none';
+        
+
+        // Беремо обидва модальні вікна
+        const selectEtalonModalEl = document.getElementById('selectEtalonModal');
+        const createTaskModal = new bootstrap.Modal(document.getElementById('createTaskModal'));
+
+        // Навішуємо подію, щоб після закриття першого відкрилось друге
+        selectEtalonModalEl.addEventListener('hidden.bs.modal', function onHidden() {
+            createTaskModal.show();
+            // ВАЖЛИВО: прибираємо слухача, щоб не дублювався
+            selectEtalonModalEl.removeEventListener('hidden.bs.modal', onHidden);
+        });
+
+        // Закриваємо першу модалку
+        const selectEtalonModal = bootstrap.Modal.getInstance(selectEtalonModalEl);
+        selectEtalonModal.hide();
+    }
+</script>
+
+
 <div class="container">       
-            @if($project->tasks->isEmpty())
-               <div class="row">
-                    <div class="col-md-4 mb-4"> 
-                        <p>Немає завдань для цього проекту.</p>
-                    </div>
-                </div>
-            @else
-            
-                @foreach($project->tasks as $task)
-                <div class="row">
-                    <div class="col-md-4 mb-4">
-                    
-                    <h6>{{ $task->name }} <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-outline-primary mb-2">🔍</a>
-                   </h6>
-                        <p>{{ $task->description }}</p>
-                    </div>
-                    <div class="col-md-2 mb-4">
-                        <h6>Матеріали</h6>                        
-                        {{$task->materials->count() > 0 ? $task->materials->count() : 'Немає матеріалів'}}
-                    </div>
-                    <div class="col-md-2 mb-4">
-                        <h6>Обладнання</h6>
-                        {{$task->equipments->count() > 0 ? $task->equipments->count() : 'Немає обладнання'}}
-                    </div>
-                    <div class="col-md-2 mb-4">
-                        <h6>Техніка</h6>
-                        {{$task->machines->count() > 0 ? $task->machines->count() : 'Немає техніки'}}
-                    </div>
-                    <div class="col-md-2 mb-4">
-                        <h6>Намечена дата</h6>
-                        <p>{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') : 'Не вказано' }}</p>
-                        <h6>Дата завершення</h6>
-                        <p>{{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') : 'Не вказано' }}</p>
-                    </div>
-                </div>
-                @endforeach
-           
-            @endif
+    @if($project->tasks->isEmpty())
+        <div class="row">
+            <div class="col-md-4 mb-4"> 
+                <p>Немає завдань для цього проекту.</p>
+            </div>
+        </div>
+    @else    
+    @foreach($project->tasks as $task)
+    <div class="row">
+        <div class="col-md-1 mb-4">
+            <p>{{ $task->order }}</p>
+        </div>
+        <div class="col-md-3 mb-4">
+        
+        <h6>
+            <a href="{{ route('tasks.edit', $task->id) }}" class="btn btn-outline-primary mb-2">🔍 {{ $task->name }} </a>
+        </h6>
+            <p>{{ $task->description }}</p>
+        </div>
+        <div class="col-md-2 mb-4">
+            <h6>Матеріали</h6>                        
+            {{$task->materials->count() > 0 ? $task->materials->count() : 'Немає матеріалів'}}
+        </div>
+        <div class="col-md-2 mb-4">
+            <h6>Обладнання</h6>
+            {{$task->equipments->count() > 0 ? $task->equipments->count() : 'Немає обладнання'}}
+        </div>
+        <div class="col-md-2 mb-4">
+            <h6>Техніка</h6>
+            {{$task->machines->count() > 0 ? $task->machines->count() : 'Немає техніки'}}
+        </div>
+        <div class="col-md-2 mb-4">
+            <h6>Намечена дата</h6>
+            <p>{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') : 'Не вказано' }}</p>
+            <h6>Дата завершення</h6>
+            <p>{{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') : 'Не вказано' }}</p>
+        </div>
+    </div>
+    @endforeach
+    
+    @endif
     </div>
  </div>
 </div>

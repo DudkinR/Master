@@ -17,11 +17,11 @@
     {{-- create  --}}  
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="mb-4">Список підприємств</h2>
-            <a href="{{ route('departments.create') }}" class="btn btn-primary">Додати нове підприємство</a>
+            <h2 class="mb-4">Список підрозділів</h2>
+            <a href="{{ route('departments.create') }}" class="btn btn-primary">Додати новий підрозділ</a>
         </div>
     </div>
-    {{-- Список підприємств --}}
+    {{-- Список підрозділів --}}
     <div class="row">
         <div class="col-md-12">
             <table class="table table-striped">

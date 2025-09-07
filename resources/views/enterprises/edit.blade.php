@@ -32,11 +32,11 @@
         </div>
         <div class="form-group">
             <label for="description">Опис</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required>{{ $enterprise->description }}</textarea>
+            <textarea class="form-control" id="description" name="description" rows="3" >{{ $enterprise->description }}</textarea>
         </div>
         <div class="form-group">
             <label for="location">Локація</label>
-            <input type="text" class="form-control" id="location" name="location" value="{{ $enterprise->location }}" required>
+            <input type="text" class="form-control" id="location" name="location" value="{{ $enterprise->location }}" >
         </div>
         <button type="submit" class="btn btn-primary">Зберегти</button>
     </form>

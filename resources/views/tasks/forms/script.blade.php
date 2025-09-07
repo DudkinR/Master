@@ -61,7 +61,7 @@ function  startWork() {
    startTimer();
    startTimerWork();
     // Оновити статус завдання
-    updateTaskStatus('in_progress');
+    updateTaskStatus('start');
 }
 function pauseWork() {
     // знайти кнопки у яких  id починаються "pause_machine_" і немає класу 'd-none'

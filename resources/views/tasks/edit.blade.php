@@ -9,6 +9,8 @@
             <div class="card mb-4 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Інформація про завдання</h5>
+                    <h3>{{ $task->name }}</h3>
+                    <p class="card-text">{{ $task->description }}</p>
                     <p class="card-text">
                         @if($task->projects->isNotEmpty())
                             <strong>Проект:</strong> {{ $task->projects->first()->name }}<br>
@@ -60,14 +62,15 @@
     <div class="row justify-content-center">
         <div class="col-lg-12">
             <!-- Матеріали -->
-            <h3>Матеріали</h3>        <!-- Кнопка -->
+            <h3 id="materials-section">Матеріали</h3>        <!-- Кнопка -->
             <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createMaterialModal-{{ $task->id }}">
             ➕ Додати матеріал               </button>
             <!-- Модальне вікно -->
+             <!-- якорь для перехода до цій частини сторінки -->
             <div class="modal fade" id="createMaterialModal-{{ $task->id }}" tabindex="-1" aria-labelledby="modalLabel-{{ $task->id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
-                        <form action="{{ route('materials.store') }}" method="POST">
+                        <form action="{{ route('materials.store') }}#materials-section" method="POST">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             @if($task->projects->isNotEmpty())
@@ -129,7 +132,7 @@
                     <li class="list-group-item text-muted fst-italic text-center">Матеріалів поки що немає</li>
                 @endforelse
             </ul>
-            <h3>Обладнення</h3>
+            <h3 id="equipments-section">Обладнання</h3>
             <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createEquipmentModal-{{ $task->id }}">
                 ➕ Додати обладнання
             </button>
@@ -137,7 +140,7 @@
             <div class="modal fade" id="createEquipmentModal-{{ $task->id }}" tabindex="-1" aria-labelledby="equipmentModalLabel-{{ $task->id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
-                        <form action="{{ route('equipments.store') }}" method="POST">
+                        <form action="{{ route('equipments.store') }}#equipments-section" method="POST">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             @if($task->projects->isNotEmpty())
@@ -198,14 +201,14 @@
                     <li class="list-group-item text-muted text-center fst-italic">Обладнання відсутнє</li>
                 @endforelse
             </ul>
-            <h3>Техника</h3>
+            <h3 id="technics-section">Техніка</h3>
             <button class="btn btn-outline-primary btn-sm mb-3" data-bs-toggle="modal" data-bs-target="#createTechnicModal-{{ $task->id }}">
                 ➕ Додати техніку
             </button>
             <div class="modal fade" id="createTechnicModal-{{ $task->id }}" tabindex="-1" aria-labelledby="technicModalLabel-{{ $task->id }}" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
-                        <form action="{{ route('machines.store') }}" method="POST">
+                        <form action="{{ route('machines.store') }}#technics-section" method="POST">
                             @csrf
                             <input type="hidden" name="task_id" value="{{ $task->id }}">
                             @if($task->projects->isNotEmpty())
@@ -275,9 +278,9 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-12">
-            <h3 class="mb-4">🛠️ Редагування завдання</h3>
+            <h3 class="mb-4" id="task-edit-section">🛠️ Редагування завдання</h3>
 
-            <form action="{{ route('tasks.update', $task->id) }}" method="POST" class="p-4 border rounded shadow-sm bg-light">
+            <form action="{{ route('tasks.update', $task->id) }}#task-edit-section" method="POST" class="p-4 border rounded shadow-sm bg-light">
                 @csrf
                 @method('PUT')
                 @if($task->projects->isNotEmpty())
@@ -397,10 +400,14 @@
                             <label for="master_id" class="form-label">Оберіть бригадира</label>
                             <select name="master_id" id="master_id" class="form-select" required>
                                 <option value="">-- Виберіть --</option>
+                             @php $brigadir = $task->brigadir->first(); @endphp
                                 @if($brigadirs->isNotEmpty())
-                                    <option value="{{ $task->brigadir->first()->id }}" selected>{{ $task->brigadir->first()->name }}</option>
-                                    @foreach ($brigadirs as $brigadir)
-                                        <option value="{{ $brigadir->id }}">{{ $brigadir->name }}</option>
+                                     @foreach ($brigadirs as $brigadir)
+                                        @if($brigadir)
+                                            <option value="{{ $brigadir->id }}" selected>
+                                                {{ $brigadir->name }}
+                                            </option>
+                                        @endif
                                     @endforeach
                                 @else
                                     <option value="" disabled>Немає доступних бригадирів</option>
@@ -413,6 +420,9 @@
                         <div class="mb-3"> 
                             <label for="master_id" class="form-label">Оберіть робітників</label>
                             <select name="master_id[]" id="master_id" class="form-select" multiple required>
+                                <option value="">-- Виберіть --</option>
+                                 
+                                
                                 @foreach ($workers as $worker)
                                     <option value="{{ $worker->id }}">{{ $worker->name }}</option>
                                 @endforeach

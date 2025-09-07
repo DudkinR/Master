@@ -23,6 +23,8 @@ class TaskController extends Controller
     public function index()
     {
         //
+         $enterpriseId = Auth::user()->enterprises->pluck('id');
+         $departmentId = Auth::user()->departments->pluck('id');
         if(Auth::user()->roles->first()->name ==="Admin")
         {
             $tasks = Task::with(['users', 'equipments', 'materials', 'machines'])
@@ -36,15 +38,20 @@ class TaskController extends Controller
         }
         elseif(Auth::user()->roles->first()->name ==="Boss")
         {
-            $enterpriseId = Auth::user()->enterprises->pluck('id');
-            $departmentId = Auth::user()->departments->pluck('id');
+
             $projects = Project::with(['tasks', 'tasks.equipments', 'tasks.materials', 'tasks.machines'])
+            ->whereHas('enterprises', function ($query) use ($enterpriseId) {
+                $query->whereIn('enterprise.id', $enterpriseId);
+            })
             ->get();
              $tasks = Task::with('enterprises', 'departments', 'users', 'equipments', 'materials', 'machines', 'master', 'brigadir', 'workers')             
-            ->where('status', '!=', 'completed')
-             ->orderBy('created_at', 'desc')
-             ->get();
-             
+                ->whereHas('enterprises', function ($query) use ($enterpriseId) {
+                    $query->whereIn('enterprise.id', $enterpriseId);
+                })
+                ->where('status', '!=', 'completed')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
             $masters = User::whereHas('roles', function ($query) {
                 $query->where('name', 'Master');
             })
@@ -65,7 +72,11 @@ class TaskController extends Controller
             $tasks = Task::whereHas('users', function ($query) {
                 $query->where('role', 'master')
                       ->where('user_id', Auth::id());
-            })            
+            })  
+            ->whereHas('departments', function ($query) use ($departmentId) {
+                $query->whereIn('department.id', $departmentId);
+            })
+
             ->where('status', '!=', 'completed')
             ->with(['users', 'equipments', 'materials', 'machines','master','brigadir','workers'])
             ->orderBy('created_at', 'desc')->get();
@@ -136,9 +147,12 @@ class TaskController extends Controller
         $task->unit = $request->input('unit')? $request->input('unit') : 'шт'; // Default to 'шт' if not provided
         $task->project_id = $request->input('project_id')? $request->input('project_id') : null; // Default to null if not provided
         $task->save();
+        // якщо поставлено галочку зберегти як еталон
         if(isset($request->etalon_task)){
             if(!Etalon::where('name', $task->name)->where('description', $task->description)->exists()) {
                 $etalon = new Etalon();
+                // id_user
+                $etalon->id_user = Auth::id();
                 $etalon->name = $task->name;
                 $etalon->description = $task->description;
                 $etalon->estimated_hours = $task->estimated_hours;
@@ -149,23 +163,18 @@ class TaskController extends Controller
             }
              $log.= "Завдання збережено як еталон: {$task->name} ({$task->description})";
         }
-        //  $etalons = Etalon::all();
-        $project = Project::findOrFail($task->project_id);
-        $project->tasks()->attach($task->id, ['status' => 'active']); // Attach task to project with default status
-        $enterpriseId = Auth::user()->enterprises->pluck('id');
-        $departmentId = Auth::user()->departments->pluck('id');
-        $task->enterprises()->sync($enterpriseId);
-        $task->departments()->sync($departmentId);
-        // Прив’язка користувачів до завдання auth()->id is author 
-        $task->users()->attach(Auth::id(), ['role' => 'author']); // Assuming the creator is a master
+        
         // Прив’язка завдання до проекту з додатковими даними
         $project = Project::findOrFail($task->project_id);
-        $project->tasks()->attach($task->id, ['status' => 'active']);
-        // Прив’язка підрозділів і підприємств (як у вашому коді)
+        $project->tasks()->attach($task->id, ['status' => 'active']); // Attach task to project with default status
+        // Прив’язка користувачів до завдання auth()->id is author 
+        $task->users()->attach(Auth::id(), ['role' => 'author']); // Assuming the creator is a master
+         // Прив’язка підрозділів і підприємств (як у вашому коді)
         $enterpriseIds = Auth::user()->enterprises->pluck('id');
         $departmentIds = Auth::user()->departments->pluck('id');
         $task->enterprises()->sync($enterpriseIds);
         $task->departments()->sync($departmentIds);
+        
         // якщо автор мастер то назначаємо йому це завдання
         if (Auth::user()->hasRole('Master')) {
             $task->users()->attach(Auth::id(), ['role' => 'master']);
@@ -406,7 +415,8 @@ class TaskController extends Controller
             return redirect()->route('tasks.edit', $id);
         }
         // Завантажуємо завдання разом з усіма зв'язками
-        $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($id);        
+    // return 
+       $task = Task::with(['users', 'materials', 'machines', 'equipments'])->findOrFail($id);        
         
         // Розрахунок витраченого часу
         $timeSpent = $task->actual_hours;

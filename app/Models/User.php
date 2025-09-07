@@ -136,7 +136,7 @@ class User extends Authenticatable
     }
     public function canImpersonate()
     {
-        return $this->hasRole('Admin');
+        return $this->hasRole('Admin') || $this->hasRole('Boss') || $this->hasRole('Master') || $this->hasRole('Engineer');
     }
 
     public function canBeImpersonated()

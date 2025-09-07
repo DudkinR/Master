@@ -2,7 +2,7 @@
         <label class="form-label fw-bold">Наявність обладнання:</label><br>
         @foreach ($task->equipments as $equipment)
             <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" id="equipment_{{$equipment->id}}" checked>
+                <input class="form-check-input" name="equipment_ids[]" value ="{{ $equipment->id }}" type="checkbox" id="equipment_{{$equipment->id}}" checked>
                 <label class="form-check-label" for="equipment_{{$equipment->id}}">{{ $equipment->name }}</label>
             </div>
         @endforeach

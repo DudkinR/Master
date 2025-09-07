@@ -20,7 +20,11 @@ class ProjectController extends Controller
              $engs = User::whereHas('roles', function ($query) {
                  $query->where('name', 'Engineer');
              })->get();
-                $projects = Project::with(['enterprises', 'departments'])->get();
+                $projects = Project::with(['enterprises', 'departments'])
+                // order by id desc
+                ->orderBy('id', 'desc')
+                ->get();
+                $etalons = Etalon::where('id_user', Auth::id())->get();
          }
          elseif(Auth::user()->roles->first()->name ==="Boss")
         {
@@ -43,7 +47,10 @@ class ProjectController extends Controller
                 $query->whereIn('enterprise.id', $enterpriseId);
             })->orWhereHas('departments', function ($query) use ($departmentId) {
                 $query->whereIn('department.id', $departmentId);
-            })->with(['enterprises', 'departments'])->get();
+            })->with(['enterprises', 'departments'])
+            ->orderBy('id', 'desc')
+            ->get();
+            $etalons = Etalon::where('id_user', Auth::id())->get();
 
         }
         elseif(Auth::user()->roles->first()->name ==="Master")
@@ -67,7 +74,10 @@ class ProjectController extends Controller
                 $query->whereIn('enterprise.id', $enterpriseId);
             })->orWhereHas('departments', function ($query) use ($departmentId) {
                 $query->whereIn('department.id', $departmentId);
-            })->with(['enterprises', 'departments'])->get();            
+            })->with(['enterprises', 'departments'])
+            ->orderBy('id', 'desc')
+            ->get();
+            $etalons = Etalon::where('id_user', Auth::id())->get();
         }
         else{
              $projects = Project::where(function ($query) {
@@ -80,6 +90,7 @@ class ProjectController extends Controller
                 $q->where('users.id', Auth::id());
             })
             ->with(['enterprises', 'departments'])
+            ->orderBy('id', 'desc')
             //->with(['tasks'])
             ->get();
 
@@ -93,9 +104,10 @@ class ProjectController extends Controller
             })->with(['roles' => function ($q) {
                 $q->where('name', 'Engineer');
             }])->get();
+            $etalons = Etalon::where('id_user', Auth::id())->get();
         }
-       
-        return view('projects.index' , compact('projects' , 'engs'));
+
+        return view('projects.index' , compact('projects' , 'engs', 'etalons'));
     }
 
     /**
@@ -151,7 +163,7 @@ class ProjectController extends Controller
             $query->orderBy('status', 'asc')->orderBy('id', 'desc');
         }])
         ->findOrFail($id);
-        $etalons = Etalon::All();
+        $etalons = Etalon::where('id_user', Auth::id())->get();
         return view('projects.show', compact('project', 'etalons'));
     }
 

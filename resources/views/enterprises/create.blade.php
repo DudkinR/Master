@@ -32,11 +32,11 @@
         </div>
         <div class="form-group">
             <label for="description">Опис</label>
-            <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
+            <textarea class="form-control" id="description" name="description" rows="3" ></textarea>
         </div>
         <div class="form-group">
             <label for="location">Локація</label>
-            <input type="text" class="form-control" id="location" name="location" required>
+            <input type="text" class="form-control" id="location" name="location" >
         </div>
         <button type="submit" class="btn btn-primary">Створити</button>
     </form>

@@ -30,11 +30,17 @@ class EnterpriseController extends Controller
      */
     public function store(Request $request)
     {
-
-        $enterprise = new Enterprise(); 
+        
+        $enterprise = new Enterprise();
         $enterprise->name = $request->input('name');
-        $enterprise->description = $request->input('description');
-        $enterprise->location = $request->input('location');
+        if ($request->filled('description')) {
+            $enterprise->description = $request->input('description');
+        }
+
+        if ($request->filled('location')) {
+            $enterprise->location = $request->input('location');
+        }
+
         $enterprise->save();
         return redirect()->route('enterprises.index')->with('success', 'Підприємство успішно додано.');
     }

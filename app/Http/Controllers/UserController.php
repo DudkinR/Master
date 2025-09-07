@@ -27,77 +27,77 @@ class UserController extends Controller
      * Display a listing of the resource.
      */
     public function index(Request $request) 
-{
-    $enterprises = Enterprise::all();
-    $departments = Department::all();
-    $roles = Role::all(); 
-    
+    {
+        $enterprises = Enterprise::all();
+        $departments = Department::all();
+        $roles = Role::all(); 
+        
 
-    // Отримати базових користувачів відповідно до ролі
-    $role = Auth::user()->roles->first()->name;
-    $user = Auth::user();
-    switch ($role) {
-        case 'Boss':
-           
-            $children = $user->children; // 1 рівень підлеглих
-            $grandchildren = $children->flatMap(fn($child) => $child->children); // 2 рівень підлеглих
-            $allSubordinates = $children->merge($grandchildren); // Об'єднуємо 1 та 2 рівні підлеглих
-            // 3 рівень підлеглих
-            $allgrandchildren = $allSubordinates->flatMap(fn($subordinate) => $subordinate->children);
-            $allSubordinates = $allSubordinates->merge($allgrandchildren); // Об'єднуємо 1, 2 та 3 рівні підлеглих
-            // Отримуємо всі данні
-            $users = User::with(['roles', 'departments', 'enterprises', 'children'])
-                ->whereIn('id', $allSubordinates->pluck('id'))
-                ->orWhere('id', $user->id) // Додаємо самого користувача
+        // Отримати базових користувачів відповідно до ролі
+        $role = Auth::user()->roles->first()->name;
+        $user = Auth::user();
+        switch ($role) {
+            case 'Boss':
+            
+                $children = $user->children; // 1 рівень підлеглих
+                $grandchildren = $children->flatMap(fn($child) => $child->children); // 2 рівень підлеглих
+                $allSubordinates = $children->merge($grandchildren); // Об'єднуємо 1 та 2 рівні підлеглих
+                // 3 рівень підлеглих
+                $allgrandchildren = $allSubordinates->flatMap(fn($subordinate) => $subordinate->children);
+                $allSubordinates = $allSubordinates->merge($allgrandchildren); // Об'єднуємо 1, 2 та 3 рівні підлеглих
+                // Отримуємо всі данні
+                $users = User::with(['roles', 'departments', 'enterprises', 'children'])
+                    ->whereIn('id', $allSubordinates->pluck('id'))
+                    ->orWhere('id', $user->id) // Додаємо самого користувача
+                    ->orderBy('name', 'asc')->get();
+                break;
+            case 'Master':
+                $children = $user->children; // 1 рівень підлеглих
+                $grandchildren = $children->flatMap(fn($child) => $child->children); // 2 рівень підлеглих
+                $allSubordinates = $children->merge($grandchildren); // Об'єднуємо 1 та 2 рівні підлеглих
+                $users = User::with(['roles', 'departments', 'enterprises', 'children'])
+                    ->whereIn('id', $allSubordinates->pluck('id'))
+                    ->orWhere('id', $user->id) // Додаємо самого користувача
                 ->orderBy('name', 'asc')->get();
-            break;
-        case 'Master':
-             $children = $user->children; // 1 рівень підлеглих
-            $grandchildren = $children->flatMap(fn($child) => $child->children); // 2 рівень підлеглих
-            $allSubordinates = $children->merge($grandchildren); // Об'єднуємо 1 та 2 рівні підлеглих
-            $users = User::with(['roles', 'departments', 'enterprises', 'children'])
-                ->whereIn('id', $allSubordinates->pluck('id'))
-                ->orWhere('id', $user->id) // Додаємо самого користувача
-               ->orderBy('name', 'asc')->get();
 
-        case 'Brigadir':
-             $children = $user->children; // 1 рівень підлеглих
-            $grandchildren = $children->flatMap(fn($child) => $child->children); // 2 рівень підлеглих
-            $allSubordinates = $children->merge($grandchildren); // Об'єднуємо 1 та 2 рівні підлеглих
-            $users = User::with(['roles', 'departments', 'enterprises', 'children'])
-                ->whereIn('id', $allSubordinates->pluck('id'))
-                ->orWhere('id', $user->id) // Додаємо самого користувача
-                ->orderBy('name', 'asc')->get();
-            break;
+            case 'Brigadir':
+                $children = $user->children; // 1 рівень підлеглих
+                $grandchildren = $children->flatMap(fn($child) => $child->children); // 2 рівень підлеглих
+                $allSubordinates = $children->merge($grandchildren); // Об'єднуємо 1 та 2 рівні підлеглих
+                $users = User::with(['roles', 'departments', 'enterprises', 'children'])
+                    ->whereIn('id', $allSubordinates->pluck('id'))
+                    ->orWhere('id', $user->id) // Додаємо самого користувача
+                    ->orderBy('name', 'asc')->get();
+                break;
 
-        case 'Engineer':
-            $users = User::with(['roles', 'departments', 'enterprises']);
-            /// ЗНАЙТИ ПРОЕКТИ ІНЖЕНЕРА І ВСІХ ЗАДІЯНИХ 
-            $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users);
-            $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users);
-            $users = $users->whereHas('roles', function ($query) {
-                $query->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker']);
-            })->orderBy('name', 'asc')->get();
-            break;
-        case 'Admin':
+            case 'Engineer':
+                $users = User::with(['roles', 'departments', 'enterprises']);
+                /// ЗНАЙТИ ПРОЕКТИ ІНЖЕНЕРА І ВСІХ ЗАДІЯНИХ 
+                $users = (new EnterpriseFilter(Auth::user()->enterprises->pluck('id')))->handle($users);
+                $users = (new DepartmentFilter(Auth::user()->departments->pluck('id')))->handle($users);
+                $users = $users->whereHas('roles', function ($query) {
+                    $query->whereIn('roles.name', ['Boss', 'Master', 'Brigadir', 'Worker']);
+                })->orderBy('name', 'asc')->get();
+                break;
+            case 'Admin':
 
-            $users = User::orderBy('name', 'asc')->get();
-            break;
-        default:
-            // Якщо роль не визначена, то просто пустий результат
-            $users = User::with(['roles', 'departments', 'enterprises'])
-            -> whereDoesntHave('supervisors') // Отримуємо користувачів без супервізорів
-            ->whereHas('roles', function ($query) {
-                $query->whereIn('roles.name', ['Boss', 'Master', 'Brigidir', 'Worker']);
-            })->orderBy('name', 'asc')->get();
-            break;
+                $users = User::orderBy('name', 'asc')->get();
+                break;
+            default:
+                // Якщо роль не визначена, то просто пустий результат
+                $users = User::with(['roles', 'departments', 'enterprises'])
+                -> whereDoesntHave('supervisors') // Отримуємо користувачів без супервізорів
+                ->whereHas('roles', function ($query) {
+                    $query->whereIn('roles.name', ['Boss', 'Master', 'Brigidir', 'Worker']);
+                })->orderBy('name', 'asc')->get();
+                break;
+        }
+
+        // Завантаження
+        // $users = $users->get(); 
+
+        return view('users.index', compact('users', 'enterprises', 'departments', 'roles'));
     }
-
-    // Завантаження
-    // $users = $users->get(); 
-
-    return view('users.index', compact('users', 'enterprises', 'departments', 'roles'));
-}
 
 
     /**
@@ -158,6 +158,10 @@ class UserController extends Controller
         if($request->has('enterprise')) {
             $user->enterprises()->attach($request->input('enterprise'));
         }
+        // Attach user
+         $boss = Auth::user();
+         $user->supervisors()->attach($boss);
+
         return redirect()->route('users.index')->with('success', 'User created successfully.');
     }
 
@@ -170,7 +174,12 @@ class UserController extends Controller
         $roles = Role::all();
         $enterprises = Enterprise::all();
         $departments = Department::all();
-        $users = User::with(['roles', 'departments', 'enterprises', 'children'])->get(); // Отримуємо всіх користувачів, які не мають супервізорів
+        $myEnterprises = Auth::user()->enterprises;
+        $users = User::with(['roles', 'departments', 'enterprises', 'children'])
+      ->whereHas('enterprises', function ($query) use ($myEnterprises) {
+            $query->whereIn('enterprise.id', $myEnterprises->pluck('id'));
+        })
+        ->get(); // Отримуємо всіх користувачів, які не мають супервізорів
         $children= $user->children()->get();
         return view('users.show', compact('user', 'roles', 'enterprises', 'departments', 'users', 'children'));
     }
@@ -217,13 +226,14 @@ class UserController extends Controller
             $user->enterprises()->sync($request->input('enterprise'));
         } 
         $user->save();
-        // if $request->input('boss') !== null
+       // return $request->input('boss');
         if($request->input('boss') !== null) {
             $boss = User::findOrFail($request->input('boss'));
             // Detach all current supervisors
             $user->supervisors()->detach();
             // Attach new boss
             $user->supervisors()->attach($boss);
+           
         }
         // if $request->input('subordinates') subordinates[]
         if($request->input('subordinates')) {

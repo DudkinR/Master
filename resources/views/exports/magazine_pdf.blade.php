@@ -12,15 +12,17 @@
     </style>
 </head>
 <body>
-    <h3>Журнал оперативного обліку</h3>
+    <h3>
+        {{ __('Operating Report') }}
+    </h3>
     <p>Operating Report</p>
-    <table>
+    <table> 
         <thead>
             <tr>
-                <th>Дата</th>
-                <th>Час</th>
-                <th>Подія</th>
-                <th>Працівник</th>
+                <th>{{ __('Date') }}</th>
+                <th>{{ __('Time') }}</th>
+                <th>{{ __('Event') }}</th>
+                <th>{{ __('Employee') }}</th>
             </tr>
         </thead>
         <tbody>

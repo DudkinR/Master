@@ -18,7 +18,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <a type="button" class="btn btn-secondary w-100" href="{{ route('enterprises.index') }}" style="text-decoration: none;">
-                Назад 
+                {{ __('Back') }}        
             </a>            
         </div>
     </div>
@@ -27,18 +27,18 @@
         @csrf
         @method('PUT')
         <div class="form-group">
-            <label for="name">Назва</label>
+            <label for="name">{{ __('Name') }}</label>
             <input type="text" class="form-control" id="name" name="name" value="{{ $enterprise->name }}" required>
         </div>
         <div class="form-group">
-            <label for="description">Опис</label>
-            <textarea class="form-control" id="description" name="description" rows="3" >{{ $enterprise->description }}</textarea>
+            <label for="description">{{ __('Description') }}</label>
+            <textarea class="form-control" id="description" name="description" rows="3" required>{{ $enterprise->description }}</textarea>
         </div>
         <div class="form-group">
-            <label for="location">Локація</label>
-            <input type="text" class="form-control" id="location" name="location" value="{{ $enterprise->location }}" >
+            <label for="location">{{ __('Location') }}</label>
+            <input type="text" class="form-control" id="location" name="location" value="{{ $enterprise->location }}" required>
         </div>
-        <button type="submit" class="btn btn-primary">Зберегти</button>
+        <button type="submit" class="btn btn-primary">{{ __('Update') }}</button>
     </form>
 </div>
 @endsection

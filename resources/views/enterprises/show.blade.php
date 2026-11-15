@@ -19,18 +19,18 @@
     <div class="row">
         <div class="col-md-12">
             <h2 class="mb-4">{{ $enterprise->name }}</h2>
-            <p><strong>Опис:</strong> {{ $enterprise->description }}</p>
-            <p><strong>Локація:</strong> {{ $enterprise->location }}</p>
+            <p><strong>{{ __('Description') }}:</strong> {{ $enterprise->description }}</p>
+            <p><strong>{{ __('Location') }}:</strong> {{ $enterprise->location }}</p>
         </div>
     </div>
     {{-- Дії --}}
     <div class="row">
         <div class="col-md-12">
-            <a href="{{ route('enterprises.edit', $enterprise) }}" class="btn btn-warning">Редагувати</a>
+            <a href="{{ route('enterprises.edit', $enterprise) }}" class="btn btn-warning">{{ __('Edit') }}</a>
             <form action="{{ route('enterprises.destroy', $enterprise) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-danger">Видалити</button>
+                <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
             </form>
         </div>
     </div>
@@ -38,7 +38,7 @@
     <div class="row mt-4">
         <div class="col-md-12">
             <a type="button" class="btn btn-secondary w-100" href="{{ route('enterprises.index') }}" style="text-decoration: none;">
-                Назад 
+                {{ __('Back') }}
             </a>            
         </div>
     </div>

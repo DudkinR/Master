@@ -19,7 +19,7 @@
         <div class="col-md-12">
             back to departments
             <a type="button" class="btn btn-secondary w-100" href="{{ route('departments.index') }}" style="text-decoration: none;">
-                Назад 
+                {{ __('Back to Departments') }}
             </a>            
         </div>
     </div>
@@ -27,14 +27,14 @@
     <form action="{{ route('departments.store') }}" method="POST">
         @csrf
         <div class="form-group">
-            <label for="name">Назва</label>
+            <label for="name">{{ __('Name') }}</label>
             <input type="text" class="form-control" id="name" name="name" required>
         </div>
         <div class="form-group">
-            <label for="description">Опис</label>
+            <label for="description">{{ __('Description') }}</label>
             <textarea class="form-control" id="description" name="description" rows="3" required></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Створити</button>
+        <button type="submit" class="btn btn-primary">{{ __('Create') }}</button>
     </form>
 </div>
 @endsection

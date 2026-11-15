@@ -24,7 +24,10 @@
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary w-100">💾 Зберегти</button>
+          <button class="btn btn-primary w-100">💾
+            {{ __('Save') }}
+            </button>
+
         </div>
       </form>
     </div>

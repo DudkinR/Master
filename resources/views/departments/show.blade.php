@@ -19,18 +19,18 @@
     <div class="row">
         <div class="col-md-12">
             <h2 class="mb-4">{{ $department->name }}</h2>
-            <p><strong>Опис:</strong> {{ $department->description }}</p>
+            <p><strong>{{ __('Description') }}:</strong> {{ $department->description }}</p>
  
         </div>
     </div>
     {{-- Дії --}}
     <div class="row">
         <div class="col-md-12">
-            <a href="{{ route('departments.edit', $department) }}" class="btn btn-warning">Редагувати</a>
+            <a href="{{ route('departments.edit', $department) }}" class="btn btn-warning">{{ __('Edit') }}</a>
             <form action="{{ route('departments.destroy', $department) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-danger">Видалити</button>
+                <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
             </form>
         </div>
     </div>

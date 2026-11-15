@@ -27,15 +27,15 @@
         @csrf
         @method('PUT')
         <div class="form-group">
-            <label for="name">Назва</label>
+            <label for="name">{{ __('Name') }}</label>
             <input type="text" class="form-control" id="name" name="name" value="{{ $department->name }}" required>
         </div>
         <div class="form-group">
-            <label for="description">Опис</label>
+            <label for="description">{{ __('Description') }}</label>
             <textarea class="form-control" id="description" name="description" rows="3" required>{{ $department->description }}</textarea>
         </div>
 
-        <button type="submit" class="btn btn-primary">Зберегти</button>
+        <button type="submit" class="btn btn-primary">{{ __('Save') }}</button>
     </form>
 </div>
 @endsection

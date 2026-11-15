@@ -17,8 +17,8 @@
     {{-- create  --}}  
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="mb-4">Список підприємств</h2>
-            <a href="{{ route('enterprises.create') }}" class="btn btn-primary">Додати нове підприємство</a>
+            <h2 class="mb-4">{{ __('Enterprises List') }}</h2>
+            <a href="{{ route('enterprises.create') }}" class="btn btn-primary">{{ __('Add New Enterprise') }}</a>
         </div>
     </div>
     {{-- Список підприємств --}}
@@ -27,10 +27,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Назва</th>
-                        <th>Опис</th>
-                        <th>Локація</th>
-                        <th>Дії</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Description') }}</th>
+                        <th>{{ __('Location') }}</th>
+                        <th>{{ __('Actions') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,12 +44,12 @@
                             <td>{{ $enterprise->description }}</td>
                             <td>{{ $enterprise->location }}</td>
                             <td>
-                                <a href="{{ route('enterprises.show', $enterprise) }}" class="btn btn-info">Переглянути</a>
-                                <a href="{{ route('enterprises.edit', $enterprise) }}" class="btn btn-warning">Редагувати</a>
+                                <a href="{{ route('enterprises.show', $enterprise) }}" class="btn btn-info">{{ __('View') }}</a>
+                                <a href="{{ route('enterprises.edit', $enterprise) }}" class="btn btn-warning">{{ __('Edit') }}</a>
                                 <form action="{{ route('enterprises.destroy', $enterprise) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Видалити</button>
+                                    <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
                                 </form>
                             </td>
                         </tr>
@@ -60,7 +60,7 @@
 
         <div class="col-md-12">
             <a type="button" class="btn btn-secondary w-100" href="{{ route('enterprises.index') }}" style="text-decoration: none;">
-                Назад 
+                {{ __('Back') }}    
             </a>            
         </div>
     </div>

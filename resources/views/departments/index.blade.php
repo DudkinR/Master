@@ -17,8 +17,12 @@
     {{-- create  --}}  
     <div class="row mb-4">
         <div class="col-md-12">
-            <h2 class="mb-4">Список підрозділів</h2>
-            <a href="{{ route('departments.create') }}" class="btn btn-primary">Додати новий підрозділ</a>
+            <h2 class="mb-4">
+                {{ __('Departments List') }}
+            </h2>
+            <a href="{{ route('departments.create') }}" class="btn btn-primary">
+                {{ __('Create New Department') }}
+            </a>
         </div>
     </div>
     {{-- Список підрозділів --}}
@@ -27,10 +31,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Назва</th>
-                        <th>Опис</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Description') }}</th>
                  
-                        <th>Дії</th>
+                        <th>{{ __('Actions') }} </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -44,12 +48,12 @@
                             <td>{{ $enterprise->description }}</td>
                      
                             <td>
-                                <a href="{{ route('departments.show', $enterprise) }}" class="btn btn-info">Переглянути</a>
-                                <a href="{{ route('departments.edit', $enterprise) }}" class="btn btn-warning">Редагувати</a>
+                                <a href="{{ route('departments.show', $enterprise) }}" class="btn btn-info">{{ __('View') }}</a>
+                                <a href="{{ route('departments.edit', $enterprise) }}" class="btn btn-warning">{{ __('Edit') }}</a>
                                 <form action="{{ route('departments.destroy', $enterprise) }}" method="POST" style="display:inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-danger">Видалити</button>
+                                    <button type="submit" class="btn btn-danger">{{ __('Delete') }}</button>
                                 </form>
                             </td>
                         </tr>

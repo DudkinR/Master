@@ -1,5 +1,5 @@
  <div class="mb-3">
-        <label class="form-label fw-bold">Персонал на об'єкті:</label><br>
+        <label class="form-label fw-bold"> {{ __('Worker List') }}:</label><br>
         @foreach ($task->users()->get() as $user)
             @if($user->pivot->role === 'worker' || $user->pivot->role === 'brigadir')
             <div class="form-check form-check-inline">

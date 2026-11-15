@@ -1,69 +1,69 @@
 @extends('app.layout')
 
-@section('title', 'Картка завдання')
+@section('title',  'Картка завдання')
 @section('content')
 <div class="container mt-4">
-  <h3 class="mb-3">Картка завдання</h3>
+  <h3 class="mb-3"> {{ __('Task Card') }} </h3>
 
   <!-- Кнопки -->
   <div class="mb-3">
-    <button type="button" class="btn btn-success me-2">▶ Почати роботу</button>
-    <button type="button" class="btn btn-warning me-2">⏸ Перерва</button>
-    <button type="button" class="btn btn-danger me-2">⏹ Завершити роботу</button>
-    <button type="button" class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#problemModal">🚨 Проблема</button>
-    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#helpModal">❓</button>
+    <button type="button" class="btn btn-success me-2">▶ {{ __('Start Work') }}</button>
+    <button type="button" class="btn btn-warning me-2">⏸ {{ __('Break') }}</button>
+    <button type="button" class="btn btn-danger me-2">⏹ {{ __('End Work') }}</button>
+    <button type="button" class="btn btn-outline-danger me-2" data-bs-toggle="modal" data-bs-target="#problemModal">🚨 {{ __('Problem') }}</button>
+    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#helpModal">❓ {{ __('Help') }} </button>
   </div>
 
   <!-- Персонал -->
   <div class="mb-3">
-    <label class="form-label fw-bold">Персонал на об'єкті:</label><br>
+    <label class="form-label fw-bold"> {{ __('Personnel on Site') }}:</label><br>
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="checkbox" id="worker1">
-      <label class="form-check-label" for="worker1">Іванов І.І.</label>
+      <label class="form-check-label" for="worker1"> {{ __('Ivanov I.I.') }}</label>
     </div>
     <div class="form-check form-check-inline">
       <input class="form-check-input" type="checkbox" id="worker2">
-      <label class="form-check-label" for="worker2">Петренко П.П.</label>
+      <label class="form-check-label" for="worker2"> {{ __('Petrenko P.P.') }}</label>
     </div>
     <!-- Додайте ще працівників -->
   </div>
 
   <!-- ТМЦ -->
   <div class="mb-3">
-    <label class="form-label fw-bold">Наявність ТМЦ:</label><br>
+    <label class="form-label fw-bold"> {{ __('Availability of Materials') }}:</label><br>
     <div class="form-check">
       <input class="form-check-input" type="checkbox" id="tmc1">
-      <label class="form-check-label" for="tmc1">Цемент</label>
+      <label class="form-check-label" for="tmc1"> {{ __('Cement') }}</label>
     </div>
     <div class="form-check">
       <input class="form-check-input" type="checkbox" id="tmc2">
-      <label class="form-check-label" for="tmc2">Арматура</label>
+      <label class="form-check-label" for="tmc2"> {{ __('Rebar') }}</label>
     </div>
   </div>
 
   <!-- Обладнання -->
   <div class="mb-3">
-    <label class="form-label fw-bold">Наявність обладнання:</label><br>
+    <label class="form-label fw-bold"> {{ __('Availability of Equipment') }}:</label><br>
     <div class="form-check">
       <input class="form-check-input" type="checkbox" id="equip1">
-      <label class="form-check-label" for="equip1">Віброплита</label>
+      <label class="form-check-label" for="equip1"> {{ __('Vibrating Plate') }}</label>
     </div>
     <div class="form-check">
       <input class="form-check-input" type="checkbox" id="equip2">
-      <label class="form-check-label" for="equip2">Лазерний рівень</label>
+      <label class="form-check-label" for="equip2"> {{ __('Laser Level') }}</label>
     </div>
   </div>
 
   <!-- Робота техніки -->
   <div class="mb-3">
-    <label class="form-label fw-bold">Робота техніки:</label>
+    <label class="form-label fw-bold"> {{ __('Operation of Equipment') }}:</label>
     <div class="row">
       <div class="col-md-6">
-        <label for="techStart" class="form-label">Початок</label>
+        <label for="techStart" class="form-label"> {{ __('Start') }}</label>
         <input type="time" class="form-control" id="techStart">
       </div>
       <div class="col-md-6">
-        <label for="techEnd" class="form-label">Кінець</label>
+        <label for="techEnd" class="form-label"> {{ __('End') }}</label>
         <input type="time" class="form-control" id="techEnd">
       </div>
     </div>
@@ -75,15 +75,15 @@
   <div class="modal-dialog">
     <form class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="problemModalLabel">Повідомити про проблему</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+        <h5 class="modal-title" id="problemModalLabel"> {{ __('Report a Problem') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <label for="problemText" class="form-label">Опишіть проблему:</label>
+        <label for="problemText" class="form-label"> {{ __('Describe the problem') }}:</label>
         <textarea class="form-control" id="problemText" rows="4" required></textarea>
       </div>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-danger">Надіслати</button>
+        <button type="submit" class="btn btn-danger"> {{ __('Send') }}</button>
       </div>
     </form>
   </div>
@@ -94,19 +94,19 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="helpModalLabel">Довідка по формі</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+        <h5 class="modal-title" id="helpModalLabel"> {{ __('Help') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <ul>
-          <li><strong>Почати роботу:</strong> натисніть на старт перед фактичним початком.</li>
-          <li><strong>Перерва:</strong> фіксує перерву в роботі.</li>
-          <li><strong>Завершити роботу:</strong> фіксує час завершення.</li>
-          <li><strong>Персонал:</strong> позначте працівників, які реально працюють на об'єкті.</li>
-          <li><strong>ТМЦ:</strong> оберіть, якщо матеріали присутні на місці.</li>
-          <li><strong>Обладнання:</strong> відзначте наявне обладнання.</li>
-          <li><strong>Робота техніки:</strong> заповніть час роботи техніки.</li>
-          <li><strong>Проблема:</strong> натисніть "🚨 Проблема", якщо виникає будь-яке ускладнення.</li>
+          <li><strong> {{ __('Start Work') }}:</strong> click the start button before actually starting.</li>
+          <li><strong> {{ __('Break') }}:</strong> records a break in work.</li>
+          <li><strong> {{ __('Finish Work') }}:</strong> records the time of completion.</li>
+          <li><strong> {{ __('Staff') }}:</strong> mark employees who are actually working on the site.</li>
+          <li><strong> {{ __('Materials') }}:</strong> select if materials are present on the site.</li>
+          <li><strong> {{ __('Equipment') }}:</strong> mark the available equipment.</li>
+          <li><strong> {{ __('Operation of Equipment') }}:</strong> fill in the time of equipment operation.</li>
+          <li><strong> {{ __('Problem') }}:</strong> click "🚨 Problem" if any complications arise.</li>
         </ul>
       </div>
     </div>

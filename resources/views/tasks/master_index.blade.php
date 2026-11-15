@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Завдання (Майстера) ')
+@section('title', 'Tasks - Master')
 @section('content')
 <div class="container my-5">
     <!-- блок сповіщень -->
@@ -17,18 +17,18 @@
                     <div class="card-body">
                         <h5 class="card-title">{{ $master->name }}</h5>
                         <p class="card-text">{{ $master->email }}</p>
-                        <p class="card-text"><strong>Завдань:</strong> {{ $master->tasks_count }}</p>
-                        <a href="{{ route('tasks.masterTasks', $master->id) }}" class="btn btn-primary">Переглянути завдання</a>
+                        <p class="card-text"><strong>Tasks:</strong> {{ $master->tasks_count }}</p>
+                        <a href="{{ route('tasks.masterTasks', $master->id) }}" class="btn btn-primary">View Tasks</a>
                     </div>  
                     <div class="card-footer">
-                        <p><strong>Статус:</strong> 
+                        <p><strong>Status:</strong> 
                             @if ($master->tasks_count > 0)
-                                <span class="badge bg-success">Має завдання</span>
+                                <span class="badge bg-success">Has Tasks</span>
                             @else
-                                <span class="badge bg-secondary">Без завдань</span>
+                                <span class="badge bg-secondary">No Tasks</span>
                             @endif
                         </p>
-                        <a href="{{ route('tasks.assignMaster', $master->id) }}" class="btn btn-secondary">Призначити завдання</a>
+                        <a href="{{ route('tasks.assignMaster', $master->id) }}" class="btn btn-secondary">Assign Task</a>
                     </div>
                 </div>
             </div>

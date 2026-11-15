@@ -1,21 +1,21 @@
 <div class="d-flex gap-2 mb-4">
     <button id="pauseBtn" onclick="pauseWork({{ $task->id }})" class="btn btn-warning {{ $task->status === 'in_progress' ? '' : 'd-none' }}">
-        ⏸ Перерва
+        ⏸  {{ __('Break') }}
     </button>
     <button id="endBtn" class="btn btn-danger {{ $task->status === 'in_progress' ? '' : 'd-none' }}"
             data-bs-toggle="modal" data-bs-target="#endWorkModal">
-        ⏹ Завершити
+        ⏹ {{ __('Finish Work') }}
     </button>
     <button id="startBtn" onclick="startWork({{ $task->id }})" class="btn btn-success {{ $task->status === 'in_progress' ? 'd-none' : '' }}">
-        ▶ Почати роботу
+        ▶ {{ __('Start Work') }}
     </button>
-    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#problemModal">🚨 Проблема</button>
-    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#helpModal">❓</button>
+    <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#problemModal">🚨 {{ __('Problem') }}</button>
+    <button class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#helpModal">❓ {{ __('Help') }}</button>
 </div>
 
 {{-- Таймер --}}
 <div class="mb-4">
-    <span class="fw-bold">Час у роботі:</span>
+    <span class="fw-bold"> {{ __('Time Spent') }}:</span>
     <span id="timerDisplay" data-starttime="{{ $timeSpent ?? 0 }}">00:00:00</span>
 </div>
 
@@ -31,7 +31,7 @@
 
 <div class="mb-4">    
     <span class="fw-bold" id="estimated_hours" data-estimated="{{ $task->estimated_hours }}">
-        Залишок трудозатрат (з {{ $task->estimated_hours }} год):
+        {{ __('Remaining Work Hours') }} ({{ $task->estimated_hours }} {{ __('hours') }}):
     </span>
     <span id="worktimerDisplay" class="text-dark fw-bold">00:00:00</span>
 </div>

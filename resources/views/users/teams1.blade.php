@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Ієрархія користувачів')
+@section('title', 'Hierarchy of Personnel')
 @section('content')
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -31,7 +31,7 @@
 </style>
 
 <div class="container my-4">
-    <h2>👥 Ієрархія користувачів</h2>
+    <h2>👥 Hierarchy of Personnel   </h2>
 
     <ul id="tree" class="list-unstyled">
         @php

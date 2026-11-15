@@ -1,8 +1,8 @@
 @extends('layouts.app')
-@section('title', 'Список користувачів')
+@section('title', 'List of Users')
 @section('content')
 <div class="container mt-5">
-    <h2 class="mb-4">Список користувачів</h2>
+    <h2 class="mb-4">List of Users</h2>
     @if(session('success'))
       <div class="alert alert-success">
         {{ session('success') }}
@@ -18,7 +18,7 @@
     <div class="card mb-3">
     <div class="card-header">
         🔍 Фільтри користувачів
-       <input type="text" id="searchInput" class="form-control mb-3" placeholder="Пошук за ім'ям або email">
+       <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search by name or email">
     </div>
     
     <!-- Кінець фільтрів -->
@@ -30,13 +30,13 @@
         <thead>
             <tr>
             <th scope="col">#</th>
-            <th scope="col">Ім'я</th>
-            <th scope="col">Електронна пошта</th>
-            <th scope="col">Position </th>
-            <th scope="col">Роль</th>
-            <th scope="col">Entrprise</th>
+            <th scope="col">Name</th>
+            <th scope="col">Email</th>
+            <th scope="col">Position</th>
+            <th scope="col">Role</th>
+            <th scope="col">Enterprise</th>
             <th scope="col">Department</th>            
-            <th scope="col">Дії</th>
+            <th scope="col">Actions</th>
             </tr>
         </thead>
         <tbody id="userTableBody">
@@ -60,9 +60,9 @@
                     
                      
                     @if((Auth::user()->roles->first()->name !== 'Admin' && isset($user->roles->first()->name)&& $user->roles->first()->name == 'Admin') || Auth::user()->id == $user->id)
-                    <span class="text-muted">Редагування та видалення недоступні</span>                   
+                    <span class="text-muted">Editing and deletion are not available</span>                   
                     @else
-                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
+                    <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">View</a>
                    
                      <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
                         data-id="{{ $user->id }}"
@@ -74,12 +74,12 @@
                         data-roles='@json($user->roles->pluck("id"))'
                         data-enterprises='@json($user->enterprises->pluck("id"))'
                         data-departments='@json($user->departments->pluck("id"))'>
-                        Редагувати
+                        Edit
                     </button>
                     <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                     </form>
                     @endif
                 </td>
@@ -102,9 +102,9 @@
                             <td>{{ $child->departments->first()->name ?? '-' }}</td>
                             <td>
                             @if((Auth::user()->roles->first()->name !== 'Admin' && isset($child->roles->first()->name) && $child->roles->first()->name == 'Admin') || Auth::user()->id == $child->id)
-                            <span class="text-muted">Редагування та видалення недоступні</span>
+                            <span class="text-muted">Editing and deletion are not available</span>
                             @else
-                              <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
+                              <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">View</a>
                 
                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
                                 data-id="{{ $child->id }}"
@@ -116,12 +116,12 @@
                                 data-roles='@json($child->roles->pluck("id"))'
                                 data-enterprises='@json($child->enterprises->pluck("id"))'
                                 data-departments='@json($child->departments->pluck("id"))'>
-                                Редагувати
+                                Edit
                             </button>
                             <form action="{{ route('users.destroy', $child->id) }}" method="POST" style="display:inline;">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
                             </form>
                             @endif
                             </td>
@@ -145,9 +145,9 @@
                                     <td>{{ $grandChild->departments->first()->name ?? '-' }}</td>
                                     <td>
                                         @if((Auth::user()->roles->first()->name !== 'Admin' && isset($grandChild->roles->first()->name) && $grandChild->roles->first()->name == 'Admin') || Auth::user()->id == $grandChild->id)
-                                        <span class="text-muted">Редагування та видалення недоступні</span>
+                                        <span class="text-muted">Editing and deletion are not available</span>
                                         @else
-                                          <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">Переглянути</a>
+                                          <a href="{{ route('users.show', $user->id) }}" class="btn btn-info btn-sm">View</a>
                                             <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editUserModal"
                                                 data-id="{{ $grandChild->id }}"
                                                 data-name="{{ $grandChild->name }}"
@@ -160,12 +160,12 @@
                                                 data-roles='@json($grandChild->roles->pluck("id"))'
                                                 data-enterprises='@json($grandChild->enterprises->pluck("id"))'
                                                 data-departments='@json($grandChild->departments->pluck("id"))'>
-                                                Редагувати
+                                                Edit
                                             </button>
                                             <form action="{{ route('users.destroy', $grandChild->id) }}" method="POST" style="display:inline;">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm">Видалити</button>
+                                                <button type="submit" class="btn btn-danger btn-sm">Delete  </button>
                                             </form> 
                                         @endif    
                                     </td>

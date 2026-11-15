@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Ієрархія користувачів')
+@section('title', 'Hierarchy of Personnel')
 @section('content')
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -227,7 +227,7 @@
 
 
          @if(empty($masters_id)    )
-            <li class="node unassigned">🔍 Немає майстрів</li>
+            <li class="node unassigned">🔍 {{ __('No masters found') }}</li>
         @else
             @foreach ($masters_id as $master)
                <li class="node master" data-id="{{ $master }}">
@@ -238,7 +238,7 @@
                             @include('users.partials.user-tree', ['userId' => $child, 'users' => $users])
                         @endforeach  
                     @else
-                        <li class="node unassigned">🔍 Немає майстрів</li>
+                        <li class="node unassigned">🔍 {{ __('No subordinates found') }}</li>
                     @endif                   
                    </ul>
                </li>

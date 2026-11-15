@@ -6,25 +6,25 @@
             <input type="hidden" name="task_id" value="{{ $task->id }}">
 
             <div class="modal-header">
-                <h5 class="modal-title">Проблема</h5>
+                <h5 class="modal-title"> {{ __('Problem') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
             <div class="modal-body">
                 <div class="form-floating mb-2">
-                    <input type="text" class="form-control" name="title" placeholder="Заголовок проблеми" required>
-                    <label for="title">Заголовок проблеми</label>
+                    <input type="text" class="form-control" name="title" placeholder="{{ __('Problem Title') }}" required>
+                    <label for="title">{{ __('Problem Title') }}</label>
                 </div>
-                <label for="description" class="form-label">Опис проблеми</label>
-                <textarea class="form-control" name="description" placeholder="Опишіть проблему..." rows="4" required></textarea>
+                <label for="description" class="form-label"> {{ __('Description') }}</label>
+                <textarea class="form-control" name="description" placeholder="{{ __('Describe the problem...') }}" rows="4" required></textarea>
 
                 <div class="form-check mt-3">
                     <input class="form-check-input" type="checkbox" name="photo_problem_checkbox" id="photoProblem">
-                    <label class="form-check-label" for="photoProblem">Додати фото-звіт</label>
+                    <label class="form-check-label" for="photoProblem"> {{ __('Add Photo Report') }}</label>
                 </div>
 
                 <div class="mt-3" id="photoProblemSection" style="display: none;">
-                    <label for="photo_problem" class="form-label">Фото-звіт</label>
+                    <label for="photo_problem" class="form-label"> {{ __('Photo Report') }}</label>
                     <input 
                         type="file" 
                         name="photo_problem[]" 
@@ -38,13 +38,13 @@
                     <input type="hidden" name="resized_photos[]" id="resizedPhotosPlaceholder">
 
                     <small class="form-text text-muted">
-                        Ви можете додати декілька фото-звітів. Максимальний розмір файлу 5 МБ.
+                        {{ __('You can add multiple photo reports. Maximum file size is 5 MB.') }}
                     </small>
                 </div>
             </div>
 
             <div class="modal-footer">
-                <button type="submit" class="btn btn-danger">Надіслати</button>
+                <button type="submit" class="btn btn-danger">{{ __('Submit') }} </button>
             </div>
 
             <div class="modal-footer flex-column">
@@ -65,7 +65,7 @@
                 @endforeach
 
                 @if ($problems->isEmpty())
-                    <div class="alert alert-info w-100">Проблем немає.</div>
+                    <div class="alert alert-info w-100"> {{ __('No problems available.') }} </div>
                 @endif
             </div>
         </form>

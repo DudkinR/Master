@@ -7,22 +7,22 @@
             <div class="carousel-item active">
                 <img src="https://dostup.org.ua/system/publications/images/000/001/889/original/c038496-budivnyctvo-dijital.jpg?1626021192" class="d-block w-100" alt="Слайд 1">
                 <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
-                    <h5>Централізоване управління проектами</h5>
-                    <p>Керуйте всіма об'єктами в одному вікні.</p>
+                    <h5>{{ __('Centralized Project Management') }}</h5>
+                    <p>{{ __('Manage all objects in one window.') }}</p>
                 </div>
             </div>
             <div class="carousel-item">
                 <img src="https://www.softcom.ua/upload/iblock/375/84_main.jpeg" class="d-block w-100" alt="Слайд 2">
                 <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
-                    <h5>Гнучкий розподіл завдань</h5>
-                    <p>Призначайте майстрів, бригадирів, ресурси та строки.</p>
+                    <h5>{{ __('Flexible Task Allocation') }}</h5>
+                    <p>{{ __('Assign masters, team leaders, resources and deadlines.') }}</p>
                 </div>
             </div>
             <div class="carousel-item">
                 <img src="https://up-study.ua/storage/media/262/conversions/budivnictvo-ogljad-i-rejting-specialnosti-default.jpg" class="d-block w-100" alt="Слайд 3">
                 <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-2">
-                    <h5>Контроль виконання в реальному часі</h5>
-                    <p>Слідкуйте за ходом виконання на кожному етапі.</p>
+                    <h5>{{ __('Real-time Execution Control') }}</h5>
+                    <p>{{ __('Monitor the progress of each stage.') }}</p>
                 </div>
             </div>
         </div>
@@ -33,21 +33,19 @@
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Про систему</h5>
-                    <p class="card-text">Ця система призначена для централізованого управління проектами в будівництві. Вона дозволяє ефективно
-                        розподіляти завдання, контролювати виконання та забезпечувати прозорість процесів.</p>
-                    <a href="" class="btn btn-primary">Дізнатися більше</a>
+                    <h5 class="card-title">{{ __('About the System') }}</h5>
+                    <p class="card-text">{{ __('This system is designed for centralized project management in construction. It allows you to efficiently allocate tasks, control execution, and ensure transparency of processes.') }}</p>
+                    <a href="" class="btn btn-primary">{{ __('Learn More') }}</a>
                 </div>
             </div>
         </div>
         <div class="col-md-6 mb-4">
             <div class="card shadow-sm">    
                 <div class="card-body">
-                    <h5 class="card-title">Почати роботу</h5>
-                    <p class="card-text">Щоб почати роботу з системою, вам потрібно зареєструватися або увійти в свій обліковий запис.
-                        Після цього ви зможете створювати нові проекти, додавати об'єкти та призначати завдання.</p>
-                    <a href="{{ route('register') }}" class="btn btn-success">Зареєструватися</a>
-                    <a href="{{ route('login') }}" class="btn btn-secondary">Увійти</a>
+                    <h5 class="card-title">{{ __('Get Started') }}</h5>
+                    <p class="card-text">{{ __('To get started with the system, you need to register or log in to your account. After that, you will be able to create new projects, add objects, and assign tasks.') }}</p>
+                    <a href="{{ route('register') }}" class="btn btn-success">{{ __('Register') }}</a>
+                    <a href="{{ route('login') }}" class="btn btn-secondary">{{ __('Login') }}</a>
                 </div>
             </div>
         </div>
@@ -56,10 +54,9 @@
         <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Останні новини</h5>
-                    <p class="card-text">Слідкуйте за останніми новинами та оновленнями системи. Ми регулярно додаємо нові функції та покращення,
-                        щоб зробити вашу роботу ще ефективнішою.</p>
-                    <a href="" class="btn btn-info">Перегля  нути новини</a>
+                    <h5 class="card-title">{{ __('Latest News') }}</h5>
+                    <p class="card-text">{{ __('Follow the latest news and updates about the system. We regularly add new features and improvements to make your work even more efficient.') }}</p>
+                    <a href="" class="btn btn-info">{{ __('View News') }}</a>
                 </div>
             </div>
         </div>

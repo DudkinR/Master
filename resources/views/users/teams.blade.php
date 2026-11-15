@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Ієрархія користувачів')
+@section('title', 'Hierarchy of Personnel')
 @section('content')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
@@ -37,7 +37,7 @@
         ];
 @endphp
 <div class="container my-4">
-    <h2>Ієрархія персоналу</h2>
+    <h2>Hierarchy of Personnel</h2>
     <ul id="tree" class="list-unstyled">
         @foreach($users as $user)
             @php
@@ -87,10 +87,10 @@
    @if(Auth::user()->hasRole(['Admin', 'Boss', 'Master']))
     <div class="row">
         <div class="col-md-6 bg-warning">
-            <h4>Лікарнянний</h4>
+            <h4>Health Leave</h4>
     <ul class="list-health">
         @if($healthUsers->isEmpty())
-            <li class="unassigned">Немає користувачів на лікарняному</li>
+            <li class="unassigned">No users on health leave</li>
         @else
             @foreach($healthUsers as $user)
                 @php
@@ -127,10 +127,10 @@
     </ul>
         </div>
         <div class="col-md-6 bg-success">
-            <h4>Відпустка</h4>
+            <h4>Vacation</h4>
     <ul class="list-vacation">
         @if($vacationUsers->isEmpty())
-            <li class="unassigned">Немає користувачів у відпустці</li>
+            <li class="unassigned">No users on vacation </li>
         @else
             @foreach($vacationUsers as $user)
                 @php

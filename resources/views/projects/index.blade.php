@@ -22,27 +22,27 @@
                 <div class="modal-dialog">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createProjectModalLabel">Створити новий проект</h5>
+                            <h5 class="modal-title" id="createProjectModalLabel">{{ __('Create New Project') }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <form action="{{ route('projects.store') }}" method="POST">
                                 @csrf
                               <div class="container mt-5">
-                                <h2 class="mb-4">Форма реєстрації будівельного проєкту</h2>                 
+                                <h2 class="mb-4">{{ __('Project Registration Form') }}</h2>                 
                                 <!-- Назва проєкту -->
                                 <div class="mb-3">
-                                    <label for="projectName" class="form-label">Назва проєкту</label>
+                                    <label for="projectName" class="form-label">{{ __('Project Name') }}</label>
                                     <input type="text" class="form-control" id="projectName" name="projectName" required>
                                 </div>
                                 <!-- Локація -->
                                 <div class="mb-3">
-                                    <label for="location" class="form-label">Місце реалізації (локація)</label>
+                                    <label for="location" class="form-label">{{ __('Location') }}</label>
                                     <input type="text" class="form-control" id="location" name="location" >
                                 </div>
                                 <!-- Керівник проєкту -->
                                 <div class="mb-3">
-                                    <label for="engineer" class="form-label">Інженерна підтримка проєкту</label> 
+                                    <label for="engineer" class="form-label">{{ __('Project Engineer') }}</label> 
                                     <select class="form-select" name="engineer_id" id="engineer_id" >
                                         <option value="">-- Виберіть Інженера --</option>
                                         @foreach ($engs as $eng)
@@ -52,26 +52,26 @@
                                 </div>
                                 <!-- Орієнтовна дата початку -->
                                 <div class="mb-3">
-                                    <label for="startDate" class="form-label">Дата початку робіт</label>
+                                    <label for="startDate" class="form-label">{{ __('Start Date') }}</label>
                                     <input type="date" class="form-control" id="startDate" name="startDate" value="{{ date('Y-m-d') }}" >
                                 </div>
                                 <!-- Орієнтовна дата завершення -->
                                 <div class="mb-3">
-                                    <label for="endDate" class="form-label">Дата завершення робіт</label>
+                                    <label for="endDate" class="form-label">{{ __('End Date') }}</label>
                                     <input type="date" class="form-control" id="endDate" name="endDate" value="{{ date('Y-m-d', strtotime('+1 month')) }}" >
                                 </div>
                                 <!-- Загальний кошторис -->
                                 <div class="mb-3">
-                                    <label for="budget" class="form-label">Загальний кошторис (грн)</label>
+                                    <label for="budget" class="form-label">{{ __('Total Budget') }} (грн)</label>
                                     <input type="number" class="form-control" id="budget" name="budget" min="0" step="0.01" value="0" >
                                 </div>
                                 <!-- Короткий опис проєкту -->
                                 <div class="mb-3">
-                                    <label for="description" class="form-label">Короткий опис проєкту</label>
+                                    <label for="description" class="form-label">{{ __('Project Description') }}</label>
                                     <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                                 </div>
                                 <!-- Кнопка надсилання -->
-                                <button type="submit" class="btn btn-primary">Зареєструвати</button>
+                                <button type="submit" class="btn btn-primary">{{ __('Register Project') }}  </button>
 
                                 </form>
                         </div>
@@ -83,15 +83,15 @@
     <!-- список проектів -->
     <div class="row">
         <div class="col-md-12">
-            <h2>Список проектів</h2>
+            <h2>{{ __('Project List') }}</h2>
             <table class="table">
                 <thead>
                     <tr>
                         <th>ID</th>
-                        <th>Назва</th>
-                        <th>Опис</th>
-                        <th>Дії</th>
-                        <th>Локація</th>
+                        <th>{{ __('Name') }}</th>
+                        <th>{{ __('Description') }}</th>
+                        <th>{{ __('Actions') }}</th>
+                        <th>{{ __('Location') }}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -107,7 +107,7 @@
                             
                             <div class="btn-group btn-group-sm d-flex flex-column gap-1" role="group">
                                 @if(Auth::user()->roles->first()->name ==="Boss" || Auth::user()->roles->first()->name ==="Engineer" || Auth::user()->roles->first()->name ==="Admin")
-                                    <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning w-100" title="Редагувати основні дані проекту" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="Редагувати проект" data-bs-original-title="Редагувати проект" style="text-decoration: none;"
+                                    <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning w-100" title="{{ __('Edit Project Details') }}" data-bs-toggle="tooltip" data-bs-placement="top" aria-label="{{ __('Edit Project') }}" data-bs-original-title="{{ __('Edit Project') }}" style="text-decoration: none;"
                                     >✏️</a>
                                 @endif
                             </div>

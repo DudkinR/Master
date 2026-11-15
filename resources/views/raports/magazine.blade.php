@@ -17,7 +17,7 @@
         </div>
         <div class="col-md-1 text-end">
             
-            <button class="btn btn-primary" onclick="resetFilters()">Скинути фільтри</button>
+            <button class="btn btn-primary" onclick="resetFilters()"> {{ __('Reset Filters') }}</button>
         </div>
         <div class="col-md-1 text-end">
             <button class="btn btn-secondary" onclick="exportToExcel()">Excel</button>

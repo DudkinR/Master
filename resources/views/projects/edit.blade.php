@@ -16,7 +16,8 @@
         <div class="col-md-12">
             <!-- кнопка для відкриття модального вікна -->
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createProjectModal">
-                Редагувати проект: {{ $project->name }}
+                
+            {{ __('Edit Project') }}: {{ $project->name }}
             </button>
         </div>
     </div>
@@ -26,17 +27,17 @@
                 @csrf
                 @method('PUT')
                 <div class="container mt-5">
-                    <h2 class="mb-4">Форма редагування будівельного проєкту</h2>
+                    <h2 class="mb-4">{{ __('Edit Project Form') }}</h2>
                     <!-- Назва проєкту -->
                     <div class="mb-3">
-                        <label for="projectName" class="form-label">Назва проєкту</label>
+                        <label for="projectName" class="form-label">{{ __('Project Name') }}</label>
                         <input type="text" class="form-control" id="projectName" name="projectName" value="{{ $project->name }}" required>
                     </div>
                 </div>
                 <!-- Локація -->
                 <div class="row mb-3">
                     <div class="col-md-6">
-                    <label for="location" class="form-label">Локація</label>
+                    <label for="location" class="form-label">{{ __('Location') }}</label>
                     <input type="text" class="form-control" id="location" name="location" value="{{ $project->location }}" >
                     </div>@php 
                         $isCoordinates = preg_match('/^-?\d+(\.\d+)?\s*,\s*-?\d+(\.\d+)?$/', $project->location);
@@ -56,7 +57,7 @@
 
                     @if($latitude && $longitude)
                         <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#map-{{ $project->id }}">
-                            🗺 Показати карту
+                            🗺 {{ __('Show Map') }}
                         </button>
                         <div id="map-{{ $project->id }}" class="collapse mt-2">
                             <iframe
@@ -68,13 +69,13 @@
                         
                     @endif
                     <div id="help-{{ $project->id }}" class="mt-2">
-                            <p>Допомога по локації:</p>
+                            <p>{{ __('Location Help') }}:</p>
                             <ul>
-                                <li>Якщо ви не знаєте точні координати, спробуйте знайти їх на Google Maps.</li>
-                                <li>Перейдить "Переглянути збільшену карту" та знайдіть потрібну локацію.</li>
-                                <li>натиснить правою кнопкою миші на точку на карті та виберіть "Що тут?"</li>
-                                <li>Кликнить на першу строку в вигляді "Широта, Довгота"  приклад: 48.8588443, 2.2943506</li>
-                                <li>Вставте координати в поле "Локація" у форматі "Широта, Довгота".</li>
+                                <li>{{ __('If you don\'t know the exact coordinates, try finding them on Google Maps.') }}</li>
+                                <li>{{ __('Click "View larger map" and find the desired location.') }}</li>
+                                <li>{{ __('Right-click on a point on the map and select "What\'s here?"') }}</li>
+                                <li>{{ __('Click the first line in the format "Latitude, Longitude" example: 48.8588443, 2.2943506') }}</li>
+                                <li>{{ __('Paste the coordinates in the "Location" field in the format "Latitude, Longitude".') }}</li>
                             </ul>
                         </div>
                 </div>
@@ -82,31 +83,31 @@
                 </div>
                 <!-- Керівник проєкту -->
                 <div class="mb-3">
-                    <label for="manager" class="form-label">Керівник проєкту</label>
+                    <label for="manager" class="form-label">{{ __('Project Manager') }}</label>
                     <input type="text" class="form-control" id="manager" name="manager" value="{{ $project->manager }}">
                 </div>
                 <!-- Орієнтовна дата початку -->
                 <div class="mb-3">
-                    <label for="startDate" class="form-label">Дата початку робіт</label>
+                    <label for="startDate" class="form-label">{{ __('Start Date') }}</label>
                     <input type="date" class="form-control" id="startDate" name="startDate" value="{{ $project->start_date }}">
                 </div>
                 <!-- Орієнтовна дата завершення -->
                 <div class="mb-3">
-                    <label for="endDate" class="form-label">Дата завершення робіт</label>
+                    <label for="endDate" class="form-label">{{ __('End Date') }}</label>
                     <input type="date" class="form-control" id="endDate" name="endDate" value="{{ $project->end_date }}">
                 </div>
                 <!-- Загальний кошторис -->
                 <div class="mb-3">
-                    <label for="budget" class="form-label">Загальний кошторис (грн)</label>
+                    <label for="budget" class="form-label">{{ __('Total Budget') }} (грн)</label>
                     <input type="number" class="form-control" id="budget" name="budget" value="{{ $project->budget }}" min="0" step="0.01"> 
                 </div>
                 <!-- Короткий опис проєкту -->
                 <div class="mb-3">
-                    <label for="description" class="form-label">Короткий опис проєкту</label>
+                    <label for="description" class="form-label">{{ __('Project Description') }}</label>
                     <textarea class="form-control" id="description" name="description" rows="3">{{ $project->description }}</textarea>
                 </div>
                 <!-- Кнопка надсилання -->
-                <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                <button type="submit" class="btn btn-primary">{{ __('Save Changes') }}</button>
             </form>
         </div>
     </div>  

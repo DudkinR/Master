@@ -18,7 +18,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <a type="button"  class="btn btn-success w-100"  href="{{ route('tasks.create') }}" style="text-decoration: none;">
-                Створити нове завдання
+                {{ __('Create New Task') }}
             </a>
         </div>
     </div>
@@ -30,16 +30,16 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content shadow">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="taskDetailsModalLabel">Назва завдання</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                    <h5 class="modal-title" id="taskDetailsModalLabel"> {{ __('Task Details') }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=" {{ __('Close') }}"></button>
                 </div>
                 <div class="modal-body">
-                    <p><strong>Опис:</strong> <span id="taskDescription"></span></p>
-                    <p><strong>Порядок:</strong> <span id="taskOrder"></span></p>
-                    <p><strong>Дата початку:</strong> <span id="taskStartDate"></span></p>
-                    <p><strong>Дата завершення:</strong> <span id="taskEndDate"></span></p>
-                    <p><strong>Орієнтовні години:</strong> <span id="taskEstimatedHours"></span> год</p>
-                    <p><strong>Статус:</strong>
+                    <p><strong> {{ __('Description') }}:</strong> <span id="taskDescription"></span></p>
+                    <p><strong> {{ __('Order') }}:</strong> <span id="taskOrder"></span></p>
+                    <p><strong> {{ __('Start Date') }}:</strong> <span id="taskStartDate"></span></p>
+                    <p><strong> {{ __('End Date') }}:</strong> <span id="taskEndDate"></span></p>
+                    <p><strong> {{ __('Estimated Hours') }}:</strong> <span id="taskEstimatedHours"></span> {{ __('hours') }}</p>
+                    <p><strong> {{ __('Status') }}:</strong>
                     <span class="badge" id="taskStatusLabel"></span>
                     </p>
                 </div>
@@ -50,7 +50,7 @@
                    <a href="" id="showTaskLink" class="btn btn-primary">
                    {{__('Show')}}
                      </a>
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> {{ __('Close') }}</button>
 
                 </div>
             </div>
@@ -62,8 +62,8 @@
         <div class="modal-content">
         
             <div class="modal-header">
-                <h5 class="modal-title" id="assignMasterModalLabel">Призначення виконавця</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                <h5 class="modal-title" id="assignMasterModalLabel"> {{ __('Assign Master') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=" {{ __('Close') }}"></button>
             </div>
 
             <form method="POST" action="{{ route('tasks.assignMaster') }}">
@@ -74,9 +74,9 @@
                     @if(Auth::user()->isBoss())
                         <input type="hidden" name="role" value="master">
                         <div class="mb-3">
-                            <label for="master_id" class="form-label">Оберіть майстра</label>
+                            <label for="master_id" class="form-label"> {{ __('Select Master') }}</label>
                             <select name="master_id" id="master_id" class="form-select" required>
-                                <option value="">-- Виберіть --</option>
+                                <option value="">-- {{ __('Select') }} --</option>
                                 @foreach ($masters as $master)
                                     <option value="{{ $master->id }}">{{ $master->name }}</option>
                                 @endforeach
@@ -86,9 +86,9 @@
                     @elseif(Auth::user()->isMaster())
                         <input type="hidden" name="role" value="brigadir">
                         <div class="mb-3">
-                            <label for="master_id" class="form-label">Оберіть бригадира</label>
+                            <label for="master_id" class="form-label"> {{ __('Select Brigadir') }}</label>
                             <select name="master_id" id="master_id" class="form-select" required>
-                                <option value="">-- Виберіть --</option>
+                                <option value="">-- {{ __('Select') }} --</option>
                                 @foreach ($brigadirs as $brigadir)
                                     <option value="{{ $brigadir->id }}">{{ $brigadir->name }}</option>
                                 @endforeach
@@ -98,7 +98,7 @@
                     @elseif(Auth::user()->isBrigadir())
                         <input type="hidden" name="role" value="worker">
                         <div class="mb-3"> 
-                            <label for="master_id" class="form-label">Оберіть робітників</label>
+                            <label for="master_id" class="form-label"> {{ __('Select Workers') }}</label>
                             <select name="master_id[]" id="master_id" class="form-select" multiple required>
                                 @foreach ($workers as $worker)
                                     <option value="{{ $worker->id }}">{{ $worker->name }}</option>
@@ -109,8 +109,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Призначити</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary"> {{ __('Assign') }}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> {{ __('Cancel') }}</button>
                 </div>
             </form>
         </div>
@@ -128,28 +128,28 @@
         const card = document.createElement('div');
         card.className = 'card mb-3 shadow-sm';
        
-        const masterName = task.master[0]?.name ?? 'Не призначено';
-        const brigadirName = task.brigadir[0]?.name ?? 'Не призначено';
+        const masterName = task.master[0]?.name ??  'not assigned';
+        const brigadirName = task.brigadir[0]?.name ?? 'not assigned';
         const workers = Array.isArray(task.workers) && task.workers.length > 0
             ? task.workers.map(worker => worker.name).join(', ')
-            : 'Не призначено';
-        const masterClass = masterName === 'Не призначено' ? 'text-light' : '';
-        const masterClassBg = masterName === 'Не призначено' ? 'bg-danger' : '';
-        const brigadirClass = brigadirName === 'Не призначено' ? 'text-light' : '';
-        const brigadirClassBg = brigadirName === 'Не призначено' ? 'bg-danger' : '';
-        const workersClass = workers === 'Не призначено' ? 'text-light' : '';
-        const workersClassBg = workers === 'Не призначено' ? 'bg-danger' : '';
+            : 'not assigned';
+        const masterClass = masterName === 'not assigned' ? 'text-light' : '';
+        const masterClassBg = masterName === 'not assigned' ? 'bg-danger' : '';
+        const brigadirClass = brigadirName === 'not assigned' ? 'text-light' : '';
+        const brigadirClassBg = brigadirName === 'not assigned' ? 'bg-danger' : '';
+        const workersClass = workers === 'not assigned' ? 'text-light' : '';
+        const workersClassBg = workers === 'not assigned' ? 'bg-danger' : '';
         const statusMap = {
-            pending: ['Очікує', 'bg-secondary'],
-            in_progress: ['Виконується', 'bg-warning'],
-            completed: ['Завершено', 'bg-success'],
-            paused: ['Призупинено', 'bg-info'],
-            end_day: ['Кінець дня', 'bg-primary'],
-            start_day: ['Початок дня', 'bg-success'],
-            not_completed: ['Не укомплектовано', 'bg-danger'],
-            test: ['Тестування', 'bg-info'],
+            pending: ['Waiting', 'bg-secondary'],
+            in_progress: ['In Progress', 'bg-warning'],
+            completed: ['Completed', 'bg-success'],
+            paused: ['Paused', 'bg-info'],
+            end_day: ['End of Day', 'bg-primary'],
+            start_day: ['Start of Day', 'bg-success'],
+            not_completed: ['Not Completed', 'bg-danger'],
+            test: ['Test', 'bg-info'],
         };
-        const [statusLabel, statusClass] = statusMap[task.status] ?? ['Невідомо', 'bg-dark'];
+        const [statusLabel, statusClass] = statusMap[task.status] ?? ['Unknown', 'bg-dark'];
 
         const progressHtml = task.progress !== null
             ? `<div class="progress" style="height: 20px;">
@@ -158,7 +158,7 @@
                         ${task.progress}%
                     </div>
                </div>`
-            : '<span class="text-muted">Не визначено</span>';
+            : '<span class="text-muted">Not Defined</span>';
 
         card.innerHTML = `
             <div class="card-body task-item"
@@ -195,7 +195,7 @@
                             data-task-id="${task.id}"
                             onclick="set_task_id(${task.id})"
                             data-action="/tasks/assign/${task.id}">
-                        Змінити
+                        {{ __('Change') }}
                     </button>
                 </div>
             </div>

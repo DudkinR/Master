@@ -1,9 +1,9 @@
 
 @extends('layouts.app')
-@section('title', 'Список користувачів')
+@section('title', 'User Details')
 @section('content')
 <div class="container mt-5">
-    <h2 class="mb-4">Список користувачів</h2>
+    <h2 class="mb-4">User Details   </h2>
     @if(session('success'))
       <div class="alert alert-success">
         {{ session('success') }}
@@ -30,10 +30,10 @@
         {{--back to index--}}
         <div class="row mb-3">
             <div class="col-md-12">
-                <a href="{{ route('users.index') }}" class="btn btn-secondary">Повернутися до списку користувачів</a>
+                <a href="{{ route('users.index') }}" class="btn btn-secondary">Back to User List</a>
                
                     <a href="{{ route('impersonate', $user->id) }}" class="btn btn-sm btn-primary">
-                        Увійти як {{ $user->name }}
+                        impersonate {{ $user->name }}
                     </a>
              
             </div>
@@ -44,16 +44,16 @@
                     @method('PUT')
                     <input type="hidden" name="id" id="user" value="{{ $user->id }}">
                     <div class="mb-3">
-                        <label for="name" class="form-label">Ім'я</label>
+                        <label for="name" class="form-label">Name</label>
                         <input type="text" class="form-control" id="name" name="name" value ="{{ $user->name }}" required>
                     </div>                    
                     <div class="mb-3">
-                        <label for="phone" class="form-label">Телефон</label>
-                        <input type="text" class="form-control" id="phone" name="phone" value="{{ $user->phone }}" placeholder="Телефон користувача" >
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone" value="{{ $user->phone }}" placeholder="Phone number" >
                     </div>
                     <div class="mb-3">
-                        <label for="email" class="form-label">Електронна пошта</label>
-                        <input type="email" class="form-control" id="email" name="email" required value="{{ $user->email }}" placeholder="Електронна пошта користувача">
+                        <label for="email" class="form-label"> Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required value="{{ $user->email }}" placeholder="Email address">
                     </div>                    
                    <select class="form-select" id="role" name="role">
                         @foreach($roles as $role)
@@ -77,23 +77,23 @@
                         @endforeach
                     </select>                            
                     <div class="mb-3">
-                        <label for="position" class="form-label">Посада</label>
-                        <input type="text" class="form-control" id="position" name="position" placeholder="Посада користувача" value="{{ $user->position }}" >
+                        <label for="position" class="form-label">Position</label>
+                        <input type="text" class="form-control" id="position" name="position" placeholder="User position" value="{{ $user->position }}" >
                     </div>
                     <div class="mb-3">
-                        <label for="status" class="form-label">Статус</label>
+                        <label for="status" class="form-label">Status</label>
                         <select class="form-select" id="status" name="status">
-                            <option value="active" @if($user->status === 'active') selected @endif>Активний</option>                            
-                            <option value="sick" @if($user->status === 'sick') selected @endif>На лікарняному</option>
-                            <option value="vacation" @if($user->status === 'vacation') selected @endif>У відпустці</option>
+                            <option value="active" @if($user->status === 'active') selected @endif>Active</option>                            
+                            <option value="sick" @if($user->status === 'sick') selected @endif>Sick</option>
+                            <option value="vacation" @if($user->status === 'vacation') selected @endif>Vacation</option>
                             </select>
                     </div>
                     <!-- Додайте інші поля за потребою -->
                      {{-- Хто начальник --}}
                     <div class="mb-3">
-                        <label for="boss" class="form-label">Начальник</label>
+                        <label for="boss" class="form-label">Boss</label>
                         <select class="form-select" id="boss" name="boss">
-                            <option value="">Не вказано</option>
+                            <option value="">Not specified</option>
                             @foreach($users as $usr)                                
                                 <option value="{{ $usr->id }}"
                                 @if(isset($user->supervisors->first()->id) && $user->supervisors->first()->id ==$usr->id)
@@ -107,7 +107,7 @@
                     {{-- Хто підлеглий [] --}}
                     <div class="card mb-3 shadow-sm">
                         <div class="card-header bg-primary text-white">
-                            Вже вибрані
+                            Already selected subordinates
                         </div>
                         <div class="card-body">
                             <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-2">
@@ -145,42 +145,42 @@
                         </select>
                     </div>
 
-                    <small class="form-text text-muted">Виберіть підлеглих користувача. Ви можете вибрати декілька користувачів.</small>
+                    <small class="form-text text-muted">Select subordinates for the user. You can select multiple users.</small>
                 </div>
 
                     @if(Auth::user()->hasRole('Admin'))
                     <div class="mb-3">
-                        <label for="password" class="form-label">Пароль</label>
-                        <input type="password" class="form-control" id="password" name="password" placeholder="Новий пароль (залиште порожнім, якщо не хочете змінювати)">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="New password (leave blank if you don't want to change it)">
                     </div>
                     {{-- Enterprise select --}}
                         @php 
                             $enterprises = \App\Models\Enterprise::all();
                         @endphp
                     <div class="mb-3">
-                        <label for="enterprise" class="form-label">Підприємство</label>
+                        <label for="enterprise" class="form-label">Enterprise</label>
                         <select class="form-select" id="enterprise" name="enterprise">
-                            <option value="">Не вказано</option>
+                            <option value="">Not specified</option>
                             @foreach($enterprises as $enterprise)
                                 <option value="{{ $enterprise->id }}" @if($user->enterprises[0]->id === $enterprise->id) selected @endif>{{ $enterprise->name }}</option>
                             @endforeach
                         </select>
-                        <a href="{{ route('enterprises.create') }}" class="btn btn-success">Додати нове підприємство</a>
+                        <a href="{{ route('enterprises.create') }}" class="btn btn-success">Add New Enterprise</a>
                     </div>
                     {{-- Department  select --}}
                     <div class="mb-3">
-                        <label for="department" class="form-label">Відділ</label>
+                        <label for="department" class="form-label">Department</label>
                         <select class="form-select" id="department" name="department">
-                            <option value="">Не вказано</option>
+                            <option value="">Not specified</option>
                             @foreach($departments as $department)
                                 <option value="{{ $department->id }}" @if($user->departments[0]->id === $department->id) selected @endif>{{ $department->name }}</option>
                             @endforeach
                         </select>
-                        <a href="{{ route('departments.create') }}" class="btn btn-success">Додати новий відділ</a>
+                        <a href="{{ route('departments.create') }}" class="btn btn-success">Add New Department</a>
                     </div>
                     @endif
 
-                    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
                 </form>
     </div>
 </div>

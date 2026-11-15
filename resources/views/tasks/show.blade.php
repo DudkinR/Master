@@ -1,10 +1,10 @@
 @extends('layouts.app')
-@section('title', 'Картка завдання')
+@section('title', 'Task Card')
 @section('content')
 <div class="container my-5">
     <div class="row">
         <div class="col-md-8">          
-            <h3 class="mb-4">Картка завдання: <strong>{{ $task->name }}</strong></h3>
+            <h3 class="mb-4">Task Card: <strong>{{ $task->name }}</strong></h3>
             {{-- Статус завдання --}}
             @include('tasks.forms.status', ['task' => $task])
             {{-- Кнопки дій --}}

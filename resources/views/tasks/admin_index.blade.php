@@ -49,7 +49,7 @@ $activeWorks = 0;
         <div class="col-md-6 col-xl-3">
             <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Зареєстровані</h5>
+                    <h5 class="card-title"> {{ __('Registered') }}  </h5>
                     <p>Підприємства: {{ $companiesCount }}</p>
                     <p>Підрозділи: {{ $departmentsCount }}</p>
                     <p>Користувачі: {{ $usersCount }}</p>
@@ -67,7 +67,7 @@ $activeWorks = 0;
         <div class="col-md-6 col-xl-3">
             <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Проекти та Завдання</h5>
+                    <h5 class="card-title"> {{ __('Projects and Tasks') }}</h5>
                     <p>Проекти: {{ $projectsCount }}</p>
                     <p>Завдання: {{ $tasksCount }}</p>
                 </div>
@@ -78,7 +78,7 @@ $activeWorks = 0;
         <div class="col-md-6 col-xl-3">
             <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Майстер-завдання</h5>
+                    <h5 class="card-title"> {{ __('Master Tasks In Progress') }}</h5>
                     <p>В роботі: {{ $masterTasksInProgress }}</p>
                 </div>
             </div>
@@ -88,7 +88,7 @@ $activeWorks = 0;
         <div class="col-md-6 col-xl-3">
             <div class="card text-center shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Роботи зараз</h5>
+                    <h5 class="card-title"> {{ __('Active Works') }}    </h5>
                     <p>{{ $activeWorks }}</p>
                 </div>
             </div>

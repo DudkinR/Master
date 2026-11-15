@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', 'Завдання')
+@section('title', 'Tasks')
 @section('content')
 <div class="container my-5">
 
@@ -9,24 +9,24 @@
         </div>
     @endif
 
-    <h4 class="mb-3">🔧 Завдання, які очікують виконання</h4>
+    <h4 class="mb-3">🔧 {{ __('Tasks Awaiting Execution') }}</h4>
 
     @forelse ($tasks as $task)
         @php
             $statusMap = [
-                'completed' => ['Виконано', 'success'],
-                'paused' => ['Призупинено', 'warning text-dark'],
-                'day_work' => ['Робочий день', 'primary'],
-                'day_off' => ['Вихідний день', 'secondary'],    
-                'end_day' => ['Кінець робочого дня', 'danger'],
-                'end_task' => ['Завершено', 'success'],
-                'issue' => ['Проблема', 'danger'],
-                'missing_resource' => ['Відсутній ресурс', 'danger'],
-                'in_work' => ['В роботі', 'info'],
-                'in_progress' => ['В процесі', 'warning text-dark'],
-                'pending' => ['Не розпочато', 'secondary'],
+                'completed' => ['{{ __('Completed') }}', 'success'],
+                'paused' => ['{{ __('Paused') }}', 'warning text-dark'],
+                'day_work' => ['{{ __('Work Day') }}', 'primary'],
+                'day_off' => ['{{ __('Off Day') }}', 'secondary'],    
+                'end_day' => ['{{ __('End of Work Day') }}', 'danger'],
+                'end_task' => ['{{ __('Task Completed') }}', 'success'],
+                'issue' => ['{{ __('Issue') }}', 'danger'],
+                'missing_resource' => ['{{ __('Missing Resource') }}', 'danger'],
+                'in_work' => ['{{ __('In Work') }}', 'info'],
+                'in_progress' => ['{{ __('In Progress') }}', 'warning text-dark'],
+                'pending' => ['{{ __('Pending') }}', 'secondary'],
             ];
-            [$label, $badge] = $statusMap[$task->status] ?? ['Невідомо', 'dark'];
+            [$label, $badge] = $statusMap[$task->status] ?? ['{{ __('Unknown') }}', 'dark'];
         @endphp
 
         <div class="card border-start border-4 border-{{ $badge }} mb-3 shadow-sm">
@@ -46,16 +46,16 @@
                     </div>
                     <span class="badge bg-{{ $badge }}">{{ $label }}</span>
                 </div> 
-                <p class="mb-1"><strong>Майстер:</strong> {{ optional($task->master->first())->name ?? '—' }}</p>
-                <p class="mb-1"><strong>Бригадир:</strong> {{ optional($task->brigadir->first())->name ?? '—' }}</p>
-                <p class="mb-1"><strong>Робітники:</strong>
+                <p class="mb-1"><strong>{{ __('Master') }}:</strong> {{ optional($task->master->first())->name ?? '—' }}</p>
+                <p class="mb-1"><strong>{{ __('Brigadier') }}:</strong> {{ optional($task->brigadir->first())->name ?? '—' }}</p>
+                <p class="mb-1"><strong>{{ __('Workers') }}:</strong>
                     @forelse ($task->workers as $worker)
                         {{ $worker->name }}@if (!$loop->last), @endif
                     @empty
                         Не призначено
                     @endforelse
                 </p>
-                <small class="text-muted">Початок: {{ \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') }} | Закінчення: {{ \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') }}</small>
+                <small class="text-muted">{{ __('Start Date') }}: {{ \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') }} | {{ __('End Date') }}: {{ \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') }}</small>
             </div>
         </div>
 
@@ -68,25 +68,25 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
                     </div>
                     <div class="modal-body">
-                        <p><strong>Опис:</strong> {{ $task->description }}</p>
-                        <p><strong>Порядок:</strong> {{ $task->order }}</p>
-                        <p><strong>Дата початку:</strong> {{ \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') }}</p>
-                        <p><strong>Дата завершення:</strong> {{ \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') }}</p>
-                        <p><strong>Орієнтовні години:</strong> {{ $task->estimated_hours }} год</p>
-                        <p><strong>Кількість / одиниця:</strong> {{ $task->quantity }} {{ $task->unit }}</p>
-                        <p><strong>Статус:</strong> <span class="badge bg-{{ $badge }}">{{ $label }}</span></p>
+                        <p><strong>{{ __('Description') }}:</strong> {{ $task->description }}</p>
+                        <p><strong>{{ __('Order') }}:</strong> {{ $task->order }}</p>
+                        <p><strong>{{ __('Start Date') }}:</strong> {{ \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') }}</p>
+                        <p><strong>{{ __('End Date') }}:</strong> {{ \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') }}</p>
+                        <p><strong>{{ __('Estimated Hours') }}:</strong> {{ $task->estimated_hours }} {{ __('hours') }}</p>
+                        <p><strong>{{ __('Quantity / Unit') }}:</strong> {{ $task->quantity }} {{ $task->unit }}</p>
+                        <p><strong>{{ __('Status') }}:</strong> <span class="badge bg-{{ $badge }}">{{ $label }}</span></p>
                        
                     </div>
                     <div class="modal-footer">
-                        <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-outline-primary">Перейти до карточки</a>
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрити</button>
+                        <a href="{{ route('tasks.show', $task->id) }}" class="btn btn-outline-primary">{{ __('Go to Card') }}</a>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ __('Close') }}</button>
                     </div>
                 </div>
             </div>
         </div>
 
     @empty
-        <div class="alert alert-info">Немає актуальних завдань для виконання.</div>
+        <div class="alert alert-info">{{ __('No tasks available for execution.') }}</div>
     @endforelse
 </div>
 
@@ -96,8 +96,8 @@
         <div class="modal-content">
         
             <div class="modal-header">
-                <h5 class="modal-title" id="assignMasterModalLabel">Призначення виконавця</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                <h5 class="modal-title" id="assignMasterModalLabel"> {{ __('Assign Master') }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label=" {{ __('Close') }}"></button>
             </div>
 
             <form method="POST" action="{{ route('tasks.assignMaster') }}">
@@ -132,7 +132,7 @@
                     @elseif(Auth::user()->isBrigadir())
                         <input type="hidden" name="role" value="worker">
                         <div class="mb-3">
-                            <label for="master_id" class="form-label">Оберіть робітників</label>
+                            <label for="master_id" class="form-label"> {{ __('Select Workers') }}   </label>
                             <select name="master_id[]" id="master_id" class="form-select" multiple required>
                                 @foreach ($workers as $worker)
                                     <option value="{{ $worker->id }}">{{ $worker->name }}</option>
@@ -143,8 +143,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Призначити</button>
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                    <button type="submit" class="btn btn-primary"> {{ __('Assign') }}</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"> {{ __('Cancel') }}</button>
                 </div>
             </form>
         </div>
@@ -157,7 +157,7 @@ function set_task_id(task_id) {
     if (taskIdInput) {
         taskIdInput.value = task_id; // Встановлюємо значення task_id
     } else {
-        console.error('Не знайдено input з ім\'ям "task_id"');
+        console.error('don\'t find input with name "task_id"');
     }
 }
 </script>

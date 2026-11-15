@@ -27,23 +27,23 @@
         </div>
         @if(Auth::user()->roles->first()->name ==="Boss" || Auth::user()->roles->first()->name ==="Engineer" || Auth::user()->roles->first()->name ==="Admin")
         <div class="mt-4">
-            <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning">Редагувати</a>
+            <a href="{{ route('projects.edit', $project->id) }}" class="btn btn-warning">{{ __('Edit Project') }}</a>
             <form action="{{ route('projects.destroy', $project->id) }}" method="POST" class="d-inline">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="btn btn-danger">Видалити</button>
+                <button type="submit" class="btn btn-danger">{{ __('Delete Project') }}</button>
             </form>
         </div>
         @endif
     <div class="mt-5">
-        <h3>Завдання в рамках цього проекту</h3>
+        <h3>{{ __('Tasks in this project') }}</h3>
             <!-- Кнопка відкриття модального вікна -->
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTaskModal">
-                Швидко Створити нове завдання
+                {{ __('Create New Task Quickly') }}
             </button>
             <!-- Кнопка відкриття модального  вибора еталонного завдання -->
             <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#selectEtalonModal">
-                Вибір еталонного завдання
+                {{ __('Select Reference Task') }}
             </button>
 
             <!-- Модальне вікно -->
@@ -57,79 +57,79 @@
                         <input type="hidden" name="back_route" value="{{ url()->current() }}">
                      <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="createTaskModalLabel">Швидко Створити нове завдання</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                            <h5 class="modal-title" id="createTaskModalLabel">{{ __('Create New Task Quickly') }}</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ __('Close') }}"></button>
                         </div>
                         <div class="modal-body">
                                 <div class="row g-3">
                         <div class="col-md-1">
-                            <label for="order" class="form-label">Порядок</label>
+                            <label for="order" class="form-label">{{ __('Order') }}</label>
                             <input type="number" class="form-control" id="order" name="order" value="{{ $project->tasks->count() + 1 }}" required>
                         </div>
                         <div class="col-md-11">
-                            <label for="name" class="form-label">Назва</label>
+                            <label for="name" class="form-label">{{ __('Name') }}</label>
                             <input type="text" class="form-control" id="name" name="name" required>
                         </div>
                         <div class="col-12">
-                            <label for="description" class="form-label">Опис</label>
+                            <label for="description" class="form-label">{{ __('Description') }}</label>
                             <textarea class="form-control" id="description" name="description" rows="2"></textarea>
                         </div>
 
                         <div class="col-md-6">
-                            <label for="start_date" class="form-label">Початок</label>
+                            <label for="start_date" class="form-label">{{ __('Start Date') }}</label>
                             <input type="date" class="form-control" id="start_date" name="start_date" value="{{ now()->format('Y-m-d') }}">
                         </div>
                         <div class="col-md-6">
-                            <label for="end_date" class="form-label">Завершення</label>
+                            <label for="end_date" class="form-label">{{ __('End Date') }}</label>
                             <input type="date" class="form-control" id="end_date" name="end_date" value="{{ now()->addDays(30)->format('Y-m-d') }}">
                         </div>
 
                         <div class="col-md-4">
-                            <label for="estimated_hours" class="form-label">Оцінка годин</label>
+                            <label for="estimated_hours" class="form-label">{{ __('Estimated Hours') }}</label>
                             <input type="number" class="form-control" id="estimated_hours" name="estimated_hours" step="0.01" value="0">
                         </div>
                         <div class="col-md-4">
-                            <label for="actual_hours" class="form-label">Факт годин</label>
+                            <label for="actual_hours" class="form-label">{{ __('Actual Hours') }}</label>
                             <input type="number" class="form-control" id="actual_hours" name="actual_hours" step="0.01" value="0">
                         </div>
                         <div class="col-md-4">
-                            <label for="progress" class="form-label">Прогрес %</label>
+                            <label for="progress" class="form-label">{{ __('Progress') }} %</label>
                             <input type="number" class="form-control" id="progress" name="progress" max="100" value="0">
                         </div>
 
                         <div class="col-md-6">
-                            <label for="quantity" class="form-label">Кількість</label>
+                            <label for="quantity" class="form-label">{{ __('Quantity') }}</label>
                             <input type="number" class="form-control" id="quantity" name="quantity" step="1" value="0">
                         </div>
                         <div class="col-md-6">
-                            <label for="unit" class="form-label">Одиниця</label>
+                            <label for="unit" class="form-label">{{ __('Unit') }}           </label>
                             <select class="form-select" id="unit" name="unit">
-                                <option disabled selected>Оберіть...</option>
-                                <option value="шт">Штуки</option>
-                                <option value="м">Метри</option>
-                                <option value="м2">м²</option>
-                                <option value="м3">м³</option>
-                                <option value="год">Години</option>
-                                <option value="т">Тони</option>
-                                <option value="л">Літри</option>
-                                <option value="кг">Кілограми</option>
-                                <option value="шт/год">Шт/год</option>
-                                <option value="м/год">м/год</option>
-                                <option value="комплект">Комплект</option>
+                                <option disabled selected>{{ __('Select Unit') }}   </option>
+                                <option value="шт">{{ __('Pieces') }}</option>
+                                <option value="м">{{ __('Meters') }}</option>
+                                <option value="м2">{{ __('Square Meters') }}</option>
+                                <option value="м3">{{ __('Cubic Meters') }}</option>
+                                <option value="год">{{ __('Hours') }}</option>
+                                <option value="т">{{ __('Tons') }}</option>
+                                <option value="л">{{ __('Liters') }}</option>
+                                <option value="кг">{{ __('Kilograms') }}</option>
+                                <option value="шт/год">{{ __('Pieces/Hour') }}</option>
+                                <option value="м/год">{{ __('Meters/Hour') }}</option>
+                                <option value="комплект">{{ __('Set') }}</option>
                                 
                             </select>
                         </div>
 
                         <div class="col-md-6" id="etalon_task_div">
-                            <label for="etalon_task" class="form-label">Еталонне</label>
+                            <label for="etalon_task" class="form-label">{{ __('Ethalon Task') }}</label>
                             <div class="form-check">
                                 <input type="checkbox" class="form-check-input" id="etalon_task" name="etalon_task">
-                                <label class="form-check-label" for="etalon_task">Так</label>
+                                <label class="form-check-label" for="etalon_task">{{ __('Yes') }}</label>
                             </div>                            
                         </div>
                         <div class="col-md-6">
-                            <label for="submit_button" class="form-label">Кнопка відправки</label>
-                            <button type="submit" class="btn btn-primary w-100" id="submit_button">Створити завдання</button>
+                            <label for="submit_button" class="form-label">{{ __('Submit Button') }}</label>
+                            <button type="submit" class="btn btn-primary w-100" id="submit_button">{{ __('Create Task') }}</button>
                         </div>
                     </div>
 
@@ -149,12 +149,12 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="selectEtalonModalLabel">Вибір еталонного завдання</h5>
+                <h5 class="modal-title" id="selectEtalonModalLabel">{{ __('Select Etalon Task') }}</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
-                    <label for="etalonSelect" class="form-label">Оберіть еталонне завдання</label>
+                    <label for="etalonSelect" class="form-label">{{ __('Select Etalon Task') }}</label>
                     <ul>
                         @foreach($etalons as $etalon)
                             <li onclick="fillingtask('{{ $etalon->id }}')" style="cursor: pointer;">
@@ -207,7 +207,7 @@
     @if($project->tasks->isEmpty())
         <div class="row">
             <div class="col-md-4 mb-4"> 
-                <p>Немає завдань для цього проекту.</p>
+                <p>{{ __('No tasks available for this project.') }}</p>
             </div>
         </div>
     @else    
@@ -224,21 +224,21 @@
             <p>{{ $task->description }}</p>
         </div>
         <div class="col-md-2 mb-4">
-            <h6>Матеріали</h6>                        
+            <h6>{{ __('Materials') }}</h6>                        
             {{$task->materials->count() > 0 ? $task->materials->count() : 'Немає матеріалів'}}
         </div>
         <div class="col-md-2 mb-4">
-            <h6>Обладнання</h6>
+            <h6>{{ __('Equipment') }}</h6>
             {{$task->equipments->count() > 0 ? $task->equipments->count() : 'Немає обладнання'}}
         </div>
         <div class="col-md-2 mb-4">
-            <h6>Техніка</h6>
+            <h6>{{ __('Machinery') }}</h6>
             {{$task->machines->count() > 0 ? $task->machines->count() : 'Немає техніки'}}
         </div>
         <div class="col-md-2 mb-4">
-            <h6>Намечена дата</h6>
+            <h6>{{ __('Scheduled Date') }}</h6>
             <p>{{ $task->start_date ? \Carbon\Carbon::parse($task->start_date)->format('d.m.Y') : 'Не вказано' }}</p>
-            <h6>Дата завершення</h6>
+            <h6>{{ __('Completion Date') }} </h6>
             <p>{{ $task->end_date ? \Carbon\Carbon::parse($task->end_date)->format('d.m.Y') : 'Не вказано' }}</p>
         </div>
     </div>

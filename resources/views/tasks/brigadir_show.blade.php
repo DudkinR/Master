@@ -39,7 +39,7 @@
                                 <p><strong>Створено:</strong> {{ $task->created_at->format('d.m.Y H:i') }}</p>
                                 <p><strong>Оновлено:</strong> {{ $task->updated_at->format('d.m.Y H:i') }}</p>
                                 <hr>
-                                <h3>Матеріали</h3>
+                                <h3> {{ __('Materials') }} </h3>
                        
                                 <ul class="list-group">
                                     @foreach($task->materials as $material)
@@ -52,7 +52,7 @@
                                     @endforeach
                                 </ul>
                                 <hr>
-                                <h3>Обладнення</h3>
+                                <h3> {{ __('Equipment') }} </h3>
                            
 
                                 <ul class="list-group">
@@ -68,7 +68,7 @@
                                     @endforeach
                                 </ul>
                                 <hr>
-                                <h3>Техника</h3>
+                                <h3> {{ __('Machinery') }} </h3>
                                
                                 <ul class="list-group">
                                     @foreach($task->machines as $technic)
@@ -89,14 +89,14 @@
         <div class="col-md-12">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <h5 class="card-title">Формування бригади </h5>
+                    <h5 class="card-title"> {{ __('Forming a Team') }} </h5>
                     <form action="{{ route('tasks.assignBrigadir') }}" method="POST">
                         @csrf
                         <input type="hidden" name="task_id" value="{{ $task->id }}" >
                         <div class="mb-3">
-                            <label for="brigadir_id" class="form-label">Оберіть бригадира</label>
+                            <label for="brigadir_id" class="form-label"> {{ __('Select Team Leader') }} </label>
                             <select name="brigadir_id" id="brigadir_id" class="form-select" required>
-                                <option value="">Оберіть бригадира</option>
+                                <option value=""> {{ __('Choose Team Leader') }} </option>
                                 @foreach($brigadirs as $brigadir)
                                     <option value="{{ $brigadir->id }}"
                                     @if($task->users->contains('id', $brigadir->id)) selected @endif
@@ -105,7 +105,7 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="workers" class="form-label">Оберіть працівників</label>
+                            <label for="workers" class="form-label"> {{ __('Select Workers') }} </label>
                             <select name="workers[]" id="workers" class="form-select" multiple required>
                                 @foreach($workers as $worker)
                                     <option value="{{ $worker->id }}"
@@ -114,7 +114,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-primary">Призначити бригаду</button>
+                        <button type="submit" class="btn btn-primary"> {{ __('Assign Team') }} </button>
                     </form>
                 </div>
             </div>  
